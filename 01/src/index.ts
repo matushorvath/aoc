@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 
 const main = async () => {
-    const lines = (await fs.readFile('/mnt/c/_/input.txt', 'utf8')).trimRight().split(/\r?\n/);
+    const lines = (await fs.readFile('input.txt', 'utf8')).trimRight().split(/\r?\n/);
 
     let total = 0;
     for (const line of lines) {

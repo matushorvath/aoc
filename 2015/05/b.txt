@@ -1,0 +1,1 @@
+<input grep -E '(..).*\1' | grep -E '(.).\1' | wc -l

@@ -1,0 +1,1 @@
+<input grep -E '[aeiou].*[aeiou].*[aeiou]' | grep -E '(.)\1' | grep -vE 'ab|cd|pq|xy' | wc -l

@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "esModuleInterop": true,
+        "noImplicitAny": true,
+        "outDir": "bin",
+        "sourceMap": true,
+        "target": "es2018"
+    },
+    "include": [
+        "src/**/*"
+    ]
+}

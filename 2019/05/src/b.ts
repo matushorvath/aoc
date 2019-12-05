@@ -18,7 +18,7 @@ const getOp = (s: State) => {
     const oc = ocm % 100;
     const mds = [100, 1000, 10000].map(x => Math.trunc(ocm / x) % 10);
 
-    console.log('op', { ip: s.ip, oc, ops, mds });
+    //console.log('op', { ip: s.ip, oc, ops, mds });
 
     return { oc, ops, mds };
 };
@@ -30,7 +30,7 @@ const getParam = (s: State, o: Op, i: number) => {
         case 1: // immediate mode
             return o.ops[i];
         default:
-            throw new Error('mode error');
+            throw new Error(`mode error: s ${JSON.stringify(s)} o ${JSON.stringify(o)} i ${i}`);
     }
 };
 
@@ -93,7 +93,7 @@ const main = async () => {
                 console.log('all outs', s.outs);
                 return;
             default:
-                throw new Error('opcode error');
+                throw new Error(`opcode error: s ${JSON.stringify(s)} o ${JSON.stringify(o)}`);
         }
     }
 };

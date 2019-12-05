@@ -1,3 +1,5 @@
+import * as os from 'os';
+
 interface Op {
     oc: number;
     ops: number[];
@@ -97,5 +99,71 @@ export class Vm {
                     throw new Error(`opcode error: mem ${JSON.stringify(this.mem)} ip ${JSON.stringify(this.ip)} o ${JSON.stringify(o)}`);
             }
         }
+    };
+
+    private dasmParam = (o: Op, idx: number) => {
+        switch (o.mds[idx]) {
+            case 0: // position mode
+                return `[${o.ops[idx]}]`;
+            case 1: // immediate mode
+                return `${o.ops[idx]}`;
+            default:
+                return `<unknown>`;
+        }
+    };
+
+    dasm = (start: number = 0, len: number = undefined) => {
+        const code: { [ip: number]: string } = {};
+
+        let ipFrom = start || 0;
+        let ipTo = (start + len) || this.mem.length;
+
+        this.ip = ipFrom;
+        while (this.ip < ipTo) {
+            const o = this.getOp();
+            switch (o.oc) {
+                case 1:
+                    code[this.ip] = `add\t${this.dasmParam(o, 0)}, ${this.dasmParam(o, 1)}, ${this.dasmParam(o, 2)}`
+                    this.ip += 4;
+                    break;
+                case 2: // mul
+                    code[this.ip] = `mul\t${this.dasmParam(o, 0)}, ${this.dasmParam(o, 1)}, ${this.dasmParam(o, 2)}`
+                    this.ip += 4;
+                    break;
+                case 3: // in
+                    code[this.ip] = `in\t${this.dasmParam(o, 0)}`
+                    this.ip += 2;
+                    break;
+                case 4: // out
+                    code[this.ip] = `out\t${this.dasmParam(o, 0)}`
+                    this.ip += 2;
+                    break;
+                case 5: // jnz
+                    code[this.ip] = `jnz\t${this.dasmParam(o, 0)}, ${this.dasmParam(o, 2)}`
+                    this.ip += 3;
+                    break;
+                case 6: // jz
+                    code[this.ip] = `jz\t${this.dasmParam(o, 0)}, ${this.dasmParam(o, 2)}`
+                    this.ip += 3;
+                    break;
+                case 7: // lt
+                    code[this.ip] = `lt\t${this.dasmParam(o, 0)}, ${this.dasmParam(o, 1)}, ${this.dasmParam(o, 2)}`
+                    this.ip += 4;
+                    break;
+                case 8: // eq
+                    code[this.ip] = `eq\t${this.dasmParam(o, 0)}, ${this.dasmParam(o, 1)}, ${this.dasmParam(o, 2)}`
+                    this.ip += 4;
+                    break;
+                case 99: // hlt
+                    code[this.ip] = `hlt`
+                    this.ip += 1;
+                    break;
+                default:
+                    code[this.ip] = `db\t${this.mem[this.ip]}`
+                    this.ip += 1;
+            }
+        }
+
+        return Object.keys(code).map(ip => `${ip}\t${code[Number(ip)]}`).join(os.EOL);
     };
 }

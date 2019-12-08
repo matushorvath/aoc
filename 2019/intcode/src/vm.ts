@@ -7,17 +7,20 @@ interface Op {
 };
 
 export class Vm {
-    constructor(mem: number[]) {
+    constructor(private id: number, mem: number[]) {
         this.mem = [...mem];
+        this.ip = 0;
     }
 
-    run = (...ins: number[]) => {
-        this.ip = 0;
-        this.ins = [...ins];
+    run = (ins: number[]) => {
+        //if (ins.length) console.log(this.id, 'ins', ins);
+
+        this.ins = ins;
         this.outs = [];
 
         this.execute();
 
+        //if (this.outs.length) console.log(this.id, 'outs', this.outs);
         return this.outs;
     }
 
@@ -25,13 +28,14 @@ export class Vm {
     private mem: number[];
     private ins: number[];
     private outs: number[];
+    halted: boolean = false;
 
     private getOp = () => {
         const [ocm, ...ops] = this.mem.slice(this.ip, this.ip + 4)
         const oc = ocm % 100;
         const mds = [100, 1000, 10000].map(x => Math.trunc(ocm / x) % 10);
 
-        //console.log('op', { ip: this.ip, oc, ops, mds });
+        //console.log(this.id, 'op', { ip: this.ip, oc, ops, mds });
 
         return { oc, ops, mds };
     };
@@ -61,13 +65,15 @@ export class Vm {
                     this.ip += 4;
                     break;
                 case 3: // in
+                    if (this.ins.length === 0) { /*console.log(this.id, 'no in');*/ return; }
+                    console.log(this.id, 'in', this.ins);
                     this.mem[o.ops[0]] = this.ins.shift();
                     this.ip += 2;
                     break;
                 case 4: // out
                     const v = this.getParam(o, 0);
-                    console.log('out', v);
                     this.outs.push(v);
+                    console.log(this.id, 'out', v, this.outs);
                     this.ip += 2;
                     break;
                 case 5: // jnz
@@ -94,6 +100,7 @@ export class Vm {
                     break;
                 case 99: // hlt
                     console.log('all outs', this.outs);
+                    this.halted = true;
                     return;
                 default:
                     throw new Error(`opcode error: mem ${JSON.stringify(this.mem)} ip ${JSON.stringify(this.ip)} o ${JSON.stringify(o)}`);

@@ -5,8 +5,8 @@ const main = async () => {
     const input = await fs.readFile('input', 'utf8');
     const mem = input.split(',').map(s => Number(s));
 
-    //new Vm(mem).run(1);
-    console.log(new Vm(mem).dasm());
+    //new Vm(0, mem).run([1]);
+    console.log(new Vm(0, mem).dasm());
 };
 
 main()

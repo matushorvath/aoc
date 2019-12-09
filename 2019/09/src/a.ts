@@ -12,7 +12,7 @@ const main = async () => {
     //console.log(mem);
 
     const vm = new Vm(0, mem);
-    console.log(vm.run([BigInt(2)]));
+    console.log(vm.run([BigInt(1)]));
     //console.log(vm.dasm());
 };
 

@@ -1,0 +1,196 @@
+import * as os from 'os';
+
+interface Op {
+    oc: number;
+    ops: number[];
+    mds: number[];
+};
+
+export class Vm {
+    constructor(private id: number, mem: number[]) {
+        this.mem = [...mem];
+        this.ip = 0;
+        this.rb = 0;
+    }
+
+    run = (ins: number[]) => {
+        //if (ins.length) console.log(this.id, 'ins', ins);
+
+        this.ins = ins;
+        this.outs = [];
+
+        this.execute();
+
+        //if (this.outs.length) console.log(this.id, 'outs', this.outs);
+        return this.outs;
+    }
+
+    private ip: number;
+    private mem: number[];
+    private ins: number[];
+    private outs: number[];
+    private rb: number;
+    halted: boolean = false;
+
+    private getMem = (addr: number) => {
+        let val = this.mem[addr];
+        if (val === undefined) {
+            this.mem[addr] = val = 0;
+        }
+        return val;
+    };
+
+    private getOp = () => {
+        const [ocm, ...ops] = [0, 1, 2, 3].map(i => this.getMem(this.ip + i));
+        const oc = ocm % 100;
+        const mds = [100, 1000, 10000].map(x => Math.trunc(ocm / x) % 10);
+
+        //console.log(this.id, 'op', { ip: this.ip, oc, ops, mds });
+
+        return { oc, ops, mds };
+    };
+
+    private getParam = (o: Op, idx: number) => {
+        switch (o.mds[idx]) {
+            case 0: // position mode
+                return this.getMem(o.ops[idx]);
+            case 1: // immediate mode
+                return o.ops[idx];
+            case 2: // relative mode
+                return this.getMem(this.rb + o.ops[idx]);
+            default:
+                throw new Error(`mode error: mem ${JSON.stringify(this.mem)} ip ${JSON.stringify(this.ip)} o ${JSON.stringify(o)} idx ${idx}`);
+        }
+    };
+
+    private execute = () => {
+        while (true) {
+            const o = this.getOp();
+
+            switch (o.oc) {
+                case 1: // add
+                    this.mem[o.ops[2]] = this.getParam(o, 0) + this.getParam(o, 1);
+                    this.ip += 4;
+                    break;
+                case 2: // mul
+                    this.mem[o.ops[2]] = this.getParam(o, 0) * this.getParam(o, 1);
+                    this.ip += 4;
+                    break;
+                case 3: // in
+                    if (this.ins.length === 0) { /*console.log(this.id, 'no in');*/ return; }
+                    console.log(this.id, 'in', this.ins);
+                    this.mem[o.ops[0]] = this.ins.shift();
+                    this.ip += 2;
+                    break;
+                case 4: // out
+                    const v = this.getParam(o, 0);
+                    this.outs.push(v);
+                    console.log(this.id, 'out', v, this.outs);
+                    this.ip += 2;
+                    break;
+                case 5: // jnz
+                    if (this.getParam(o, 0) !== 0) {
+                        this.ip = this.getParam(o, 1)
+                    } else {
+                        this.ip += 3;
+                    }
+                    break;
+                case 6: // jz
+                    if (this.getParam(o, 0) === 0) {
+                        this.ip = this.getParam(o, 1)
+                    } else {
+                        this.ip += 3;
+                    }
+                    break;
+                case 7: // lt
+                    this.mem[o.ops[2]] = this.getParam(o, 0) < this.getParam(o, 1) ? 1 : 0;
+                    this.ip += 4;
+                    break;
+                case 8: // eq
+                    this.mem[o.ops[2]] = this.getParam(o, 0) === this.getParam(o, 1) ? 1 : 0;
+                    this.ip += 4;
+                    break;
+                case 9: // arb
+                    this.rb += this.getParam(o, 0);
+                    this.ip += 2;
+                    break;
+                case 99: // hlt
+                    console.log('all outs', this.outs);
+                    this.halted = true;
+                    return;
+                default:
+                    throw new Error(`opcode error: mem ${JSON.stringify(this.mem)} ip ${JSON.stringify(this.ip)} o ${JSON.stringify(o)}`);
+            }
+        }
+    };
+
+    private dasmParam = (o: Op, idx: number) => {
+        switch (o.mds[idx]) {
+            case 0: // position mode
+                return `[${o.ops[idx]}]`;
+            case 1: // immediate mode
+                return `${o.ops[idx]}`;
+            default:
+                return `<unknown>`;
+        }
+    };
+
+    dasm = (start: number = 0, len: number = undefined) => {
+        const code: { [ip: number]: string } = {};
+
+        let ipFrom = start || 0;
+        let ipTo = (start + len) || this.mem.length;
+
+        this.ip = ipFrom;
+        while (this.ip < ipTo) {
+            const o = this.getOp();
+            switch (o.oc) {
+                case 1:
+                    code[this.ip] = `add\t${this.dasmParam(o, 0)}, ${this.dasmParam(o, 1)}, ${this.dasmParam(o, 2)}`
+                    this.ip += 4;
+                    break;
+                case 2: // mul
+                    code[this.ip] = `mul\t${this.dasmParam(o, 0)}, ${this.dasmParam(o, 1)}, ${this.dasmParam(o, 2)}`
+                    this.ip += 4;
+                    break;
+                case 3: // in
+                    code[this.ip] = `in\t${this.dasmParam(o, 0)}`
+                    this.ip += 2;
+                    break;
+                case 4: // out
+                    code[this.ip] = `out\t${this.dasmParam(o, 0)}`
+                    this.ip += 2;
+                    break;
+                case 5: // jnz
+                    code[this.ip] = `jnz\t${this.dasmParam(o, 0)}, ${this.dasmParam(o, 2)}`
+                    this.ip += 3;
+                    break;
+                case 6: // jz
+                    code[this.ip] = `jz\t${this.dasmParam(o, 0)}, ${this.dasmParam(o, 2)}`
+                    this.ip += 3;
+                    break;
+                case 7: // lt
+                    code[this.ip] = `lt\t${this.dasmParam(o, 0)}, ${this.dasmParam(o, 1)}, ${this.dasmParam(o, 2)}`
+                    this.ip += 4;
+                    break;
+                case 8: // eq
+                    code[this.ip] = `eq\t${this.dasmParam(o, 0)}, ${this.dasmParam(o, 1)}, ${this.dasmParam(o, 2)}`
+                    this.ip += 4;
+                    break;
+                case 9: // arb
+                    code[this.ip] = `arv\t${this.dasmParam(o, 0)}`
+                    this.ip += 2;
+                    break;
+                case 99: // hlt
+                    code[this.ip] = `hlt`
+                    this.ip += 1;
+                    break;
+                default:
+                    code[this.ip] = `db\t${this.mem[this.ip]}`
+                    this.ip += 1;
+            }
+        }
+
+        return Object.keys(code).map(ip => `${ip}\t${code[Number(ip)]}`).join(os.EOL);
+    };
+}

@@ -11,9 +11,11 @@ const main = async () => {
 
     //console.log(mem);
 
-    const vm = new Vm(0, mem);
-    console.log(vm.run([BigInt(2)]));
-    //console.log(vm.dasm());
+    for (let i = 0; i < 10; i += 1) {
+        const vm = new Vm(0, mem);
+        console.log(vm.run([BigInt(2)]));
+        //console.log(vm.dasm());
+    }
 };
 
 main()

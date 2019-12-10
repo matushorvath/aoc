@@ -1,5 +1,5 @@
 import { promises as fs } from 'fs';
-import { Vm } from './vm-a';
+import { Vm } from './vm-b';
 
 const main = async () => {
     const input = await fs.readFile('input', 'utf8');

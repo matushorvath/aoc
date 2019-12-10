@@ -2,7 +2,6 @@ import * as os from 'os';
 
 interface Op {
     oc: number;
-    ops: bigint[];
     mds: number[];
 };
 
@@ -49,48 +48,51 @@ export class Vm {
     };
 
     private getOp = () => {
-        const [ocm, ...ops] = [0, 1, 2, 3].map(i => this.getMem(this.ip + BigInt(i)));
-        const ocn = Number(ocm);
+        const ocn = Number(this.getMem(this.ip));
         const oc = ocn % 100;
         const mds = [100, 1000, 10000].map(x => Math.trunc(ocn / x) % 10);
 
-        return { oc, ops, mds };
+        return { oc, mds };
     };
 
     private getParam = (o: Op, idx: number) => {
-        let addr, val;
-
         switch (o.mds[idx]) {
-            case 0: // position mode
-                addr = o.ops[idx];
-                val = this.getMem(addr);
+            case 0: { // position mode
+                const addr = this.getMem(this.ip + BigInt(idx + 1));
+                const val = this.getMem(addr);
                 //console.log(this.id, `G [${addr}] -> ${val}`);
                 return val;
-            case 1: // immediate mode
-                return o.ops[idx];
-            case 2: // relative mode
-                addr = this.rb + o.ops[idx];
-                val = this.getMem(addr);
-                //console.log(this.id, `G [rb + ${o.ops[idx]} = ${addr}] -> ${val}`);
+            }
+            case 1: { // immediate mode
+                return this.getMem(this.ip + BigInt(idx + 1));
+            }
+            case 2: { // relative mode
+                const raddr = this.getMem(this.ip + BigInt(idx + 1));
+                const addr = this.rb + raddr;
+                const val = this.getMem(addr);
+                //console.log(this.id, `G [rb + ${raddr} = ${addr}] -> ${val}`);
                 return val;
+            }
             default:
                 throw new Error(`mode error: mem ${JSON.stringify(this.mem)} ip ${JSON.stringify(this.ip)} o ${JSON.stringify(o)} idx ${idx}`);
         }
     };
 
     private setParam = (o: Op, idx: number, val: bigint) => {
-        let addr;
         switch (o.mds[idx]) {
-            case 0: // position mode
-                addr = o.ops[idx];
+            case 0: { // position mode
+                const addr = this.getMem(this.ip + BigInt(idx + 1));
                 this.setMem(addr, val);
                 //console.log(this.id, `S [${addr}] <- ${val}`);
                 break;
-            case 2: // relative mode
-                addr = this.rb + o.ops[idx];
+            }
+            case 2: { // relative mode
+                const raddr = this.getMem(this.ip + BigInt(idx + 1));
+                const addr = this.rb + raddr;
                 this.setMem(addr, val);
-                //console.log(this.id, `S [rb + ${o.ops[idx]} = ${addr}] <- ${val}`);
+                //console.log(this.id, `S [rb + ${raddr} = ${addr}] <- ${val}`);
                 break;
+            }
             default:
                 throw new Error(`mode error: mem ${JSON.stringify(this.mem)} ip ${JSON.stringify(this.ip)} o ${JSON.stringify(o)} idx ${idx}`);
         }
@@ -162,13 +164,14 @@ export class Vm {
     };
 
     private dasmParam = (o: Op, idx: number) => {
+        const val = this.getMem(this.ip + BigInt(idx + 1));
         switch (o.mds[idx]) {
             case 0: // position mode
-                return `[${o.ops[idx]}]`;
+                return `[${val}]`;
             case 1: // immediate mode
-                return `${o.ops[idx]}`;
+                return `${val}`;
             case 2: // relative mode
-                return `[rb + ${o.ops[idx]}]`;
+                return `[rb + ${val}]`;
             default:
                 return `<unknown>`;
         }

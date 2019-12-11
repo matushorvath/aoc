@@ -1,0 +1,5 @@
+horvathm@Core:~/aoc/2015/08$ <input sed -E 's/(^")|("$)//g' | sed -E 's/(\\\\)|(\\")|(\\x..)/./g' | wc -c
+5277
+horvathm@Core:~/aoc/2015/08$ <input wc -c
+6610
+# 6610 - 5277 = 1333

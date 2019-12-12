@@ -4,8 +4,13 @@ import { Vm } from './vm';
 const main = async () => {
     const input = await fs.readFile('input', 'utf8');
     const mem = input.split(',').reduce((m, s, i) => ({ [`${i}`]: BigInt(s), ...m }), {});
+    const vm = new Vm(0, mem)
 
-    new Vm(0, mem).run([BigInt(1)]);
+    const getIns = function* () { yield BigInt(1); };
+
+    for (const out of vm.run(getIns())) {
+        console.log(out);
+    }
     //console.log(new Vm(0, mem).dasm());
 };
 

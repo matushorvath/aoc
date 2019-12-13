@@ -64,26 +64,15 @@ const main = async () => {
             new Vm(0, mem), new Vm(1, mem), new Vm(2, mem), new Vm(3, mem), new Vm(4, mem)
         ];
 
-        const g4: Generator<bigint>;
-        const g0 = vms[0].run((function* () { yield BigInt(0); yield BigInt(p[0]); yield* g4 })())
+        let g4: Generator<bigint>;
+        const g0 = vms[0].run((function* () { yield BigInt(p[0]); yield BigInt(0); for (const out of g4) yield out; })())
+        const g1 = vms[1].run((function* () { yield BigInt(p[1]); for (const out of g0) yield out; })())
+        const g2 = vms[2].run((function* () { yield BigInt(p[2]); for (const out of g1) yield out; })())
+        const g3 = vms[3].run((function* () { yield BigInt(p[3]); for (const out of g2) yield out; })())
+        g4 = vms[4].run((function* () { yield BigInt(p[4]); for (const out of g3) yield out; })())
 
-        outs[0] = [p[0], 0];
-        outs[1] = [p[1]];
-        outs[2] = [p[2]];
-        outs[3] = [p[3]];
-        outs[4] = [p[4]];
-
-        console.log(outs);
-
-        while (vms.some(vm => !vm.halted)) {
-            outs[1].push(...vms[0].run(outs[0]));
-            outs[2].push(...vms[1].run(outs[1]));
-            outs[3].push(...vms[2].run(outs[2]));
-            outs[4].push(...vms[3].run(outs[3]));
-            outs[0].push(...vms[4].run(outs[4]));
-        }
-
-        if (outs[0][outs[0].length - 1] > r.n) { r.n = outs[0][outs[0].length - 1]; r.p = p; }
+        const value = g4.next().value;
+        if (value > r.n) { r.n = value; r.p = p; }
     }
     console.log(r.n, r.p);
 };

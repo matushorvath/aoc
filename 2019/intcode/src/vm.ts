@@ -81,7 +81,7 @@ export class Vm {
         }
     };
 
-    run = function* (ins: Generator<bigint>): Generator<bigint> {
+    run = async function* (ins: AsyncGenerator<bigint> = (async function* () {})()): AsyncGenerator<bigint> {
         while (true) {
             const o = this.getOp();
             //console.log(this.id, 'op', this.ip, this.dasmOp(o).asm.replace('\t', ' '), `rb: ${this.rb}`);
@@ -96,16 +96,16 @@ export class Vm {
                     this.ip += BigInt(4);
                     break;
                 case 3: { // in
-                    const { value, done } = ins.next();
+                    const { value, done } = await ins.next();
                     if (done) { console.log(this.id, 'ins done'); return; }
-                    console.log(this.id, 'in', value);
+                    //console.log(this.id, 'in', value);
                     this.setParam(o, 0, value);
                     this.ip += BigInt(2);
                     break;
                 }
                 case 4: { // out
                     const value = this.getParam(o, 0);
-                    console.log(this.id, 'out', value);
+                    //console.log(this.id, 'out', value);
                     this.ip += BigInt(2);
                     yield value;
                     break;
@@ -148,67 +148,145 @@ export class Vm {
         }
     };
 
-    private dasmParam = (o: Op, idx: number) => {
+    private dasmParam = (o: Op, idx: number, isAddr: boolean = false) => {
         const val = this.getMem(this.ip + BigInt(idx + 1));
         switch (o.mds[idx]) {
             case 0: // position mode
-                return `[${val}]`;
+                if (val >= this.memSize.from && val < this.memSize.to) {
+                    return { val: `[sym_${val}]`, syms: [`${val}`] };
+                } else {
+                    return { val: `[${val}]`, syms: [] };
+                }
             case 1: // immediate mode
-                return `${val}`;
+                if (isAddr && val >= this.memSize.from && val < this.memSize.to) {
+                    return { val: `sym_${val}`, syms: [`${val}`] };
+                } else {
+                    return { val: `${val}`, syms: [] };
+                }
             case 2: // relative mode
-                return `[rb + ${val}]`;
+                return { val: `[rb + ${val}]`, syms: [] };
             default:
-                return `<unknown>`;
+                return { val: `<unknown>`, syms: [] };
         }
     };
 
     private dasmOp = (o: Op) => {
         switch (o.oc) {
-            case 1:
-                return { asm:`add\t${this.dasmParam(o, 0)}, ${this.dasmParam(o, 1)}, ${this.dasmParam(o, 2)}`, ip: 4 };
-            case 2: // mul
-                return { asm:`mul\t${this.dasmParam(o, 0)}, ${this.dasmParam(o, 1)}, ${this.dasmParam(o, 2)}`, ip: 4 };
-            case 3: // in
-                return { asm:`in\t${this.dasmParam(o, 0)}`, ip: 2 };
-            case 4: // out
-                return { asm:`out\t${this.dasmParam(o, 0)}`, ip: 2 };
-            case 5: // jnz
-                return { asm:`jnz\t${this.dasmParam(o, 0)}, ${this.dasmParam(o, 2)}`, ip: 3 };
-            case 6: // jz
-                return { asm:`jz\t${this.dasmParam(o, 0)}, ${this.dasmParam(o, 2)}`, ip: 3 };
-            case 7: // lt
-                return { asm:`lt\t${this.dasmParam(o, 0)}, ${this.dasmParam(o, 1)}, ${this.dasmParam(o, 2)}`, ip: 4 };
-            case 8: // eq
-                return { asm:`eq\t${this.dasmParam(o, 0)}, ${this.dasmParam(o, 1)}, ${this.dasmParam(o, 2)}`, ip: 4 };
-            case 9: // arb
-                return { asm:`arb\t${this.dasmParam(o, 0)}`, ip: 2 };
-            case 99: // hlt
-                return { asm:`hlt`, ip: 1 };
-            default:
-                return { asm:`db\t${this.getMem(this.ip)}`, ip: 1 };
+            case 1: { // add
+                const ps = [this.dasmParam(o, 0), this.dasmParam(o, 1), this.dasmParam(o, 2)];
+                return {
+                    asm:`add\t${ps[0].val}, ${ps[1].val}, ${ps[2].val}`,
+                    syms: new Set([...ps[0].syms, ...ps[1].syms, ...ps[2].syms]),
+                    ip: 4
+                };
+            }
+            case 2: { // mul
+                const ps = [this.dasmParam(o, 0), this.dasmParam(o, 1), this.dasmParam(o, 2)];
+                return {
+                    asm:`mul\t${ps[0].val}, ${ps[1].val}, ${ps[2].val}`,
+                    syms: new Set([...ps[0].syms, ...ps[1].syms, ...ps[2].syms]),
+                    ip: 4
+                };
+            }
+            case 3: { // in
+                const ps = [this.dasmParam(o, 0)];
+                return {
+                    asm:`in\t${ps[0].val}`,
+                    syms: new Set(ps[0].syms),
+                    ip: 2
+                };
+            }
+            case 4: {// out
+                const ps = [this.dasmParam(o, 0)];
+                return {
+                    asm:`out\t${ps[0].val}`,
+                    syms: new Set(ps[0].syms),
+                    ip: 2
+                };
+            }
+            case 5: { // jnz
+                const ps = [this.dasmParam(o, 0), this.dasmParam(o, 1, true)];
+                return {
+                    asm:`jnz\t${ps[0].val}, ${ps[1].val}`,
+                    syms: new Set([...ps[0].syms, ...ps[1].syms]),
+                    ip: 3
+                };
+            }
+            case 6: { // jz
+                const ps = [this.dasmParam(o, 0), this.dasmParam(o, 1, true)];
+                return {
+                    asm:`jz\t${ps[0].val}, ${ps[1].val}`,
+                    syms: new Set([...ps[0].syms, ...ps[1].syms]),
+                    ip: 3
+                };
+            }
+            case 7: { // lt
+                const ps = [this.dasmParam(o, 0), this.dasmParam(o, 1), this.dasmParam(o, 2)];
+                return {
+                    asm:`lt\t${ps[0].val}, ${ps[1].val}, ${ps[2].val}`,
+                    syms: new Set([...ps[0].syms, ...ps[1].syms, ...ps[2].syms]),
+                    ip: 4
+                };
+            }
+            case 8: { // eq
+                const ps = [this.dasmParam(o, 0), this.dasmParam(o, 1), this.dasmParam(o, 2)];
+                return {
+                    asm:`eq\t${ps[0].val}, ${ps[1].val}, ${ps[2].val}`,
+                    syms: new Set([...ps[0].syms, ...ps[1].syms, ...ps[2].syms]),
+                    ip: 4
+                };
+            }
+            case 9: { // arb
+                const ps = [this.dasmParam(o, 0)];
+                return {
+                    asm:`arb\t${ps[0].val}`,
+                    syms: new Set(ps[0].syms),
+                    ip: 2
+                };
+            }
+            case 99: { // hlt
+                return {
+                    asm:`hlt`,
+                    syms: new Set<string>(),
+                    ip: 1
+                };
+            }
+            default: {
+                return {
+                    asm:`db\t${this.getMem(this.ip)}`,
+                    syms: new Set<string>(),
+                    ip: 1
+                };
+            }
         }
     };
 
+    private memSize = { from: BigInt(0), to: BigInt(0) };
+
     dasm = (start: bigint = BigInt(0), len: bigint = undefined) => {
-        const code:{ [ip: string]: string } = {};
+        const code: { [ip: string]: string } = {};
+        let lbls = new Set<string>();
 
-        let ipFrom = start || BigInt(0);
+        this.memSize.from = start || BigInt(0);
 
-        let ipTo: BigInt;
         if (len !== undefined) {
-            ipTo = start + len;
+            this.memSize.to = start + len;
         } else {
-            ipTo = Object.keys(this.mem).reduce((max, val) => max > BigInt(val) ? max : BigInt(val), BigInt(0));
+            this.memSize.to = Object.keys(this.mem).reduce((max, val) => max > BigInt(val) ? max : BigInt(val), BigInt(0));
         }
 
-        this.ip = ipFrom;
-        while (this.ip < ipTo) {
+        this.ip = this.memSize.from;
+        while (this.ip < this.memSize.to) {
             const o = this.getOp();
-            const { asm, ip } = this.dasmOp(o);
+            const { asm, syms, ip } = this.dasmOp(o);
             code[`${this.ip}`] = asm;
+            lbls = new Set([...lbls, ...syms]);
             this.ip += BigInt(ip);
         }
 
-        return Object.keys(code).map(ip => `${ip}\t${code[Number(ip)]}`).join(os.EOL);
+        return Object.keys(code).map(ip => {
+            const o = `\t${code[Number(ip)]}`;
+            return lbls.has(ip) ? `sym_${ip}:\n${o}` : o;
+        }).join(os.EOL);
     };
 }

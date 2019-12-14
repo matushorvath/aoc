@@ -6,12 +6,12 @@ const main = async () => {
     const mem = input.split(',').reduce((m, s, i) => ({ [`${i}`]: BigInt(s), ...m }), {});
     const vm = new Vm(0, mem)
 
-    const getIns = function* () { yield BigInt(1); };
+    const getIns = async function* () { yield BigInt(1); };
 
-    for (const out of vm.run(getIns())) {
-        console.log(out);
-    }
-    //console.log(new Vm(0, mem).dasm());
+    // for await (const out of vm.run(getIns())) {
+    //     console.log(out);
+    // }
+    console.log(new Vm(0, mem).dasm());
 };
 
 main()

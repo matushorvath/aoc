@@ -19,16 +19,15 @@ const main = async () => {
 // `;
 
     const eqs = input.trimRight().split(/\r?\n/)
-        .map(l => l.split('=>'))
+        .map(l => l.split('=>').map(l => l
+            .split(',')
+            .map(c => c.match(/([0-9]+) ([A-Z]+)/))
+            .map(c => ({ qty: Number(c[1]), chm: c[2] }))
+        ))
         .map(l => ({
-            ins: l[0]
-                .split(',')
-                .map(c => c.match(/([0-9]+) ([A-Z]+)/))
-                .map(c => ({ qty: Number(c[1]), chm: c[2] })),
-            outm: l[1]
-                .match(/([0-9]+) ([A-Z]+)/)
-        }))
-        .map(l => ({ ins: l.ins, out: ({ qty: Number(l.outm[1]), chm: l.outm[2] })}));
+            ins: l[0],
+            out: l[1][0]
+        }));
 
     //console.log(JSON.stringify(eqs, null, 2));
 

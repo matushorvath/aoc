@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 
 const main = async () => {
-    const input = await fs.readFile('input', 'utf8');
+   const input = await fs.readFile('input', 'utf8');
 //     const input = `10 ORE => 10 A
 //     1 ORE => 1 B
 //     7 A, 1 B => 1 C
@@ -19,16 +19,15 @@ const main = async () => {
 // `;
 
     const eqs = input.trimRight().split(/\r?\n/)
-        .map(l => l.split('=>'))
+        .map(l => l.split('=>').map(l => l
+            .split(',')
+            .map(c => c.match(/([0-9]+) ([A-Z]+)/))
+            .map(c => ({ qty: Number(c[1]), chm: c[2] }))
+        ))
         .map(l => ({
-            ins: l[0]
-                .split(',')
-                .map(c => c.match(/([0-9]+) ([A-Z]+)/))
-                .map(c => ({ qty: Number(c[1]), chm: c[2] })),
-            outm: l[1]
-                .match(/([0-9]+) ([A-Z]+)/)
-        }))
-        .map(l => ({ ins: l.ins, out: ({ qty: Number(l.outm[1]), chm: l.outm[2] })}));
+            ins: l[0],
+            out: l[1][0]
+        }));
 
     //console.log(JSON.stringify(eqs, null, 2));
 

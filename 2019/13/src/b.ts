@@ -1,21 +1,17 @@
 import { promises as fs, exists } from 'fs';
 import { Vm } from './vm-b';
-import * as readline from 'readline';
+//import * as readline from 'readline';
 
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
+// const rl = readline.createInterface({
+//     input: process.stdin,
+//     output: process.stdout
+// });
 
 const getInput = async () => {
-    const answer = await new Promise(resolve => rl.question('Input (> <): ', resolve));
-
-    console.log('answer', answer);
-    switch (answer) {
-        case '<': return BigInt(-1);
-        case '>': return BigInt(1);
-        case ' ': return BigInt(0);
-    }
+    //const answer = await new Promise(resolve => rl.question('Input (> <): ', resolve));
+    if (px === ox) return BigInt(0);
+    else if (px < ox) return BigInt(1);
+    else return BigInt(-1);
 };
 
 const field: bigint[][] = [];
@@ -25,9 +21,17 @@ const getField = (x: number, y: number) => {
     else return field[x][y];
 };
 
+let ox: number;
+let px: number;
+
 const setField = (x: number, y: number, v: bigint) => {
     if (field[x] === undefined) field[x] = [];
     field[x][y] = v;
+    if (v === BigInt(3)) {
+        px = x;
+    } else if (v === BigInt(4)) {
+        ox = x;
+    }
 };
 
 const draw = (p: bigint) => {
@@ -67,15 +71,14 @@ const main = async () => {
 
             setField(Number(x), Number(y), t);
 
-            if (getField(-1, 0) !== undefined) {
-                logField();
-            }
+            // if (getField(-1, 0) !== undefined) {
+            //     logField();
+            //     await new Promise(resolve => setTimeout(resolve, 500));
+            // }
         }
     }
 
-    console.log(Object.values(field).reduce(
-        (pr, r) => pr + Object.values(r).reduce(
-            (pc, c) => pc + (c === BigInt(2) ? 1 : 0), 0), 0));
+    console.log(getField(-1, 0));
 };
 
 main()

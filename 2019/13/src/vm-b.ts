@@ -98,14 +98,14 @@ export class Vm {
                 case 3: { // in
                     const { value, done } = await ins.next();
                     if (done) { console.log(this.id, 'ins done'); return; }
-                    console.log(this.id, 'in', value);
+                    //console.log(this.id, 'in', value);
                     this.setParam(o, 0, value);
                     this.ip += BigInt(2);
                     break;
                 }
                 case 4: { // out
                     const value = this.getParam(o, 0);
-                    console.log(this.id, 'out', value);
+                    //console.log(this.id, 'out', value);
                     this.ip += BigInt(2);
                     yield value;
                     break;

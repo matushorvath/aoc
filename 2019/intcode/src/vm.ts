@@ -289,4 +289,41 @@ export class Vm {
             return lbls.has(ip) ? `sym_${ip}:\n${o}` : o;
         }).join(os.EOL);
     };
+
+    static asm = (code: string) => {
+        const lines = code.split(/\r?\n/);
+
+        for (let lineno = 0; lineno < lines.length; lineno += 1) {
+            const line = lines[lineno];
+
+            const lm = line.match(/^(\w+):|^\t([a-z]+)(\t(.+))?|(^#)|^\s*$/);
+            if (!lm) {
+                throw new Error(`no line match, line ${lineno}: ${line}`);
+            }
+
+            const [_1, sym, op, _2, pss] = lm;
+            //console.log(lm);
+
+            if (sym !== undefined) {
+                if (op !== undefined || pss !== undefined) {
+                    throw new Error(`sym line with op or ps, line ${lineno}: ${line}`);
+                }
+                console.log('sym', sym);
+            } else if (op !== undefined) {
+                if (sym !== undefined) {
+                    throw new Error(`op line with sym, line ${lineno}: ${line}`);
+                }
+
+                const ps = pss === undefined ? [] : pss.split(', ')
+                    .map(p => p.match(/(\[)?(rb \+ )?(\w+)(\])?/))
+                    .map(m => ({
+                        ind: m[1] !== undefined,
+                        rb: m[2] !== undefined,
+                        val: (m[3][0] >= '0' && m[3][0] <= '9') ? Number.parseInt(m[3]) : undefined,
+                        sym: (m[3][0] >= '0' && m[3][0] <= '9') ? undefined : m[3]
+                    }));
+                console.log('op', op, ps);
+            }
+        }
+    };
 }

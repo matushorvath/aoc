@@ -237,4 +237,3 @@ sym_659:
 sym_674:
 	out	[sym_223]
 	hlt
-done

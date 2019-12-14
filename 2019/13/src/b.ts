@@ -1,11 +1,28 @@
-import { promises as fs } from 'fs';
+import { promises as fs, exists } from 'fs';
 import { Vm } from './vm-b';
+import * as readline from 'readline';
+
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+const getInput = async () => {
+    const answer = await new Promise(resolve => rl.question('Input (> <): ', resolve));
+
+    console.log('answer', answer);
+    switch (answer) {
+        case '<': return BigInt(-1);
+        case '>': return BigInt(1);
+        case ' ': return BigInt(0);
+    }
+};
 
 const field: bigint[][] = [];
 
 const getField = (x: number, y: number) => {
-    if (field[x] === undefined) return BigInt(0);
-    else return field[x][y] === BigInt(1) ? BigInt(1) : BigInt(0);
+    if (field[x] === undefined) return undefined;
+    else return field[x][y];
 };
 
 const setField = (x: number, y: number, v: bigint) => {
@@ -13,13 +30,26 @@ const setField = (x: number, y: number, v: bigint) => {
     field[x][y] = v;
 };
 
-var stdin = process.openStdin(); 
-require('tty').setRawMode(true);
+const draw = (p: bigint) => {
+    switch (Number(p)) {
+        case 0: return ' ';
+        case 1: return 'X';
+        case 2: return '#';
+        case 3: return '-';
+        case 4: return 'O';
+    }
+};
 
-stdin.on('keypress', function (chunk, key) {
-    process.stdout.write('Get Chunk: ' + chunk + '\n');
-    if (key && key.ctrl && key.name == 'c') process.exit();
-});
+const logField = () => {
+    console.log(getField(-1, 0), '\n');
+    console.log(field.reduce((pc, c) => c.map((p, i) => (pc[i] || '') + draw(p)), [] as string[]).join('\n'));
+};
+
+async function* getIns() {
+    while (true) {
+        yield await getInput();
+    }
+}
 
 const main = async () => {
     const input = await fs.readFile('input', 'utf8');
@@ -29,13 +59,17 @@ const main = async () => {
     const vm = new Vm(0, mem);
 
     let outs: bigint[] = [];
-    for (const out of vm.run()) {
+    for await (const out of vm.run(getIns())) {
         outs.push(out);
         if (outs.length === 3) {
             const [x, y, t] = outs;
             outs = [];
 
             setField(Number(x), Number(y), t);
+
+            if (getField(-1, 0) !== undefined) {
+                logField();
+            }
         }
     }
 

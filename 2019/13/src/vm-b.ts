@@ -81,7 +81,7 @@ export class Vm {
         }
     };
 
-    run = function* (ins: Generator<bigint> = (function* () {})()): Generator<bigint> {
+    run = async function* (ins: AsyncGenerator<bigint> = (async function* () {})()): AsyncGenerator<bigint> {
         while (true) {
             const o = this.getOp();
             //console.log(this.id, 'op', this.ip, this.dasmOp(o).asm.replace('\t', ' '), `rb: ${this.rb}`);
@@ -96,7 +96,7 @@ export class Vm {
                     this.ip += BigInt(4);
                     break;
                 case 3: { // in
-                    const { value, done } = ins.next();
+                    const { value, done } = await ins.next();
                     if (done) { console.log(this.id, 'ins done'); return; }
                     console.log(this.id, 'in', value);
                     this.setParam(o, 0, value);

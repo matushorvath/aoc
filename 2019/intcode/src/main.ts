@@ -17,7 +17,9 @@ const main = async () => {
 // 	add	[sym_225], [rb + sym_6], 400
 // `);
 
-    Vm.asm(await fs.readFile('dasm-new2.s', 'utf8'));
+    const vm = new Vm(0, {});
+    vm.asm(await fs.readFile('dasm-new2.s', 'utf8'));
+    vm.dumpMem();
 };
 
 main()

@@ -1,8 +1,16 @@
 import * as os from 'os';
+import { spawnSync } from 'child_process';
 
 interface Op {
     oc: number;
     mds: number[];
+};
+
+interface AsmParam {
+    ind: boolean,
+    rb: boolean,
+    val: bigint,
+    sym: string
 };
 
 export class Vm {
@@ -290,9 +298,142 @@ export class Vm {
         }).join(os.EOL);
     };
 
-    static asm = (code: string) => {
+    private asmParam = (ps: AsmParam[], idx: number) => {
+        const p = ps[idx];
+
+        const coef = [0, 100, 1000, 10000];
+        const mul = p.ind ? (p.rb ? 2 : 0) : 1;
+
+        return {
+            oc: BigInt(coef[idx] * mul),
+            mem: p.val,
+            fixups: !p.sym ? [] : [{ sym: p.sym, ip: this.ip + BigInt(idx + 1) }]
+        }
+    };
+
+    private asmOp = (op: string, ps: AsmParam[]) => {
+        switch (op) {
+            case 'add': {
+                if (ps.length !== 3 || !ps[2].ind) {
+                    throw new Error('invalid params');
+                }
+                const aps = [this.asmParam(ps, 0), this.asmParam(ps, 1), this.asmParam(ps, 2)];
+                return {
+                    mem: [BigInt(1) + aps[0].oc + aps[1].oc + aps[2].oc, aps[0].mem, aps[1].mem, aps[2].mem],
+                    fixups: [...aps[0].fixups, ...aps[1].fixups, ...aps[2].fixups]
+                };
+            }
+            case 'mul': {
+                if (ps.length !== 3 || !ps[2].ind) {
+                    throw new Error('invalid params');
+                }
+                const aps = [this.asmParam(ps, 0), this.asmParam(ps, 1), this.asmParam(ps, 2)];
+                return {
+                    mem: [BigInt(2) + aps[0].oc + aps[1].oc + aps[2].oc, aps[0].mem, aps[1].mem, aps[2].mem],
+                    fixups: [...aps[0].fixups, ...aps[1].fixups, ...aps[2].fixups]
+                };
+            }
+            case 'in': {
+                if (ps.length !== 1 || !ps[0].ind) {
+                    throw new Error('invalid params');
+                }
+                const aps = [this.asmParam(ps, 0)];
+                return {
+                    mem: [BigInt(3) + aps[0].oc, aps[0].mem],
+                    fixups: aps[0].fixups
+                };
+            }
+            case 'out': {
+                if (ps.length !== 1) {
+                    throw new Error('invalid params');
+                }
+                const aps = [this.asmParam(ps, 0)];
+                return {
+                    mem: [BigInt(4) + aps[0].oc, aps[0].mem],
+                    fixups: aps[0].fixups
+                };
+            }
+            case 'jnz': {
+                if (ps.length !== 2) {
+                    throw new Error('invalid params');
+                }
+                const aps = [this.asmParam(ps, 0), this.asmParam(ps, 1)];
+                return {
+                    mem: [BigInt(5) + aps[0].oc + aps[1].oc, aps[0].mem, aps[1].mem],
+                    fixups: [...aps[0].fixups, ...aps[1].fixups]
+                };
+            }
+            case 'jz': {
+                if (ps.length !== 2) {
+                    throw new Error('invalid params');
+                }
+                const aps = [this.asmParam(ps, 0), this.asmParam(ps, 1)];
+                return {
+                    mem: [BigInt(6) + aps[0].oc + aps[1].oc, aps[0].mem, aps[1].mem],
+                    fixups: [...aps[0].fixups, ...aps[1].fixups]
+                };
+            }
+            case 'lt': {
+                if (ps.length !== 3 || !ps[2].ind) {
+                    throw new Error('invalid params');
+                }
+                const aps = [this.asmParam(ps, 0), this.asmParam(ps, 1), this.asmParam(ps, 2)];
+                return {
+                    mem: [BigInt(7) + aps[0].oc + aps[1].oc + aps[2].oc, aps[0].mem, aps[1].mem, aps[2].mem],
+                    fixups: [...aps[0].fixups, ...aps[1].fixups, ...aps[2].fixups]
+                };
+            }
+            case 'eq': {
+                if (ps.length !== 3 || !ps[2].ind) {
+                    throw new Error('invalid params');
+                }
+                const aps = [this.asmParam(ps, 0), this.asmParam(ps, 1), this.asmParam(ps, 2)];
+                return {
+                    mem: [BigInt(8) + aps[0].oc + aps[1].oc + aps[2].oc, aps[0].mem, aps[1].mem, aps[2].mem],
+                    fixups: [...aps[0].fixups, ...aps[1].fixups, ...aps[2].fixups]
+                };
+            }
+            case 'arb': {
+                if (ps.length !== 1) {
+                    throw new Error('invalid params');
+                }
+                const aps = [this.asmParam(ps, 0)];
+                return {
+                    mem: [BigInt(9) + aps[0].oc, aps[0].mem],
+                    fixups: aps[0].fixups
+                };
+            }
+            case 'hlt': {
+                if (ps.length !== 0) {
+                    throw new Error('invalid params');
+                }
+                return {
+                    mem: [BigInt(99)],
+                    fixups: []
+                };
+            }
+            case 'db': {
+                if (ps.length !== 1) {
+                    throw new Error('invalid params');
+                }
+                const aps = [this.asmParam(ps, 0)];
+                return {
+                    mem: [aps[0].mem],
+                    fixups: aps[0].fixups
+                };
+            }
+            default:
+                throw new Error('invalid opcode');
+        }
+    };
+
+    asm = (code: string) => {
         const lines = code.split(/\r?\n/);
 
+        const fixups: { [sym: string]: bigint[] } = {};
+        const syms: { [sym: string]: bigint } = {};
+
+        this.ip = BigInt(0);
         for (let lineno = 0; lineno < lines.length; lineno += 1) {
             const line = lines[lineno];
 
@@ -302,13 +443,15 @@ export class Vm {
             }
 
             const [_1, sym, op, _2, pss] = lm;
-            //console.log(lm);
 
             if (sym !== undefined) {
                 if (op !== undefined || pss !== undefined) {
                     throw new Error(`sym line with op or ps, line ${lineno}: ${line}`);
                 }
-                console.log('sym', sym);
+                if (sym in syms) {
+                    throw new Error(`duplicate symbol ${sym}, line ${lineno}: ${line}`);
+                }
+                syms[sym] = this.ip;
             } else if (op !== undefined) {
                 if (sym !== undefined) {
                     throw new Error(`op line with sym, line ${lineno}: ${line}`);
@@ -319,11 +462,53 @@ export class Vm {
                     .map(m => ({
                         ind: m[1] !== undefined,
                         rb: m[2] !== undefined,
-                        val: (m[3][0] >= '0' && m[3][0] <= '9') ? Number.parseInt(m[3]) : undefined,
+                        val: (m[3][0] >= '0' && m[3][0] <= '9') ? BigInt(m[3]) : undefined,
                         sym: (m[3][0] >= '0' && m[3][0] <= '9') ? undefined : m[3]
                     }));
-                console.log('op', op, ps);
+
+                try {
+                    //console.log(op, ps);
+
+                    const { mem, fixups: addFixups } = this.asmOp(op, ps);
+
+                    //console.log(mem, addFixups);
+
+                    for (const byte of mem) {
+                        this.setMem(this.ip, byte);
+                    }
+                    for (const fixup of addFixups) {
+                        if (fixups[fixup.sym] === undefined) {
+                            fixups[fixup.sym] = [fixup.ip]
+                        } else {
+                            fixups[fixup.sym].push(fixup.ip);
+                        }
+                    }
+
+                } catch (error) {
+                    throw new Error(`${error.message}, line ${lineno}: ${line}`);
+                }
             }
         }
+
+        for (const sym of Object.keys(fixups)) {
+            if (syms[sym] === undefined) {
+                throw new Error(`unknown symbol ${sym}`);
+            }
+            const val = syms[sym];
+            for (const addr of fixups[sym]) {
+                this.setMem(addr, val);
+            }
+        }
+    };
+
+    dumpMem = () => {
+        const memSize = Object.keys(this.mem).reduce((max, val) => max > BigInt(val) ? max : BigInt(val), BigInt(0));
+
+        const out: BigInt[] = [];
+        for (let addr = BigInt(0); addr < memSize; addr += BigInt(1)) {
+            out.push(this.getMem(addr));
+        }
+
+        console.log(out);
     };
 }

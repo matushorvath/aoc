@@ -22,7 +22,7 @@ let vm: Vm;
 async function* getIns() {
     const inputs = [
         'A,A,A',//,A,A,A,A,A,A,A',
-        'L,2,3,2,3',
+        '0,0,0,0,0,0,0,0,0,0',
         '0',
         '0',
         'y'
@@ -44,22 +44,48 @@ async function* getIns() {
     }
 }
 
+const makeChunks = (input: number[], size: number) => {
+    const output = [];
+    let index = 0;
+    while (index < input.length) {
+        output.push(input.slice(index, size + index));
+        index += size;
+    }
+    return output;
+};
+
+const makeData = () => {
+    const instructions = [
+        -5, 2, 3, 2, 3,
+        -5, 10, -4, 6, -5,
+        10, -5, 10, -4, 6
+    ];
+
+    let phase = 2;
+    const output: { [phase: number]: number[] } = {};
+    for (const chunk of makeChunks(instructions, 5)) {
+        output[phase] = chunk;
+        for (const inst of chunk) {
+            if (inst < 0) phase += 1;
+            else phase += inst;
+        }
+    }
+    console.log(output);
+    return output;
+};
+const data = makeData();
+
 const fixup = (mem: Mem, phase: number) => {
     console.log('phase', phase);
-
-    const data: { [phase: number]: number[] } = {
-        [13]: [-5, 10, -4, 6, -5],
-        [32]: [10, -5, 10, -4, 6]
-    }
 
     const inst = data[phase];
     if (inst) {
         const m1 = vm.dumpMem();
-        mem['1194'] = BigInt(inst[0]);
-        mem['1195'] = BigInt(inst[1]);
-        mem['1196'] = BigInt(inst[2]);
-        mem['1197'] = BigInt(inst[3]);
-        mem['1198'] = BigInt(inst[4]);
+        mem['1194'] = BigInt(inst[0] || 0);
+        mem['1195'] = BigInt(inst[1] || 0);
+        mem['1196'] = BigInt(inst[2] || 0);
+        mem['1197'] = BigInt(inst[3] || 0);
+        mem['1198'] = BigInt(inst[4] || 0);
         const m2 = vm.dumpMem();
         console.log(Vm.cmpMem(m1, m2));
     }

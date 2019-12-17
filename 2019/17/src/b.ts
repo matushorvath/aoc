@@ -57,8 +57,10 @@ const makeChunks = (input: number[], size: number) => {
 
 const makeData = () => {
     const instructions = [
-        'L,2,3,2,3,L,10,R,6,L,10,L,10,R,6,',
-        'R,12,L,12,L,12,R,12,L,12,L,12,L,6,L,10'
+        'L,10,L,10,R,6,L,10,L,10,R,6,',
+        'R,12,L,12,L,12,R,12,L,12,L,12,L,6,L,10,',
+        'R,12,R,12,R,12,L,12,L,12,L,6,L,10,R,12,R,12,R,12,L,12,L,12,L,6,L,10,',
+        'R,12,R,12,L,10,L,10,R,6'
     ].join('').split(',').map(i => i === 'L' ? -5 : (i === 'R' ? -4 : Number(i)));
 
     let phase = 1;
@@ -110,10 +112,11 @@ const main = async () => {
             if (lastEndl) {
                 // Frame finished
                 phase += 1;
-                if (phase >= phaseCount) break;
                 fixup(mem, phase);
             }
             lastEndl = true;
+        } else if (a > BigInt(127)) {
+            console.log('xxx out', a);
         } else {
             line.push(String.fromCharCode(Number(a)));
             lastEndl = false;

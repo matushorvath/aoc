@@ -17,28 +17,11 @@ const logField = (field: string[][]) => {
     console.log(field.map(r => r.join('')).join('\n'));
 };
 
-// async function* getIns() {
-//     const inputs = [
-//         'A',
-//         'L,10',
-//         '0',
-//         '0',
-//         'y'
-//     ];
-
-//     for (const input of inputs) {
-//         for (const char of input.split('')) {
-//             yield BigInt(char.charCodeAt(0));
-//         }
-//         yield BigInt('\n'.charCodeAt(0));
-//     }
-// }
-
 let vm: Vm;
 
 async function* getIns() {
     const inputs = [
-        'A,A',
+        'A,A,A',//,A,A,A,A,A,A,A',
         'L,2,3,2,3',
         '0',
         '0',
@@ -65,7 +48,8 @@ const fixup = (mem: Mem, phase: number) => {
     console.log('phase', phase);
 
     const data: { [phase: number]: number[] } = {
-        [13]: [-5, 1, 1, 1, 1]
+        [13]: [-5, 10, -4, 6, -5],
+        [32]: [10, -5, 10, -4, 6]
     }
 
     const inst = data[phase];

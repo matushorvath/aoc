@@ -21,12 +21,13 @@ let vm: Vm;
 
 async function* getIns() {
     const inputs = [
-        'A,A,A',//,A,A,A,A,A,A,A',
+        'A'.repeat(Object.keys(data).length).split('').join(','),
         '0,0,0,0,0,0,0,0,0,0',
         '0',
         '0',
         'y'
     ];
+    console.log('inputs', inputs);
 
     const mems: Mem[] = [];
     mems.push(vm.dumpMem());
@@ -56,12 +57,11 @@ const makeChunks = (input: number[], size: number) => {
 
 const makeData = () => {
     const instructions = [
-        -5, 2, 3, 2, 3,
-        -5, 10, -4, 6, -5,
-        10, -5, 10, -4, 6
-    ];
+        'L,2,3,2,3,L,10,R,6,L,10,L,10,R,6,',
+        'R,12,L,12,L,12,R,12,L,12,L,12,L,6,L,10'
+    ].join('').split(',').map(i => i === 'L' ? -5 : (i === 'R' ? -4 : Number(i)));
 
-    let phase = 2;
+    let phase = 1;
     const output: { [phase: number]: number[] } = {};
     for (const chunk of makeChunks(instructions, 10)) {
         output[phase] = chunk;
@@ -80,6 +80,7 @@ const fixup = (mem: Mem, phase: number) => {
 
     const inst = data[phase];
     if (inst) {
+        console.log('updating for phase', phase);
         //const m1 = vm.dumpMem();
         for (let i = 0; i < 10; i += 1) {
             mem[`${1194 + i}`] = BigInt(inst[i] || 0);
@@ -98,7 +99,7 @@ const main = async () => {
 
     let line: string[] = [];
 
-    let phase = 0;
+    let phase = -1;
     let lastEndl = false;
 
     for await (const a of vm.run(getIns())) {
@@ -119,7 +120,7 @@ const main = async () => {
         }
     }
 
-    console.log('lastPhase');
+    console.log('phaseCount', phaseCount);
 };
 
 main()

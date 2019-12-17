@@ -5,16 +5,25 @@ interface Op {
     mds: number[];
 };
 
+export type Mem = { [addr: string]: bigint };
+
 export class Vm {
-    constructor(private id: number, mem: { [addr: string]: bigint }) {
-        this.mem = { ...mem };
+    constructor(private id: number, private mem: Mem) {
         this.ip = BigInt(0);
         this.rb = BigInt(0);
     }
 
     private ip: bigint;
-    private mem: { [addr: string]: bigint };
     private rb: bigint;
+
+    dumpMem = (): Mem => {
+        return { ...this.mem };
+    };
+
+    static cmpMem = (m1: Mem, m2: Mem) => {
+        const addrs = new Set([...Object.keys(m1), ...Object.keys(m2)]);
+        return new Array(...addrs).filter(a => m1[a] !== m2[a]).map(a => ({ a, m1: m1[a], m2: m2[a] }));
+    };
 
     private getMem = (addr: bigint) => {
         const addrString = `${addr}`;
@@ -105,7 +114,7 @@ export class Vm {
                 }
                 case 4: { // out
                     const value = this.getParam(o, 0);
-                    console.log(this.id, 'out', value);
+                    //console.log(this.id, 'out', value);
                     this.ip += BigInt(2);
                     yield value;
                     break;

@@ -1,5 +1,5 @@
 import { promises as fs, exists } from 'fs';
-import { Vm } from './vm-b';
+import { Mem, Vm } from './vm-b';
 
 const field: number[][] = [];
 
@@ -17,42 +17,98 @@ const logField = (field: string[][]) => {
     console.log(field.map(r => r.join('')).join('\n'));
 };
 
+// async function* getIns() {
+//     const inputs = [
+//         'A',
+//         'L,10',
+//         '0',
+//         '0',
+//         'y'
+//     ];
+
+//     for (const input of inputs) {
+//         for (const char of input.split('')) {
+//             yield BigInt(char.charCodeAt(0));
+//         }
+//         yield BigInt('\n'.charCodeAt(0));
+//     }
+// }
+
+let vm: Vm;
+
+async function* getIns() {
+    const inputs = [
+        'A,A',
+        'L,2,3,2,3',
+        '0',
+        '0',
+        'y'
+    ];
+
+    const mems: Mem[] = [];
+    mems.push(vm.dumpMem());
+
+    for (const input of inputs) {
+        for (const char of input.split('')) {
+            yield BigInt(char.charCodeAt(0));
+            //mems.push(vm.dumpMem());
+            //console.log('char', char, Vm.cmpMem(mems[mems.length - 2], mems[mems.length - 1]));
+        }
+        yield BigInt('\n'.charCodeAt(0));
+
+        mems.push(vm.dumpMem());
+        console.log('endl', Vm.cmpMem(mems[mems.length - 2], mems[mems.length - 1]));
+    }
+}
+
+const fixup = (mem: Mem, phase: number) => {
+    console.log('phase', phase);
+
+    const data: { [phase: number]: number[] } = {
+        [13]: [-5, 1, 1, 1, 1]
+    }
+
+    const inst = data[phase];
+    if (inst) {
+        const m1 = vm.dumpMem();
+        mem['1194'] = BigInt(inst[0]);
+        mem['1195'] = BigInt(inst[1]);
+        mem['1196'] = BigInt(inst[2]);
+        mem['1197'] = BigInt(inst[3]);
+        mem['1198'] = BigInt(inst[4]);
+        const m2 = vm.dumpMem();
+        console.log(Vm.cmpMem(m1, m2));
+    }
+};
+
 const main = async () => {
     const input = await fs.readFile('input', 'utf8');
 
     const mem = input.split(',').reduce((m, s, i) => ({ [`${i}`]: BigInt(s), ...m }), {}) as { [addr: string]: bigint };
     mem['0'] = BigInt(2);
-    const vm = new Vm(0, mem);
+    vm = new Vm(0, mem);
 
-    let field: string[][] = [[]];
+    let line: string[] = [];
 
-    for await (const a of vm.run()) {
+    let phase = 0;
+    let lastEndl = false;
+
+    for await (const a of vm.run(getIns())) {
         if (a === BigInt(10)) {
-            field.push([]);
+            console.log(line.join(''));
+            line = [];
+
+            if (lastEndl) {
+                // Frame finished
+                phase += 1;
+                fixup(mem, phase);
+            }
+            lastEndl = true;
         } else {
-            field[field.length - 1].push(String.fromCharCode(Number(a)));
+            line.push(String.fromCharCode(Number(a)));
+            lastEndl = false;
         }
     }
-
-    const rm = field.length - 1;
-    const cm = field[0].length - 1;
-
-    field = field.map((rv, ri) => rv.map((cv, ci) => {
-        if (ri === 0 || ri === rm || ci === 0 || ci === cm) return cv;
-        if (cv === '.' || rv[ci - 1] === '.' || rv[ci + 1] === '.') return cv;
-        if (field[ri - 1][ci] === '.' || field[ri + 1][ci] === '.') return cv;
-        return 'O';
-    }));
-
-    logField(field);
-
-    const iss = field.reduce(
-        (rpv, rcv, ri) => [...rpv, ...rcv.reduce(
-            (cpv, ccv, ci) => [...cpv, ...(ccv === 'O' ? [{ ri, ci }] : [])], [])], []);
-    console.log(iss);
-
-    const out = iss.reduce((p, c) => p + c.ri * c.ci, 0);
-    console.log(out);
 };
 
 main()

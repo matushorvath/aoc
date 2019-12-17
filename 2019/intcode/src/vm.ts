@@ -293,8 +293,8 @@ export class Vm {
         }
 
         return Object.keys(code).map(ip => {
-            const o = `\t${code[Number(ip)]}`;
-            return lbls.has(ip) ? `sym_${ip}:\n${o}` : o;
+            const o = `${ip}\t\t\t${code[Number(ip)]}`;
+            return lbls.has(ip) ? `${ip}\tsym_${ip}:\n${o}` : o;
         }).join(os.EOL);
     };
 

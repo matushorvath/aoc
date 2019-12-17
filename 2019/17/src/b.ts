@@ -21,6 +21,7 @@ const main = async () => {
     const input = await fs.readFile('input', 'utf8');
 
     const mem = input.split(',').reduce((m, s, i) => ({ [`${i}`]: BigInt(s), ...m }), {}) as { [addr: string]: bigint };
+    mem['0'] = BigInt(2);
     const vm = new Vm(0, mem);
 
     let field: string[][] = [[]];

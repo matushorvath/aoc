@@ -105,7 +105,7 @@ export class Vm {
                 }
                 case 4: { // out
                     const value = this.getParam(o, 0);
-                    //console.log(this.id, 'out', value);
+                    console.log(this.id, 'out', value);
                     this.ip += BigInt(2);
                     yield value;
                     break;

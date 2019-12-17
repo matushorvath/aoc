@@ -63,7 +63,7 @@ const makeData = () => {
 
     let phase = 2;
     const output: { [phase: number]: number[] } = {};
-    for (const chunk of makeChunks(instructions, 5)) {
+    for (const chunk of makeChunks(instructions, 10)) {
         output[phase] = chunk;
         for (const inst of chunk) {
             if (inst < 0) phase += 1;
@@ -71,23 +71,21 @@ const makeData = () => {
         }
     }
     console.log(output);
-    return output;
+    return { data: output, phaseCount: phase };
 };
-const data = makeData();
+const { data, phaseCount } = makeData();
 
 const fixup = (mem: Mem, phase: number) => {
     console.log('phase', phase);
 
     const inst = data[phase];
     if (inst) {
-        const m1 = vm.dumpMem();
-        mem['1194'] = BigInt(inst[0] || 0);
-        mem['1195'] = BigInt(inst[1] || 0);
-        mem['1196'] = BigInt(inst[2] || 0);
-        mem['1197'] = BigInt(inst[3] || 0);
-        mem['1198'] = BigInt(inst[4] || 0);
-        const m2 = vm.dumpMem();
-        console.log(Vm.cmpMem(m1, m2));
+        //const m1 = vm.dumpMem();
+        for (let i = 0; i < 10; i += 1) {
+            mem[`${1194 + i}`] = BigInt(inst[i] || 0);
+        }
+        // const m2 = vm.dumpMem();
+        // console.log(Vm.cmpMem(m1, m2));
     }
 };
 
@@ -111,6 +109,7 @@ const main = async () => {
             if (lastEndl) {
                 // Frame finished
                 phase += 1;
+                if (phase >= phaseCount) break;
                 fixup(mem, phase);
             }
             lastEndl = true;
@@ -119,6 +118,8 @@ const main = async () => {
             lastEndl = false;
         }
     }
+
+    console.log('lastPhase');
 };
 
 main()

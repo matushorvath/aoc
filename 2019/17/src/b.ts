@@ -1,5 +1,5 @@
 import { promises as fs, exists } from 'fs';
-import { Vm } from './vm-a';
+import { Vm } from './vm-b';
 
 const field: number[][] = [];
 

@@ -1,13 +1,13 @@
 import { promises as fs } from 'fs';
 
-const aset = (a: any[], ...is: number[]) => (v: any) => {
-    for (const i of is.slice(0, -1)) {
-        if (a[i] === undefined) {
-            a[i] = [];
-        }
-        a = a[i];
+function aset<T> (a: T[][][], i0: number, i1: number, i2: number, v: T) {
+    if (a[i0] === undefined) {
+        a[i0] = [];
     }
-    a[is.slice(-1)[0]] = v;
+    if (a[i0][i1] === undefined) {
+        a[i0][i1] = [];
+    }
+    a[i0][i1][i2] = v;
 }
 
 const main = async () => {
@@ -117,7 +117,7 @@ const main = async () => {
 
     const vals: number[][][] = [];
     const vist: boolean[][][] = [];
-    aset(vals, 0, x, y)(0);
+    aset(vals, 0, x, y, 0);
 
     let q: { [dist: number]: [number, number, number][] } = {};
 
@@ -128,24 +128,24 @@ const main = async () => {
             if (flds[i][j] === '.') {
                 const ov = vals[level]?.[i]?.[j];
                 if (nv < (ov ?? Infinity)) {
-                    if (ov) q[ov] = q[ov].filter(p => p[0] !== level || p[1] !== i || p[2] !== j);
-                    aset(vals, level, i, j)(nv);
-                    (q[nv] = q[nv] ?? []).push([level, i, j]);
+                    if (ov) q[ov].splice(q[ov].findIndex(p => p[0] === level && p[1] === i && p[2] === j), 1);
+                    aset(vals, level, i, j, nv);
+                    (q[nv] ?? (q[nv] = [])).push([level, i, j]);
                 }
             } else if (flds[i][j] instanceof Array) {
                 const [a, b, li] = flds[i][j] as [number, number, number];
                 if (level + li >= 0) {
                     const ov = vals[level + li]?.[a]?.[b];
                     if (nv < (ov ?? Infinity)) {
-                        if (ov) q[ov] = q[ov].filter(p => p[0] !== level + li || p[1] !== a || p[2] !== b);
-                        aset(vals, level + li, a, b)(nv);
-                        (q[nv] = q[nv] ?? []).push([level + li, a, b]);
+                        if (ov) q[ov].splice(q[ov].findIndex(p => p[0] === level + li && p[1] === a && p[2] === b), 1);
+                        aset(vals, level + li, a, b, nv);
+                        (q[nv] ?? (q[nv] = [])).push([level + li, a, b]);
                     }
                 }
             }
         }
 
-        aset(vist, level, x, y)(true);
+        aset(vist, level, x, y, true);
 
         const min = Math.min(...Object.keys(q).map(n => Number(n)).filter(n => q[n].length > 0));
         [level, x, y] = q[min].shift();

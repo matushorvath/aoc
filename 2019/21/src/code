@@ -1,0 +1,241 @@
+NOT D T
+OR C T
+NOT D J
+OR E J
+AND T J
+AND A J
+NOT J J
+RUN
+
+NOT C T
+AND D T
+OR T J
+NOT E T
+AND D T
+OR T J
+NOT G T
+AND D T
+OR T J
+NOT I T
+AND D T
+OR T J
+NOT A T
+OR T J
+RUN
+
+NOT C T
+AND D T
+AND H T
+OR T J
+NOT E T
+AND D T
+AND H T
+OR T J
+NOT G T
+AND D T
+OR T J
+NOT I T
+AND D T
+OR T J
+OR A
+RUN
+
+OR D T
+AND H T
+NOT T T
+OR C J
+AND E J
+AND G J
+AND I J
+OR T J
+NOT J J
+NOT A T
+OR T J
+RUN
+
+.................
+.................
+@................
+#####.#.#.##.####
+ ABCDEFGHI
+
+ OR A J
+AND E J
+AND I J
+
+OR B T
+AND F T
+OR T J
+
+#OR C T
+#AND G T
+#OR T J
+
+OR E T
+OR H T
+NOT T T
+AND D T
+OR T J
+
+NOT D T
+OR T J
+
+NOT J J
+
+RUN
+
+
+
+NOT H J
+AND E J
+
+NOT I T
+AND F T
+OR T J
+
+AND A T
+AND E T
+AND I J
+
+OR B T
+AND F T
+OR T J
+
+OR C T
+AND G T
+OR T J
+
+NOT D T
+OR T J
+
+NOT J J
+
+
+
+OR G J
+AND C J
+
+NOT H T
+OR A T
+OR I T
+AND E T
+OR T J
+
+NOT I T
+OR B T
+AND F T
+OR T J
+
+NOT D T
+OR T J
+
+AND A J
+NOT J J
+
+RUN
+
+
+async function* getIns() {
+    const inputs = `
+OR I J
+OR H J
+OR F J
+
+OR H T
+OR E T
+AND T J
+AND D J
+
+RUN
+
+
+// f <= (i or h or f) and (h or e) and (d) and (not c or not b) and (not f or not b);
+// f <= (i or h or f) and (h or e) and (d) and ((not c and not f) or not b);
+// f <= (i or h or f) and (h or e) and (d) and (not (c or f) or not b);
+
+// f <= (i or h or f) and (h or e) and (d) and not (c and b) and not (f and b);
+async function* getIns() {
+    const inputs = `
+OR C T
+OR F T
+NOT T J
+
+NOT B T
+OR T J
+
+AND D J
+
+NOT H T
+NOT T T
+OR E T
+AND T J
+
+NOT I T
+NOT T T
+OR H T
+OR F T
+AND T J
+
+RUN
+
+
+
+
+/*
+and
+(
+    (
+        (not c or not b) and (not f or not b) and (not f or not e) and (not i or not e)
+    ) or not a
+)
+*/
+
+/*
+and
+(
+    (
+        ((not c and not f) or not b) and
+        ((not i and not f) or not e)
+    ) or not a
+)
+*/
+
+
+
+
+
+// f <= (i or h or f) and (h or e) and (d)
+// and (not c or not b or not a)
+// and (not f or not b or not a)
+// and (not f or not e or not a)
+// and (not i or not e or not a);
+
+// AND NOT ((C AND B AND A) OR (F AND B AND A) OR (F AND E AND A) OR (I AND E AND A))
+
+// AND NOT ((((C OR F) AND B) OR ((F OR I) AND E)) AND A)
+
+async function* getIns() {
+    const inputs = `
+OR C J
+OR F J
+AND B J
+
+OR F T
+OR I T
+AND E T
+OR T J
+AND A J
+NOT J J
+
+AND D J
+
+NOT H T
+NOT T T
+OR E T
+AND T J
+
+NOT I T
+NOT T T
+OR H T
+OR F T
+AND T J

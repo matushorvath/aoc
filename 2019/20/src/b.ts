@@ -11,7 +11,7 @@ const aset = (a: any[], ...is: number[]) => (v: any) => {
 }
 
 const main = async () => {
-    const input = await fs.readFile('input-dusan', 'utf8');
+    const input = await fs.readFile('input', 'utf8');
     let data = input.slice(0, -1).split(/\r?\n/).map(l => l.split(''));
 
     const mx = Math.trunc(data.length / 2);
@@ -119,38 +119,36 @@ const main = async () => {
     const vist: boolean[][][] = [];
     aset(vals, 0, x, y)(0);
 
-    let prevMin: number;
+    let q: { [dist: number]: [number, number, number][] } = {};
 
     while (level !== 0 || x != zz[0] || y != zz[1]) {
+        const nv = vals[level][x][y] + 1;
+
         for (const [i, j] of [[x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1]]) {
-            if (!vist[level]?.[i]?.[j] && flds[i][j] === '.') {
-                aset(vals, level, i, j)(Math.min(vals[level]?.[i]?.[j] ?? Infinity, vals[level][x][y] + 1));
+            if (flds[i][j] === '.') {
+                const ov = vals[level]?.[i]?.[j];
+                if (nv < (ov ?? Infinity)) {
+                    if (ov) q[ov] = q[ov].filter(p => p[0] !== level || p[1] !== i || p[2] !== j);
+                    aset(vals, level, i, j)(nv);
+                    (q[nv] = q[nv] ?? []).push([level, i, j]);
+                }
             } else if (flds[i][j] instanceof Array) {
                 const [a, b, li] = flds[i][j] as [number, number, number];
-                //console.log([a, b, li]);
-                if (level + li >= 0 && !vist[level + li]?.[a]?.[b]) {
-                    aset(vals, level + li, a, b)(Math.min(vals[level + li]?.[a]?.[b] ?? Infinity, vals[level][x][y] + 1));
+                if (level + li >= 0) {
+                    const ov = vals[level + li]?.[a]?.[b];
+                    if (nv < (ov ?? Infinity)) {
+                        if (ov) q[ov] = q[ov].filter(p => p[0] !== level + li || p[1] !== a || p[2] !== b);
+                        aset(vals, level + li, a, b)(nv);
+                        (q[nv] = q[nv] ?? []).push([level + li, a, b]);
+                    }
                 }
             }
         }
 
         aset(vist, level, x, y)(true);
 
-        let min = Infinity;
-        for (const l of vals.keys()) {
-            for (let i = x0 + 1; i < x3; i += 1) {
-                for (let j = y0 + 1; j < y3; j += 1) {
-                    if (!vist[l]?.[i]?.[j] && (vals[l]?.[i]?.[j] ?? Infinity) < min) {
-                        [x, y, level] = [i, j, l];
-                        min = vals[l][i][j];
-                        if (min === prevMin) break;
-                    }
-                }
-                if (min === prevMin) break;
-            }
-            if (min === prevMin) break;
-        }
-        prevMin = min;
+        const min = Math.min(...Object.keys(q).map(n => Number(n)).filter(n => q[n].length > 0));
+        [level, x, y] = q[min].shift();
 
         if (min % 100 === 0) console.log(min, [level, x, y]);
 

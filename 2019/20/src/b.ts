@@ -11,7 +11,7 @@ const aset = (a: any[], ...is: number[]) => (v: any) => {
 }
 
 const main = async () => {
-    const input = await fs.readFile('input', 'utf8');
+    const input = await fs.readFile('input-dusan', 'utf8');
     let data = input.slice(0, -1).split(/\r?\n/).map(l => l.split(''));
 
     const mx = Math.trunc(data.length / 2);

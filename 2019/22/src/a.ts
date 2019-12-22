@@ -9,24 +9,24 @@ const div = (a: number, b: number, m: number) => {
 };
 
 const main = async () => {
-    const input = await fs.readFile('input', 'utf8');
-    const tot = 10007;
-    let pos = 2019;
+    // const input = await fs.readFile('input', 'utf8');
+    // const tot = 10007;
+    // let pos = 2019;
 
-//     const input = `
-// deal into new stack
-// cut -2
-// deal with increment 7
-// cut 8
-// cut -4
-// deal with increment 7
-// cut 3
-// deal with increment 9
-// deal with increment 3
-// cut -1
-// `.trimLeft();
-//     const tot = 10;
-//     //let pos = 1;
+    const input = `
+deal into new stack
+cut -2
+deal with increment 7
+cut 8
+cut -4
+deal with increment 7
+cut 3
+deal with increment 9
+deal with increment 3
+cut -1
+`.trimLeft();
+    const tot = 10;
+    //let pos = 1;
 
     const insts = input.trimRight().split(/\r?\n/)
         .map(i => i.match(/deal with increment (.*)|cut (.*)|deal into new stack/))
@@ -34,9 +34,9 @@ const main = async () => {
 
     //insts.reverse();
 
-    // const res: number[] = [];
-    // for (let i = 0; i < tot; i += 1) {
-    //     let pos = i;
+    const res: number[] = [];
+    for (let i = 0; i < tot; i += 1) {
+        let pos = i;
         for (const inst of insts) {
             //console.log(inst);
             //console.log('pos', pos);
@@ -55,9 +55,9 @@ const main = async () => {
             }
         }
         console.log('end', pos);
-    //     res[pos] = i;
-    // }
-    // console.log('res', res);
+        res[pos] = i;
+    }
+    console.log('res', res);
 };
 
 main()

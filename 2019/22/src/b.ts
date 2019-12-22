@@ -46,7 +46,7 @@ const main = async () => {
     let period: number;
 
     for (let i = 0; i < cnt; i += 1) {
-        if (i % 100000 === 0) console.log('itr 1', i);
+        if (i % 1000000 === 0) console.log('itr 1', i);
 
         for (const inst of insts) {
             switch (inst.o) {
@@ -61,8 +61,8 @@ const main = async () => {
                     break;
             }
         }
-        console.log('pos', pos);
-        if (pos === start) {
+        //console.log('pos', pos);
+        if (pos % cnt === start) {
             period = i;
             break;
         }

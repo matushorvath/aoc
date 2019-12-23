@@ -5,13 +5,15 @@ type Queue = [bigint, bigint][];
 type Item = { vm: Vm, q: Queue, idle: number };
 const data: Item[] = [];
 
+let log = false;
+
 async function* getIns(d: Item) {
     yield BigInt(d.vm.id);
 
     while (true) {
         if (d.q.length === 0) {
-            //console.log('in', d.vm.id, -1);
-            if (data.every(d => d.idle > 1000 && d.q.length === 0)) {
+            //if (log) console.log('in', d.vm.id, -1);
+            if (nat && data.every(d => d.idle > 0 && d.q.length === 0)) {
                 console.log('---------------> idle', d.vm.id, nat);
                 //console.log('ips', data.map(d => d.vm.ip));
                 data[0].q.push(nat);
@@ -20,8 +22,6 @@ async function* getIns(d: Item) {
                     process.exit(0);
                 }
                 natys.add(Number(nat[1]));
-
-                for (const d of data) d.idle = 0;
             }
 
             d.idle += 1;
@@ -29,6 +29,8 @@ async function* getIns(d: Item) {
         } else {
             const [x, y] = d.q.shift();
             console.log('in', d.vm.id, [x, y]);
+            d.idle = 0;
+
             yield x;
             yield y;
         }
@@ -43,7 +45,6 @@ const runOne = async (d: Item) => {
 
     for await (const out of d.vm.run(getIns(d))) {
         outs.push(out);
-        d.idle = 0;
 
         if (outs.length === 3) {
             console.log('out', d.vm.id, outs);

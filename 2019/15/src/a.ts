@@ -2,16 +2,14 @@ import { promises as fs, exists } from 'fs';
 import { Vm } from './vm-a';
 
 const field: number[][] = [];
+let reply: number;
 
-const getField = (x: number, y: number) => {
-    if (field[x] === undefined) return undefined;
-    else return field[x][y];
-};
-
-const setField = (x: number, y: number, v: number) => {
-    if (field[x] === undefined) field[x] = [];
-    field[x][y] = v;
-};
+function aset<T> (a: T[][], i0: number, i1: number, v: T) {
+    if (a[i0] === undefined) {
+        a[i0] = [];
+    }
+    a[i0][i1] = v;
+}
 
 const draw = (p: number) => {
     switch (Number(p)) {
@@ -24,8 +22,6 @@ const draw = (p: number) => {
 const logField = () => {
     console.log(field.reduce((pc, c) => c.map((p, i) => (pc[i] || '') + draw(p)), [] as string[]).join('\n'));
 };
-
-let r = 0;
 
 const rot = (d: number) => {
     if (d === 1) return 4;
@@ -99,7 +95,7 @@ const main = async () => {
     const vm = new Vm(0, mem);
 
     for await (const out of vm.run(getIns())) {
-        r = Number(out);
+        reply = Number(out);
     }
 };
 

@@ -106,7 +106,10 @@ export class Vm {
                     break;
                 case 3: { // in
                     const { value, done } = await ins.next();
-                    if (done) { console.log(this.id, 'ins done'); return; }
+                    if (done) {
+                        //console.log(this.id, 'ins done');
+                        return;
+                    }
                     //console.log(this.id, 'in', value);
                     this.setParam(o, 0, value);
                     this.ip += BigInt(2);

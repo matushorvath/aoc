@@ -8,13 +8,15 @@ const data: Item[] = [];
 
 const natys = new Set<number>();
 let nat: [bigint, bigint];
+let quit = false;
 
 async function* getIns(d: Item) {
     yield BigInt(d.vm.id);
 
-    while (true) {
+    while (!quit) {
         if (d.q.length === 0) {
             //console.log('in', d.vm.id, -1);
+
             if (nat && data.every(d => d.idle && d.q.length === 0)) {
                 //console.log('---------------> idle', d.vm.id, nat);
                 //console.log('ips', data.map(d => d.vm.ip));
@@ -22,7 +24,7 @@ async function* getIns(d: Item) {
 
                 if (natys.has(Number(nat[1]))) {
                     console.log('dup nat y', nat[1]);
-                    process.exit(0);
+                    quit = true;
                 }
                 natys.add(Number(nat[1]));
             }

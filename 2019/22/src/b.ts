@@ -9,9 +9,25 @@ const main = async () => {
     // const start = 2020;
 
     // const input = await fs.readFile('input', 'utf8');
-    // const tot = 119315717514047;
-    // const cnt = 101741582076661;
-    // const start = 2020;
+    // const tot = BigInt(119315717514047);
+    // const cnt = BigInt(10);
+    // const start = BigInt(2020);
+
+//     const input = `
+// deal into new stack
+// cut -2
+// deal with increment 7
+// cut 8
+// cut -4
+// deal with increment 7
+// cut 3
+// deal with increment 9
+// deal with increment 3
+// cut -1
+// `.trimLeft();
+//     const tot = BigInt(10);
+//     const cnt = BigInt(10);
+//     const start = BigInt(6);
 
     const input = `
 deal into new stack
@@ -25,9 +41,9 @@ deal with increment 9
 deal with increment 3
 cut -1
 `.trimLeft();
-    const tot = BigInt(10);
-    let cnt = BigInt(10);
-    let start = BigInt(6);
+    const tot = BigInt(13);
+    const cnt = BigInt(11);
+    const start = BigInt(6);
 
     const insts = input.trimRight().split(/\r?\n/)
         .map(i => i.match(/deal with increment (.*)|cut (.*)|deal into new stack/))

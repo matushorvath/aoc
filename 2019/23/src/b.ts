@@ -30,7 +30,7 @@ async function* getIns(d: Item) {
             }
 
             d.idle = true;
-            yield BigInt(-1);
+            yield -1n;
         } else {
             const [x, y] = d.q.shift();
             d.idle = false;

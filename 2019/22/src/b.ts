@@ -16,9 +16,14 @@ export const div = (a: number, b: number, m: number) => {
 };
 
 const main = async () => {
+    // const input = await fs.readFile('input', 'utf8');
+    // const tot = 119315717514047;
+    // const cnt = 101741582076661;
+    // const start = 2020;
+
     const input = await fs.readFile('input', 'utf8');
     const tot = 119315717514047;
-    const cnt = 101741582076661;
+    const cnt = 3;
     const start = 2020;
 
 //     const input = `
@@ -34,7 +39,8 @@ const main = async () => {
 // cut -1
 // `.trimLeft();
 //     const tot = 10;
-//     //let pos = 1;
+//     let cnt = 3;
+//     let start = 6;
 
     const insts = input.trimRight().split(/\r?\n/)
         .map(i => i.match(/deal with increment (.*)|cut (.*)|deal into new stack/))
@@ -43,11 +49,8 @@ const main = async () => {
     insts.reverse();
 
     let pos = start;
-    let period: number;
 
     for (let i = 0; i < cnt; i += 1) {
-        if (i % 1000000 === 0) console.log('itr 1', i);
-
         for (const inst of insts) {
             switch (inst.o) {
                 case 'D':
@@ -61,40 +64,10 @@ const main = async () => {
                     break;
             }
         }
-        //console.log('pos', pos);
-        if (pos % cnt === start) {
-            period = i;
-            break;
-        }
+        console.log('pos', i, pos);
     }
-    console.log('prd', period);
-    const newCnt = cnt % period;
-    console.log('nct', newCnt);
-
-    for (let i = 0; i < newCnt; i += 1) {
-        if (i % 1000000 === 0) console.log('itr 2', i);
-
-        for (const inst of insts) {
-            switch (inst.o) {
-                case 'D':
-                    pos = div(pos, inst.n, tot);
-                    break;
-                case 'C':
-                    pos = (pos + inst.n + tot) % tot;
-                    break;
-                case 'R':
-                    pos = tot - pos - 1;
-                    break;
-            }
-        }
-        if (pos === start) {
-            period = i;
-            break;
-        }
-    }
-    console.log('end', pos);
 };
 
-// main()
-//     .then(() => console.log('done'))
-//     .catch(error => console.log('error:', error));
+main()
+    .then(() => console.log('done'))
+    .catch(error => console.log('error:', error));

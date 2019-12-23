@@ -1,42 +1,31 @@
-import { promises as fs } from 'fs';
-import * as mathjs from 'mathjs';
-
-const invs: { [b: number]: number } = {};
-
-const inv = (b: number, m: number) => {
-    // Returns an array containing 3 integers [div, x, y] where div = gcd(a, b) and a*x + b*y = div
-    const [div, x, y] = (mathjs.xgcd(b, m) as unknown as mathjs.Matrix).toArray() as number[];
-    if (div !== 1) throw new Error(`not co-prime: ${b}, ${m}`);
-    return x;
-};
-
-const div = (a: number, b: number, m: number) => {
-    const x = invs[b] ?? (invs[b] = inv(b, m));
-    return ((x % m + m) % m * a) % m;
-};
+const bcu = require('bigint-crypto-utils');
 
 const main = async () => {
-    const tot = BigInt(119315717514047);
-    const cnt = 1101741582076661;
+    // const tot = BigInt(119315717514047);
+    // const cnt = 1101741582076661;
 
-    const mul = BigInt(137147148563639);
-    const add = BigInt(188769760351347);
+    // const mul = BigInt(45024166448568);
+    // const add = BigInt(97815358304278);
 
-    const start = BigInt(2020);
+    // const pos = BigInt(2020);
 
-    let pos = start;
-    let period: number;
+    const tot = BigInt(10);
+    const cnt = BigInt(3);
 
-    for (let i = 0; i < cnt; i += 1) {
-        if (i % 100000000 === 0) console.log('itr', i, i / cnt);
-        pos = (pos * mul + add) % tot;
+    const mul = BigInt(7);
+    const add = BigInt(7);
 
-        if (pos === start) {
-            period = i;
-            break;
-        }
-    }
-    console.log('prd', period);
+    const pos = BigInt(7);
+
+    const mul2: bigint = bcu.modPow(mul, cnt, tot);
+    const add2 = BigInt(9);//add * (BigInt(1) - mul2 + tot) % tot * bcu.modInv(BigInt(1) - mul + tot, tot) % tot;
+
+    console.log('mul add', mul2, add2);
+
+    const res = (pos - add2 + tot) % tot * bcu.modInv(mul2, tot) % tot;
+    console.log('res', res);
+
+    console.log((res * mul2 + add2) % tot);
 };
 
 main()

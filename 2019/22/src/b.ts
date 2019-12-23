@@ -3,14 +3,14 @@ import * as mathjs from 'mathjs';
 
 const invs: { [b: number]: number } = {};
 
-const inv = (b: number, m: number) => {
+export const inv = (b: number, m: number) => {
     // Returns an array containing 3 integers [div, x, y] where div = gcd(a, b) and a*x + b*y = div
     const [div, x, y] = (mathjs.xgcd(b, m) as unknown as mathjs.Matrix).toArray() as number[];
     if (div !== 1) throw new Error(`not co-prime: ${b}, ${m}`);
     return x;
 };
 
-const div = (a: number, b: number, m: number) => {
+export const div = (a: number, b: number, m: number) => {
     const x = invs[b] ?? (invs[b] = inv(b, m));
     return ((x % m + m) % m * a) % m;
 };
@@ -95,6 +95,6 @@ const main = async () => {
     console.log('end', pos);
 };
 
-main()
-    .then(() => console.log('done'))
-    .catch(error => console.log('error:', error));
+// main()
+//     .then(() => console.log('done'))
+//     .catch(error => console.log('error:', error));

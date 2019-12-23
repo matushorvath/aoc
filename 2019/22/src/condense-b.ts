@@ -18,7 +18,7 @@ const main = async () => {
 
     const input = await fs.readFile('input', 'utf8');
     const tot = 119315717514047;
-    const cnt = 101741582076661;
+    const cnt = BigInt(101741582076661);
     const pos = 2020;
 
     const insts = input.trimRight().split(/\r?\n/)
@@ -48,17 +48,22 @@ const main = async () => {
     }
     console.log('ply', mul, add);
 
-    let m2 = 1;
-    let a2 = 0;
+    let m1 = BigInt(mul);
+    let a1 = BigInt(mul);
+    let m2 = BigInt(1);
+    let a2 = BigInt(0);
 
     // m2 = mul ^ cnt;
     // a2 = add * (mul^0 + mul^1 + mul^2 + ... + mul^cnt)
 
     for (let i = 0; i < cnt; i += 1) {
-        //if (i % 100000000 === 0) console.log('itr2', i, i / cnt);
-        //if ((i & 0x7FFFFFFFFF) === 0) console.log('itr2', i, i / cnt);
-        a2 = (a2 + m2 * add) % cnt;
-        m2 = m2 * mul % cnt;
+        a2 = (a2 + m2 * a1) % cnt;
+        m2 = m2 * m1 % cnt;
+
+        if (m2 === BigInt(1)) {
+            console.log('m period', i + 1);
+            break;
+        }
     }
 
     console.log('ply2', m2, a2);

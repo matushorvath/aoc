@@ -20,13 +20,13 @@ const tonum = (d: number[][]) => {
 };
 
 const main = async () => {
-    const input = await fs.readFile('input', 'utf8');
-//     const input = `....#
-// #..#.
-// #..##
-// ..#..
-// #....
-// `;
+    //const input = await fs.readFile('input', 'utf8');
+    const input = `....#
+#..#.
+#..##
+..#..
+#....
+`;
 
     let d = input.trimRight().split(/\r?\n/).map(r => r.split('').map(c => c === '#' ? 1 : 0));
 

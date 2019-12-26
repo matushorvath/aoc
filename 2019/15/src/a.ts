@@ -11,79 +11,71 @@ function aset<T> (a: T[][], i0: number, i1: number, v: T) {
     a[i0][i1] = v;
 }
 
-const draw = (p: number) => {
-    switch (Number(p)) {
-        case 0: return '#';
-        case 1: return ' ';
-        case 2: return 'x';
+const logField = (x: number, y: number) => {
+    const rmn = Math.min(x, ...Object.keys(field).map(i => Number(i)));
+    const rmx = Math.max(x, ...Object.keys(field).map(i => Number(i)));
+    const cmn = Math.min(y, ...field.map(r => Math.min(...Object.keys(r).map(i => Number(i)))));
+    const cmx = Math.max(y, ...field.map(r => Math.max(...Object.keys(r).map(i => Number(i)))));
+
+    for (let r = rmn; r <= rmx; r += 1) {
+        const out: string[] = [];
+        for (let c = cmn; c <= cmx; c += 1) {
+            if (r === x && c === y) {
+                out.push('D');
+            } else if (field[r]?.[c] === undefined) {
+                out.push(' ');
+            } else {
+                out.push(field[r][c] === 0 ? '#' : field[r][c] === 2 ? 'X' : '.');
+            }
+        }
+        console.log(out.join(''));
     }
+    console.log('----------');
 };
 
-const logField = () => {
-    console.log(field.reduce((pc, c) => c.map((p, i) => (pc[i] || '') + draw(p)), [] as string[]).join('\n'));
-};
+async function* getIns(x: number, y: number): AsyncGenerator<bigint> {
+    if (field[x]?.[y + 1] === undefined) {
+        yield BigInt(4);
+        aset(field, x, y + 1, reply);
+        logField(x, y + 1);
 
-const rot = (d: number) => {
-    if (d === 1) return 4;
-    else if (d === 4) return 2;
-    else if (d === 2) return 3;
-    else return 1;
-};
-
-const mov = (nd: number, x: number, y: number) => {
-    if (nd === 1) return [x, y - 1];
-    else if (nd === 4) return [x + 1, y];
-    else if (nd === 2) return [x, y + 1];
-    else return [x - 1, y];
-};
-
-async function* getIns() {
-    let x = 0, y = 0;
-    let d = 1;
-
-    const route: number[] = [];
-    let back = false;
-    while (true) {
-        if (back) {
-            if (r !== 1) {
-                console.log('WTF', x, y, r, d);
-            } else {
-                [x, y] = mov(rot(rot(d)), x, y);
-                console.log('bspc', x, y);
-            }
-            back = false;
-        } else {
-            if (r === 0) {
-                const [wx, wy] = mov(d, x, y);
-                setField(Number(wx), Number(wy), r);
-                console.log('wall', wx, wy);
-            } else {
-                [x, y] = mov(d, x, y);
-                route.push(d);
-                setField(Number(x), Number(y), r);
-                console.log('spce', x, y);
-            }
-            if (r === 2) {
-                console.log('done', x, y);
-                break;
-            }
+        if (reply !== 0) {
+            if (reply === 2) console.log('found', x, y + 1);
+            yield* getIns(x, y + 1);
+            yield BigInt(3);
         }
+    }
+    if (field[x]?.[y - 1] === undefined) {
+        yield BigInt(3);
+        aset(field, x, y - 1, reply);
+        logField(x, y - 1);
 
-        let i: number;
-        for (i = 0; i < 4; i += 1) {
-            const [nx, ny] = mov(d, x, y);
-            if (getField(nx, ny) === undefined) {
-                console.log('go', d);
-                yield BigInt(d);
-                break;
-            }
-            d = rot(d);
+        if (reply !== 0) {
+            if (reply === 2) console.log('found', x, y - 1);
+            yield* getIns(x, y - 1);
+            yield BigInt(4);
         }
-        if (i === 4) {
-            const d = route.pop();
-            console.log('back', d);
-            yield BigInt(rot(rot(d)));
-            back = true;
+    }
+    if (field[x + 1]?.[y] === undefined) {
+        yield BigInt(2);
+        aset(field, x + 1, y, reply);
+        logField(x + 1, y);
+
+        if (reply !== 0) {
+            if (reply === 2) console.log('found', x + 1, y);
+            yield* getIns(x + 1, y);
+            yield BigInt(1);
+        }
+    }
+    if (field[x - 1]?.[y] === undefined) {
+        yield BigInt(1);
+        aset(field, x - 1, y, reply);
+        logField(x - 1, y);
+
+        if (reply !== 0) {
+            if (reply === 2) console.log('done', x - 1, y);
+            yield* getIns(x - 1, y);
+            yield BigInt(2);
         }
     }
 }
@@ -94,7 +86,9 @@ const main = async () => {
     const mem = input.split(',').reduce((m, s, i) => ({ [`${i}`]: BigInt(s), ...m }), {}) as { [addr: string]: bigint };
     const vm = new Vm(0, mem);
 
-    for await (const out of vm.run(getIns())) {
+    field[0] = [1];
+
+    for await (const out of vm.run(getIns(0, 0))) {
         reply = Number(out);
     }
 };

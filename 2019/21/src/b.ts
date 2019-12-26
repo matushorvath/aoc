@@ -1,4 +1,4 @@
-import { promises as fs, exists } from 'fs';
+import { promises as fs } from 'fs';
 import { Mem, Vm } from './vm-b';
 
 let vm: Vm;

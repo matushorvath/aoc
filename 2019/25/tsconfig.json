@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "noImplicitAny": true,
+        "outDir": "bin",
+        "sourceMap": true
+    },
+    "include": [
+        "src/**/*"
+    ]
+}

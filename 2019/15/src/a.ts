@@ -91,6 +91,45 @@ const main = async () => {
     for await (const out of vm.run(getIns(0, 0))) {
         reply = Number(out);
     }
+
+    // Solve the maze
+    const rmn = Math.min(...Object.keys(field).map(i => Number(i)));
+    const rmx = Math.max(...Object.keys(field).map(i => Number(i)));
+    const cmn = Math.min(...field.map(r => Math.min(...Object.keys(r).map(i => Number(i)))));
+    const cmx = Math.max(...field.map(r => Math.max(...Object.keys(r).map(i => Number(i)))));
+
+    let [x, y] = [0, 0];
+
+    const vals: number[][] = [];
+    const vist: boolean[][] = [];
+    (vals[x] = vals[x] ?? [])[y] = 0;
+
+    while (field[x]?.[y] !== 2) {
+        for (const [i, j] of [[x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1]]) {
+            if (field[i][j] > 0) {
+                (vals[i] = vals[i] ?? [])[j] = Math.min(vals[i]?.[j] ?? Infinity, vals[x][y] + 1);
+            }
+        }
+
+        (vist[x] = vist[x] ?? [])[y] = true;
+
+        let min = Infinity;
+        for (let i = rmn; i <= rmx; i += 1) {
+            for (let j = cmn; j <= cmx; j += 1) {
+                if (!vist[i]?.[j] && (vals[i]?.[j] ?? Infinity) < min) {
+                    [x, y] = [i, j];
+                    min = vals[i][j];
+                }
+            }
+        }
+
+        // console.log('xy', [x, y]);
+        // console.log(Array.from({ length: x3 }).map((_1, i) =>
+        //     Array.from({ length: y3 }).map((_2, j) =>
+        //         ('   ' + (vals[i]?.[j] ?? '')).slice(-3)).join(',')).join('\n'));
+    }
+
+    console.log('steps', vals[x][y]);
 };
 
 main()

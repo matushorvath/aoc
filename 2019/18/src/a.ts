@@ -48,19 +48,30 @@ const main = async () => {
 // #d.....................#
 // ########################
 // `;
+// const input =
+// `########################
+// #...............b.C.D.f#
+// #.######################
+// #.....@.a.B.c.d.A.e.F.g#
+// ########################
+// `;
 const input =
-`########################
-#...............b.C.D.f#
-#.######################
-#.....@.a.B.c.d.A.e.F.g#
-########################
+`#################
+#i.G..c...e..H.p#
+########.########
+#j.A..b...f..D.o#
+########@########
+#k.E..a...g..B.n#
+########.########
+#l.F..d...h..C.m#
+#################
 `;
 
     const field = input.trimRight().split(/\r?\n/).map(r => r.split(''));
 
     let [x, y] = field.reduce((tr, r, ri) => tr[1] >= 0 ? tr : [ri, r.indexOf('@')], [-1, -1]);
     aset(field, x, y, '.');
-    //logField(field, x, y);
+    logField(field, x, y);
 
     const mxk = field.reduce((tr, r) => [...tr, ...r.filter(c => c >= 'a' && c <= 'z')], []).sort().pop();
     const kl = mxk.charCodeAt(0) - 'a'.charCodeAt(0) + 1;
@@ -87,8 +98,8 @@ const input =
         vset(vist, x, y, keys, true);
 
         //console.log(vist)
-        //console.log('xyk', [x, y, keys]);
-        //logField(field, x, y);
+        console.log('xyk', [x, y, keys]);
+        logField(field, x, y);
 
         let min = Infinity;
         for (let i = 0; i < field.length; i += 1) {

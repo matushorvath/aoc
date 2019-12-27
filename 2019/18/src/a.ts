@@ -1,10 +1,20 @@
 import { promises as fs } from 'fs';
 
-function aset<T> (a: T[][], i0: number, i1: number, v: T) {
-    if (a[i0] === undefined) {
-        a[i0] = [];
+function aset<T> (a: T[][], r: number, c: number, v: T) {
+    if (a[r] === undefined) {
+        a[r] = [];
     }
-    a[i0][i1] = v;
+    a[r][c] = v;
+}
+
+function vset<T> (a: { [k: string]: T }[][], r: number, c: number, k: string, v: T) {
+    if (a[r] === undefined) {
+        a[r] = [];
+    }
+    if (a[r][c] === undefined) {
+        a[r][c] = {};
+    }
+    a[r][c][k] = v;
 }
 
 const logField = (field: string[][], x: number, y: number) => {
@@ -38,37 +48,47 @@ const main = async () => {
     aset(field, x, y, '.');
     logField(field, x, y);
 
-    // Solve the maze
-    const vals: number[][] = [];
-    const vist: boolean[][] = [];
-    (vals[x] = vals[x] ?? [])[y] = 0;
+    const vals: { [key: string]: number }[][] = [];
+    const vist: { [key: string]: boolean }[][] = [];
+    vset(vals, x, y, '', 0);
 
-    while (true) {
+    let keys = '';
+
+    while (keys.length < 2) {
         for (const [i, j] of [[x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1]]) {
-            if (field[i][j] === '.') {
-                (vals[i] = vals[i] ?? [])[j] = Math.min(vals[i]?.[j] ?? Infinity, vals[x][y] + 1);
+            const isKey = field[i][j] >= 'a' && field[i][j] <= 'z';
+            const isDoor = field[i][j] >= 'A' && field[i][j] <= 'Z';
+
+            const newKeys = isKey ? [...new Set([field[i][j], ...keys.split('')])].sort().join('') : keys;
+
+            if (field[i][j] === '.' || isKey || (isDoor && keys.indexOf(field[i][j].toLowerCase()) >= 0)) {
+                vset(vals, i, j, newKeys, Math.min(vals[i]?.[j]?.[newKeys] ?? Infinity, vals[x][y][keys] + 1));
             }
         }
 
-        (vist[x] = vist[x] ?? [])[y] = true;
+        vset(vist, x, y, keys, true);
+
+        console.log(vist)
+        console.log('xyk', [x, y, keys]);
+        logField(field, x, y);
 
         let min = Infinity;
         for (let i = 0; i < field.length; i += 1) {
             for (let j = 0; j < field[0].length; j += 1) {
-                if (!vist[i]?.[j] && (vals[i]?.[j] ?? Infinity) < min) {
-                    [x, y] = [i, j];
-                    min = vals[i][j];
+                for (const k of Object.keys(vals[i]?.[j] ?? {})) {
+                    if (!vist[i]?.[j]?.[k] && (vals[i]?.[j]?.[k] ?? Infinity) < min) {
+                        [x, y, keys] = [i, j, k];
+                        min = vals[i][j][k];
+                    }
                 }
             }
         }
         if (min === Infinity) {
-            console.log('finished', vals[x][y]);
+            console.log('inf', vals[x][y][keys]);
             break;
         }
-
-        // console.log('xy', [x, y]);
-        logField(field, x, y);
     }
+    console.log('fin', vals[x][y][keys]);
 };
 
 main()

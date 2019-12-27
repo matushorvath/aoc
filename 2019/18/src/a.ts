@@ -98,7 +98,7 @@ const input4 =
 #l.F..d...h..C.m#
 #################
 `;
-const input = input4;
+const input = input0;
 
     const field = input.trimRight().split(/\r?\n/).map(r => r.split(''));
 

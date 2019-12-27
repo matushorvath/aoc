@@ -8,12 +8,12 @@ interface Op {
 export type Mem = { [addr: string]: bigint };
 
 export class Vm {
-    constructor(private id: number, private mem: Mem) {
-        this.ip = BigInt(0);
-        this.rb = BigInt(0);
+    constructor(public id: number, private mem: Mem) {
+        this.ip = 0n;
+        this.rb = 0n;
     }
 
-    private ip: bigint;
+    public ip: bigint;
     private rb: bigint;
 
     dumpMem = (): Mem => {
@@ -29,7 +29,7 @@ export class Vm {
         const addrString = `${addr}`;
         let val = this.mem[addrString];
         if (val === undefined) {
-            this.mem[addrString] = val = BigInt(0);
+            this.mem[addrString] = val = 0n;
         }
         return val;
     };
@@ -66,7 +66,7 @@ export class Vm {
                 return val;
             }
             default:
-                throw new Error(`mode error: mem ${JSON.stringify(this.mem)} ip ${JSON.stringify(this.ip)} o ${JSON.stringify(o)} idx ${idx}`);
+                throw new Error(`mode error: mem ${this.mem} ip ${this.ip} o ${o} idx ${idx}`);
         }
     };
 
@@ -86,7 +86,7 @@ export class Vm {
                 break;
             }
             default:
-                throw new Error(`mode error: mem ${JSON.stringify(this.mem)} ip ${JSON.stringify(this.ip)} o ${JSON.stringify(o)} idx ${idx}`);
+                throw new Error(`mode error: mem ${this.mem} ip ${this.ip} o ${o} idx ${idx}`);
         }
     };
 
@@ -98,61 +98,64 @@ export class Vm {
             switch (o.oc) {
                 case 1: // add
                     this.setParam(o, 2, this.getParam(o, 0) + this.getParam(o, 1));
-                    this.ip += BigInt(4);
+                    this.ip += 4n;
                     break;
                 case 2: // mul
                     this.setParam(o, 2, this.getParam(o, 0) * this.getParam(o, 1));
-                    this.ip += BigInt(4);
+                    this.ip += 4n;
                     break;
                 case 3: { // in
                     const { value, done } = await ins.next();
-                    if (done) { console.log(this.id, 'ins done'); return; }
+                    if (done) {
+                        //console.log(this.id, 'ins done');
+                        return;
+                    }
                     //console.log(this.id, 'in', value);
                     this.setParam(o, 0, value);
-                    this.ip += BigInt(2);
+                    this.ip += 2n;
                     break;
                 }
                 case 4: { // out
                     const value = this.getParam(o, 0);
                     //console.log(this.id, 'out', value);
-                    this.ip += BigInt(2);
+                    this.ip += 2n;
                     yield value;
                     break;
                 }
                 case 5: // jnz
-                    if (this.getParam(o, 0) !== BigInt(0)) {
+                    if (this.getParam(o, 0) !== 0n) {
                         this.ip = this.getParam(o, 1)
                         //console.log(this.id, 'jump', this.ip);
                     } else {
-                        this.ip += BigInt(3);
+                        this.ip += 3n;
                     }
                     break;
                 case 6: // jz
-                    if (this.getParam(o, 0) === BigInt(0)) {
+                    if (this.getParam(o, 0) === 0n) {
                         this.ip = this.getParam(o, 1)
                         //console.log(this.id, 'jump', this.ip);
                     } else {
-                        this.ip += BigInt(3);
+                        this.ip += 3n;
                     }
                     break;
                 case 7: // lt
-                    this.setParam(o, 2, this.getParam(o, 0) < this.getParam(o, 1) ? BigInt(1) :BigInt(0));
-                    this.ip += BigInt(4);
+                    this.setParam(o, 2, this.getParam(o, 0) < this.getParam(o, 1) ? 1n : 0n);
+                    this.ip += 4n;
                     break;
                 case 8: // eq
-                    this.setParam(o, 2, this.getParam(o, 0) === this.getParam(o, 1) ? BigInt(1) : BigInt(0));
-                    this.ip += BigInt(4);
+                    this.setParam(o, 2, this.getParam(o, 0) === this.getParam(o, 1) ? 1n : 0n);
+                    this.ip += 4n;
                     break;
                 case 9: // arb
                     this.rb += this.getParam(o, 0);
-                    this.ip += BigInt(2);
+                    this.ip += 2n;
                     //console.log(this.id, `rb <- ${this.rb}`);
                     break;
                 case 99: // hlt
                     console.log(this.id, 'halt');
                     return;
                 default:
-                    throw new Error(`opcode error: mem ${JSON.stringify(this.mem)} ip ${JSON.stringify(this.ip)} o ${JSON.stringify(o)}`);
+                    throw new Error(`opcode error: mem ${this.mem} ip ${this.ip} oc ${o.oc}`);
             }
         }
     };
@@ -174,40 +177,40 @@ export class Vm {
     private dasmOp = (o: Op) => {
         switch (o.oc) {
             case 1:
-                return { asm:`add\t${this.dasmParam(o, 0)}, ${this.dasmParam(o, 1)}, ${this.dasmParam(o, 2)}`, ip: 4 };
+                return { asm:`add\t${this.dasmParam(o, 0)}, ${this.dasmParam(o, 1)}, ${this.dasmParam(o, 2)}`, ip: 4n };
             case 2: // mul
-                return { asm:`mul\t${this.dasmParam(o, 0)}, ${this.dasmParam(o, 1)}, ${this.dasmParam(o, 2)}`, ip: 4 };
+                return { asm:`mul\t${this.dasmParam(o, 0)}, ${this.dasmParam(o, 1)}, ${this.dasmParam(o, 2)}`, ip: 4n };
             case 3: // in
-                return { asm:`in\t${this.dasmParam(o, 0)}`, ip: 2 };
+                return { asm:`in\t${this.dasmParam(o, 0)}`, ip: 2n };
             case 4: // out
-                return { asm:`out\t${this.dasmParam(o, 0)}`, ip: 2 };
+                return { asm:`out\t${this.dasmParam(o, 0)}`, ip: 2n };
             case 5: // jnz
-                return { asm:`jnz\t${this.dasmParam(o, 0)}, ${this.dasmParam(o, 2)}`, ip: 3 };
+                return { asm:`jnz\t${this.dasmParam(o, 0)}, ${this.dasmParam(o, 2)}`, ip: 3n };
             case 6: // jz
-                return { asm:`jz\t${this.dasmParam(o, 0)}, ${this.dasmParam(o, 2)}`, ip: 3 };
+                return { asm:`jz\t${this.dasmParam(o, 0)}, ${this.dasmParam(o, 2)}`, ip: 3n };
             case 7: // lt
-                return { asm:`lt\t${this.dasmParam(o, 0)}, ${this.dasmParam(o, 1)}, ${this.dasmParam(o, 2)}`, ip: 4 };
+                return { asm:`lt\t${this.dasmParam(o, 0)}, ${this.dasmParam(o, 1)}, ${this.dasmParam(o, 2)}`, ip: 4n };
             case 8: // eq
-                return { asm:`eq\t${this.dasmParam(o, 0)}, ${this.dasmParam(o, 1)}, ${this.dasmParam(o, 2)}`, ip: 4 };
+                return { asm:`eq\t${this.dasmParam(o, 0)}, ${this.dasmParam(o, 1)}, ${this.dasmParam(o, 2)}`, ip: 4n };
             case 9: // arb
-                return { asm:`arb\t${this.dasmParam(o, 0)}`, ip: 2 };
+                return { asm:`arb\t${this.dasmParam(o, 0)}`, ip: 2n };
             case 99: // hlt
-                return { asm:`hlt`, ip: 1 };
+                return { asm:`hlt`, ip: 1n };
             default:
-                return { asm:`db\t${this.getMem(this.ip)}`, ip: 1 };
+                return { asm:`db\t${this.getMem(this.ip)}`, ip: 1n };
         }
     };
 
-    dasm = (start: bigint = BigInt(0), len: bigint = undefined) => {
+    dasm = (start: bigint = 0n, len: bigint = undefined) => {
         const code:{ [ip: string]: string } = {};
 
-        let ipFrom = start || BigInt(0);
+        let ipFrom = start || 0n;
 
-        let ipTo: BigInt;
+        let ipTo: bigint;
         if (len !== undefined) {
             ipTo = start + len;
         } else {
-            ipTo = Object.keys(this.mem).reduce((max, val) => max > BigInt(val) ? max : BigInt(val), BigInt(0));
+            ipTo = Object.keys(this.mem).reduce((max, val) => max > BigInt(val) ? max : BigInt(val), 0n);
         }
 
         this.ip = ipFrom;
@@ -215,7 +218,7 @@ export class Vm {
             const o = this.getOp();
             const { asm, ip } = this.dasmOp(o);
             code[`${this.ip}`] = asm;
-            this.ip += BigInt(ip);
+            this.ip += ip;
         }
 
         return Object.keys(code).map(ip => `${ip}\t${code[Number(ip)]}`).join(os.EOL);

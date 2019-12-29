@@ -1,4 +1,5 @@
-import * as os from 'os';
+// This needs target: ESNext in tsconfig.json
+/*import * as os from 'os';
 
 interface Op {
     oc: number;
@@ -224,3 +225,4 @@ export class Vm {
         return Object.keys(code).map(ip => `${ip}\t${code[Number(ip)]}`).join(os.EOL);
     };
 }
+*/

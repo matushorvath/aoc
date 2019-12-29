@@ -35,13 +35,13 @@ const run = async (name: string, code: number[], ins: number[], outs: number[]) 
 };
 
 const main = async () => {
-    await run('TEST', TEST, [1], [0, 0, 0, 0, 0, 0, 0, 0, 0, 7265618]);
+    // await run('TEST', TEST, [1], [0, 0, 0, 0, 0, 0, 0, 0, 0, 7265618]);
     await run('SUM_OF_PRIMES', SUM_OF_PRIMES, [100000], [454396537]);
-    await run('ACKERMANN', ACKERMANN, [3, 6], [509]);
-    await run('ISQRT', ISQRT, [130], [11]);
-    await run('DIV_MOD', DIV_MOD, [1024, 3], [341, 1]);
-    await run('PRIME_FACTOR 1', PRIME_FACTOR, [2147483647], [2147483647]);
-    await run('PRIME_FACTOR 2', PRIME_FACTOR, [19201644899], [138569, 138571]);
+    // await run('ACKERMANN', ACKERMANN, [3, 6], [509]);
+    // await run('ISQRT', ISQRT, [130], [11]);
+    // await run('DIV_MOD', DIV_MOD, [1024, 3], [341, 1]);
+    // await run('PRIME_FACTOR 1', PRIME_FACTOR, [2147483647], [2147483647]);
+    // await run('PRIME_FACTOR 2', PRIME_FACTOR, [19201644899], [138569, 138571]);
 };
 
 main()

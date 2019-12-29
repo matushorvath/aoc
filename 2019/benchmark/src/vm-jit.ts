@@ -14,132 +14,131 @@ export class Vm {
     private ip: number;
     private rb: number;
 
-    private getMem = (addr: number) => {
-        return this.mem[addr];
-    };
-
-    private setMem = (addr: number, val: number) => {
-        this.mem[addr] = val;
-    };
-
-    private getOp = () => {
-        const ocn = Number(this.getMem(this.ip));
-        const oc = ocn % 100;
-        const mds = [100, 1000, 10000].map(x => Math.trunc(ocn / x) % 10);
-
-        return { oc, mds };
-    };
-
-    private getParam = (o: Op, idx: number) => {
-        switch (o.mds[idx]) {
-            case 0: { // position mode
-                const addr = this.getMem(this.ip + idx + 1);
-                const val = this.getMem(addr);
-                //console.log(this.id, `G [${addr}] -> ${val}`);
-                return val;
-            }
-            case 1: { // immediate mode
-                return this.getMem(this.ip + idx + 1);
-            }
-            case 2: { // relative mode
-                const raddr = this.getMem(this.ip + idx + 1);
-                const addr = this.rb + raddr;
-                const val = this.getMem(addr);
-                //console.log(this.id, `G [rb + ${raddr} = ${addr}] -> ${val}`);
-                return val;
-            }
-            default:
-                throw new Error(`mode error: mem ${this.mem} ip ${this.ip} o ${o} idx ${idx}`);
-        }
-    };
-
-    private setParam = (o: Op, idx: number, val: number) => {
-        switch (o.mds[idx]) {
-            case 0: { // position mode
-                const addr = this.getMem(this.ip + idx + 1);
-                this.setMem(addr, val);
-                //console.log(this.id, `S [${addr}] <- ${val}`);
-                break;
-            }
-            case 2: { // relative mode
-                const raddr = this.getMem(this.ip + idx + 1);
-                const addr = this.rb + raddr;
-                this.setMem(addr, val);
-                //console.log(this.id, `S [rb + ${raddr} = ${addr}] <- ${val}`);
-                break;
-            }
-            default:
-                throw new Error(`mode error: mem ${this.mem} ip ${this.ip} o ${o} idx ${idx}`);
-        }
+    dumpMem = (): Mem => {
+        return { ...this.mem };
     };
 
     run = async function* (ins: AsyncGenerator<number> = (async function* () {})()): AsyncGenerator<number> {
-        while (true) {
-            const o = this.getOp();
-            //console.log(this.id, 'op', this.ip, this.dasmOp(o).asm.replace('\t', ' '), `rb: ${this.rb}`);
+        const ops: { [oc: number]: [Function, number, string?] } = {
+                1: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.mem[this.ip + 1]] + this.mem[this.mem[this.ip + 2]], 4],
+              101: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.ip + 1] + this.mem[this.mem[this.ip + 2]], 4],
+              201: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.rb + this.mem[this.ip + 1]] + this.mem[this.mem[this.ip + 2]], 4],
+             1001: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.mem[this.ip + 1]] + this.mem[this.ip + 2], 4],
+             1101: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.ip + 1] + this.mem[this.ip + 2], 4],
+             1201: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.rb + this.mem[this.ip + 1]] + this.mem[this.ip + 2], 4],
+             2001: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.mem[this.ip + 1]] + this.mem[this.rb + this.mem[this.ip + 2]], 4],
+             2101: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.ip + 1] + this.mem[this.rb + this.mem[this.ip + 2]], 4],
+             2201: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.rb + this.mem[this.ip + 1]] + this.mem[this.rb + this.mem[this.ip + 2]], 4],
+            20001: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.mem[this.ip + 1]] + this.mem[this.mem[this.ip + 2]], 4],
+            20101: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.ip + 1] + this.mem[this.mem[this.ip + 2]], 4],
+            20201: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.rb + this.mem[this.ip + 1]] + this.mem[this.mem[this.ip + 2]], 4],
+            21001: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.mem[this.ip + 1]] + this.mem[this.ip + 2], 4],
+            21101: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.ip + 1] + this.mem[this.ip + 2], 4],
+            21201: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.rb + this.mem[this.ip + 1]] + this.mem[this.ip + 2], 4],
+            22001: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.mem[this.ip + 1]] + this.mem[this.rb + this.mem[this.ip + 2]], 4],
+            22101: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.ip + 1] + this.mem[this.rb + this.mem[this.ip + 2]], 4],
+            22201: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.rb + this.mem[this.ip + 1]] + this.mem[this.rb + this.mem[this.ip + 2]], 4],
 
-            switch (o.oc) {
-                case 1: // add
-                    this.setParam(o, 2, this.getParam(o, 0) + this.getParam(o, 1));
-                    this.ip += 4;
-                    break;
-                case 2: // mul
-                    this.setParam(o, 2, this.getParam(o, 0) * this.getParam(o, 1));
-                    this.ip += 4;
-                    break;
-                case 3: { // in
-                    const { value, done } = await ins.next();
-                    if (done) {
-                        //console.log(this.id, 'ins done');
-                        return;
-                    }
-                    //console.log(this.id, 'in', value);
-                    this.setParam(o, 0, value);
-                    this.ip += 2;
-                    break;
-                }
-                case 4: { // out
-                    const value = this.getParam(o, 0);
-                    //console.log(this.id, 'out', value);
-                    this.ip += 2;
-                    yield value;
-                    break;
-                }
-                case 5: // jnz
-                    if (this.getParam(o, 0) !== 0) {
-                        this.ip = this.getParam(o, 1)
-                        //console.log(this.id, 'jump', this.ip);
-                    } else {
-                        this.ip += 3;
-                    }
-                    break;
-                case 6: // jz
-                    if (this.getParam(o, 0) === 0) {
-                        this.ip = this.getParam(o, 1)
-                        //console.log(this.id, 'jump', this.ip);
-                    } else {
-                        this.ip += 3;
-                    }
-                    break;
-                case 7: // lt
-                    this.setParam(o, 2, this.getParam(o, 0) < this.getParam(o, 1) ? 1 : 0);
-                    this.ip += 4;
-                    break;
-                case 8: // eq
-                    this.setParam(o, 2, this.getParam(o, 0) === this.getParam(o, 1) ? 1 : 0);
-                    this.ip += 4;
-                    break;
-                case 9: // arb
-                    this.rb += this.getParam(o, 0);
-                    this.ip += 2;
-                    //console.log(this.id, `rb <- ${this.rb}`);
-                    break;
-                case 99: // hlt
-                    //console.log(this.id, 'halt');
-                    return;
-                default:
-                    throw new Error(`opcode error: mem ${this.mem} ip ${this.ip} oc ${o.oc}`);
-            }
+                2: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.mem[this.ip + 1]] * this.mem[this.mem[this.ip + 2]], 4],
+              102: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.ip + 1] * this.mem[this.mem[this.ip + 2]], 4],
+              202: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.rb + this.mem[this.ip + 1]] * this.mem[this.mem[this.ip + 2]], 4],
+             1002: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.mem[this.ip + 1]] * this.mem[this.ip + 2], 4],
+             1102: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.ip + 1] * this.mem[this.ip + 2], 4],
+             1202: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.rb + this.mem[this.ip + 1]] * this.mem[this.ip + 2], 4],
+             2002: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.mem[this.ip + 1]] * this.mem[this.rb + this.mem[this.ip + 2]], 4],
+             2102: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.ip + 1] * this.mem[this.rb + this.mem[this.ip + 2]], 4],
+             2202: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.rb + this.mem[this.ip + 1]] * this.mem[this.rb + this.mem[this.ip + 2]], 4],
+            20002: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.mem[this.ip + 1]] * this.mem[this.mem[this.ip + 2]], 4],
+            20102: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.ip + 1] * this.mem[this.mem[this.ip + 2]], 4],
+            20202: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.rb + this.mem[this.ip + 1]] * this.mem[this.mem[this.ip + 2]], 4],
+            21002: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.mem[this.ip + 1]] * this.mem[this.ip + 2], 4],
+            21102: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.ip + 1] * this.mem[this.ip + 2], 4],
+            21202: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.rb + this.mem[this.ip + 1]] * this.mem[this.ip + 2], 4],
+            22002: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.mem[this.ip + 1]] * this.mem[this.rb + this.mem[this.ip + 2]], 4],
+            22102: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.ip + 1] * this.mem[this.rb + this.mem[this.ip + 2]], 4],
+            22202: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.rb + this.mem[this.ip + 1]] * this.mem[this.rb + this.mem[this.ip + 2]], 4],
+
+                3: [async () => { const { value } = await ins.next(); this.mem[this.mem[this.ip + 1]] = value; }, 2],
+              203: [async () => { const { value } = await ins.next(); this.mem[this.rb + this.mem[this.ip + 1]] = value; }, 2],
+
+                4: [() => this.mem[this.mem[this.ip + 1]], 2, 'out'],
+              104: [() => this.mem[this.ip + 1], 2, 'out'],
+              204: [() => this.mem[this.rb + this.mem[this.ip + 1]], 2, 'out'],
+
+                5: [() => this.ip = this.mem[this.mem[this.ip + 1]] !== 0 ? this.mem[this.mem[this.ip + 2]] : this.ip + 3, 0],
+              105: [() => this.ip = this.mem[this.ip + 1] !== 0 ? this.mem[this.mem[this.ip + 2]] : this.ip + 3, 0],
+              205: [() => this.ip = this.mem[this.rb + this.mem[this.ip + 1]] !== 0 ? this.mem[this.mem[this.ip + 2]] : this.ip + 3, 0],
+             1005: [() => this.ip = this.mem[this.mem[this.ip + 1]] !== 0 ? this.mem[this.ip + 2] : this.ip + 3, 0],
+             1105: [() => this.ip = this.mem[this.ip + 1] !== 0 ? this.mem[this.ip + 2] : this.ip + 3, 0],
+             1205: [() => this.ip = this.mem[this.rb + this.mem[this.ip + 1]] !== 0 ? this.mem[this.ip + 2] : this.ip + 3, 0],
+             2005: [() => this.ip = this.mem[this.mem[this.ip + 1]] !== 0 ? this.mem[this.rb + this.mem[this.ip + 2]] : this.ip + 3, 0],
+             2105: [() => this.ip = this.mem[this.ip + 1] !== 0 ? this.mem[this.rb + this.mem[this.ip + 2]] : this.ip + 3, 0],
+             2205: [() => this.ip = this.mem[this.rb + this.mem[this.ip + 1]] !== 0 ? this.mem[this.rb + this.mem[this.ip + 2]] : this.ip + 3, 0],
+
+                6: [() => this.ip = this.mem[this.mem[this.ip + 1]] === 0 ? this.mem[this.mem[this.ip + 2]] : this.ip + 3, 0],
+              106: [() => this.ip = this.mem[this.ip + 1] === 0 ? this.mem[this.mem[this.ip + 2]] : this.ip + 3, 0],
+              206: [() => this.ip = this.mem[this.rb + this.mem[this.ip + 1]] === 0 ? this.mem[this.mem[this.ip + 2]] : this.ip + 3, 0],
+             1006: [() => this.ip = this.mem[this.mem[this.ip + 1]] === 0 ? this.mem[this.ip + 2] : this.ip + 3, 0],
+             1106: [() => this.ip = this.mem[this.ip + 1] === 0 ? this.mem[this.ip + 2] : this.ip + 3, 0],
+             1206: [() => this.ip = this.mem[this.rb + this.mem[this.ip + 1]] === 0 ? this.mem[this.ip + 2] : this.ip + 3, 0],
+             2006: [() => this.ip = this.mem[this.mem[this.ip + 1]] === 0 ? this.mem[this.rb + this.mem[this.ip + 2]] : this.ip + 3, 0],
+             2106: [() => this.ip = this.mem[this.ip + 1] === 0 ? this.mem[this.rb + this.mem[this.ip + 2]] : this.ip + 3, 0],
+             2206: [() => this.ip = this.mem[this.rb + this.mem[this.ip + 1]] === 0 ? this.mem[this.rb + this.mem[this.ip + 2]] : this.ip + 3, 0],
+
+                7: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.mem[this.ip + 1]] < this.mem[this.mem[this.ip + 2]] ? 1 : 0, 4],
+              107: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.ip + 1] < this.mem[this.mem[this.ip + 2]] ? 1 : 0, 4],
+              207: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.rb + this.mem[this.ip + 1]] < this.mem[this.mem[this.ip + 2]] ? 1 : 0, 4],
+             1007: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.mem[this.ip + 1]] < this.mem[this.ip + 2] ? 1 : 0, 4],
+             1107: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.ip + 1] < this.mem[this.ip + 2] ? 1 : 0, 4],
+             1207: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.rb + this.mem[this.ip + 1]] < this.mem[this.ip + 2] ? 1 : 0, 4],
+             2007: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.mem[this.ip + 1]] < this.mem[this.rb + this.mem[this.ip + 2]] ? 1 : 0, 4],
+             2107: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.ip + 1] < this.mem[this.rb + this.mem[this.ip + 2]] ? 1 : 0, 4],
+             2207: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.rb + this.mem[this.ip + 1]] < this.mem[this.rb + this.mem[this.ip + 2]] ? 1 : 0, 4],
+            20007: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.mem[this.ip + 1]] < this.mem[this.mem[this.ip + 2]] ? 1 : 0, 4],
+            20107: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.ip + 1] < this.mem[this.mem[this.ip + 2]] ? 1 : 0, 4],
+            20207: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.rb + this.mem[this.ip + 1]] < this.mem[this.mem[this.ip + 2]] ? 1 : 0, 4],
+            21007: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.mem[this.ip + 1]] < this.mem[this.ip + 2] ? 1 : 0, 4],
+            21107: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.ip + 1] < this.mem[this.ip + 2] ? 1 : 0, 4],
+            21207: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.rb + this.mem[this.ip + 1]] < this.mem[this.ip + 2] ? 1 : 0, 4],
+            22007: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.mem[this.ip + 1]] < this.mem[this.rb + this.mem[this.ip + 2]] ? 1 : 0, 4],
+            22107: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.ip + 1] < this.mem[this.rb + this.mem[this.ip + 2]] ? 1 : 0, 4],
+            22207: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.rb + this.mem[this.ip + 1]] < this.mem[this.rb + this.mem[this.ip + 2]] ? 1 : 0, 4],
+
+                8: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.mem[this.ip + 1]] === this.mem[this.mem[this.ip + 2]] ? 1 : 0, 4],
+              108: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.ip + 1] === this.mem[this.mem[this.ip + 2]] ? 1 : 0, 4],
+              208: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.rb + this.mem[this.ip + 1]] === this.mem[this.mem[this.ip + 2]] ? 1 : 0, 4],
+             1008: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.mem[this.ip + 1]] === this.mem[this.ip + 2] ? 1 : 0, 4],
+             1108: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.ip + 1] === this.mem[this.ip + 2] ? 1 : 0, 4],
+             1208: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.rb + this.mem[this.ip + 1]] === this.mem[this.ip + 2] ? 1 : 0, 4],
+             2008: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.mem[this.ip + 1]] === this.mem[this.rb + this.mem[this.ip + 2]] ? 1 : 0, 4],
+             2108: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.ip + 1] === this.mem[this.rb + this.mem[this.ip + 2]] ? 1 : 0, 4],
+             2208: [() => this.mem[this.mem[this.ip + 3]] = this.mem[this.rb + this.mem[this.ip + 1]] === this.mem[this.rb + this.mem[this.ip + 2]] ? 1 : 0, 4],
+            20008: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.mem[this.ip + 1]] === this.mem[this.mem[this.ip + 2]] ? 1 : 0, 4],
+            20108: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.ip + 1] === this.mem[this.mem[this.ip + 2]] ? 1 : 0, 4],
+            20208: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.rb + this.mem[this.ip + 1]] === this.mem[this.mem[this.ip + 2]] ? 1 : 0, 4],
+            21008: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.mem[this.ip + 1]] === this.mem[this.ip + 2] ? 1 : 0, 4],
+            21108: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.ip + 1] === this.mem[this.ip + 2] ? 1 : 0, 4],
+            21208: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.rb + this.mem[this.ip + 1]] === this.mem[this.ip + 2] ? 1 : 0, 4],
+            22008: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.mem[this.ip + 1]] === this.mem[this.rb + this.mem[this.ip + 2]] ? 1 : 0, 4],
+            22108: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.ip + 1] === this.mem[this.rb + this.mem[this.ip + 2]] ? 1 : 0, 4],
+            22208: [() => this.mem[this.rb + this.mem[this.ip + 3]] = this.mem[this.rb + this.mem[this.ip + 1]] === this.mem[this.rb + this.mem[this.ip + 2]] ? 1 : 0, 4],
+
+                9: [() => this.rb += this.mem[this.mem[this.ip + 1]], 2],
+              109: [() => this.rb += this.mem[this.ip + 1], 2],
+              209: [() => this.rb += this.mem[this.rb + this.mem[this.ip + 1]], 2],
+
+               99: [() => {}, 1, 'hlt'],
+        };
+
+        while (true) {
+            const [fn, inc, spc] = ops[this.mem[this.ip]];
+            const res = await fn();
+            if (spc === 'out') yield res;
+            else if (spc === 'hlt') return;
+            this.ip += inc;
+
+            console.log(this.ip);
+            // console.log(JSON.stringify(this.mem));
         }
     };
 }

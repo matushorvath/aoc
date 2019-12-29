@@ -151,6 +151,9 @@ export class Vm {
                 default:
                     throw new Error(`opcode error: mem ${this.mem} ip ${this.ip} oc ${o.oc}`);
             }
+
+            console.log(this.ip);
+            // console.log(JSON.stringify(this.mem));
         }
     };
 

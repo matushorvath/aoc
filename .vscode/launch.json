@@ -15,6 +15,18 @@
             "cwd": "${fileDirname}/..",
             "runtimeArgs": ["-r", "ts-node/register"],
             "sourceMaps": true
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch benchmark a.ts",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "args": ["src/a.ts"],
+            "cwd": "${workspaceFolder}/2019/benchmark",
+            "runtimeArgs": ["-r", "ts-node/register"],
+            "sourceMaps": true
         }
     ]
 }

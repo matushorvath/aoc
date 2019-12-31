@@ -131,6 +131,43 @@ print_num_finish:
 .ENDFRAME
 
 ##########
+set_ptr:
+.FRAME ; ; inst3, inst2, inst1, inst0
+    # We assume that next instruction is an "add", "mul", "lt" or "eq" instruction in
+    # the form of "xyz _, _, [ptr]"
+    # We will copy the instruction onto our stack, update it so it does
+    # in effect "xyz _, _, [[ptr]]", then execute it and return after the instruction
+
+    # inst3 + 1 is the return address which points to the "add" instruction
+    # let's update next 4 instructions so they copy the "add" instruction to our stack
+    add [inst3 + 1], 0, [inst_ptr_byte_0]
+    add [inst3 + 1], 1, [inst_ptr_byte_1]
+    add [inst3 + 1], 2, [inst_ptr_byte_2]
+    add [inst3 + 1], 3, [inst_ptr_byte_3]
+
+    # copy first 3 bytes of the instruction to our stack
++1 = inst_ptr_byte_0:
+    add [0], 0, [rb + inst0]
++1 = inst_ptr_byte_1:
+    add [0], 0, [rb + inst1]
++1 = inst_ptr_byte_2:
+    add [0], 0, [rb + inst2]
+
+    # fetch value from the pointed-to location
++1 = inst_ptr_byte_3:
+    add [0], 0, [ptr_val]
+
++1 = ptr_val:
+    add [0], 0, [rb + inst3]
+
+    # load pointed-to value into ptr_val
++1 = ptr_val:
+    add [0], 0, [rb + ptr_res]
+
+    ret 0
+.ENDFRAME
+
+##########
 # globals
 size:
     db  0

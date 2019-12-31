@@ -1,5 +1,4 @@
 import * as os from 'os';
-import { spawnSync } from 'child_process';
 
 interface Op {
     oc: number;

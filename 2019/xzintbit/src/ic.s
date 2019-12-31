@@ -135,8 +135,7 @@ set_ptr:
 .FRAME ; ; inst3, inst2, inst1, inst0
     # We assume that next instruction is an "add", "mul", "lt" or "eq" instruction in
     # the form of "xyz _, _, [ptr]"
-    # We will copy the instruction onto our stack, update it so it does
-    # in effect "xyz _, _, [[ptr]]", then execute it and return after the instruction
+    # We will fixup the instruction so it does in effect "xyz _, _, [[ptr]]", then execute it and return after the instruction
 
     # inst3 + 1 is the return address which points to the "add" instruction
     # let's update next 4 instructions so they copy the "add" instruction to our stack

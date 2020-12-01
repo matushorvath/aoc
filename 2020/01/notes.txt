@@ -1,0 +1,2 @@
+node -e "fs.readFileSync('input', 'utf8').split('\n').map(s => parseInt(s)).forEach((i,_,n) => n.forEach(j => n.forEach(k => { if (i+j+k==2020) console.log(i*j*k) })))" 
+while read x; do while read y; do [ $((x + y)) == 2020 ] && echo $((x * y)) ; done <input ; done <input

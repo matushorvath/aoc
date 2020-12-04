@@ -4,28 +4,23 @@ const data = fs.readFileSync('input', 'utf8').trim().split('\n\n')
     .map(l => l.split(/[ \n]/).map(w => w.split(':')).reduce((p, [k, v]) => {
         switch (k) {
             case "byr": {
-                const n = parseInt(v, 10);
-                return p + (n >= 1920 && n <= 2002);
+                return p + /^(19[2-9][0-9]|200[0-2])$/.test(v);
             }
             case "iyr": {
-                const n = parseInt(v, 10);
-                return p + (n >= 2010 && n <= 2020);
+                return p + /^(201[0-9]|2020)$/.test(v);
             }
             case "eyr": {
-                const n = parseInt(v, 10);
-                return p + (n >= 2020 && n <= 2030);
+                return p + /^(202[0-9]|2030)$/.test(v);
             }
             case "hgt": {
-                const m = v.match(/^([0-9]{1,3})(in|cm)$/);
-                const n = m && parseInt(m[1], 10);
-                return p + !!(m && ((m[2] == 'in' && n >= 59 && n <= 76) || (m[2] == 'cm' && n >= 150 && n <= 193)));
+                return p + /^((59|6[0-9]|7[0-6])in|(1[5-8][0-9]|19[0-3])cm)$/.test(v);
             }
             case "hcl":
-                return p + (/^#[0-9a-f]{6}$/.test(v));
+                return p + /^#[0-9a-f]{6}$/.test(v);
             case "ecl":
-                return p + (/^(amb|blu|brn|gry|grn|hzl|oth)$/.test(v));
+                return p + /^(amb|blu|brn|gry|grn|hzl|oth)$/.test(v);
             case "pid":
-                return p + (/^[0-9]{9}$/.test(v));
+                return p + /^[0-9]{9}$/.test(v);
             default:
                 return p;
         }

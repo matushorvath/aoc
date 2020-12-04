@@ -1,3 +1,5 @@
+# See https://github.com/matushorvath/xzintbit for tools
+
 XZINTBIT_DIR?=~/xzintbit
 
 ICVM?=$(XZINTBIT_DIR)/vms/c/ic

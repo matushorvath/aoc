@@ -22,7 +22,7 @@ func main() {
 
 	for _, line := range data {
 		m := re.FindStringSubmatch(line)
-		p1s,p2s, ch, pwd := m[1], m[2], m[3][0], m[4]
+		p1s, p2s, ch, pwd := m[1], m[2], m[3][0], m[4]
 		p1, _ := strconv.Atoi(p1s)
 		p2, _ := strconv.Atoi(p2s)
 		if ((pwd[p1 - 1] == ch && pwd[p2 - 1] != ch) ||

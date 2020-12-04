@@ -1,10 +1,13 @@
+# imports from libxib.a, which is the standard library
+# that comes with the xzintbit assembler
+
 .IMPORT read_identifier
 .IMPORT read_number
 .IMPORT get_input
 .IMPORT print_num
-.IMPORT print_str
 .EXPORT report_libxib_error
 
+# set up stack, call main function
     arb stack
 
     call main
@@ -23,25 +26,26 @@ loop:
     add [rb - 2], 0, [rb + pos1]
     add [rb + pos1], -1, [rb + pos1]
 
-    call get_input
+    call get_input    # read '-'
 
     call read_number
     add [rb - 2], 0, [rb + pos2]
     add [rb + pos2], -1, [rb + pos2]
 
-    call get_input
+    call get_input    # read ' '
     call get_input
     add [rb - 2], 0, [rb + char]
 
-    call get_input
-    call get_input
+    call get_input    # read ':'
+    call get_input    # read ' '
 
     call read_identifier
     add [rb - 2], 0, [rb + pwd]
 
-    call get_input
+    call get_input   # read '\n'
 
     # count valid characters
+    # self-modifying code, [ip + N] refers to N-th parameter in next instruction
 
     add 0, 0, [rb + tmp]
 
@@ -65,7 +69,7 @@ skip_increment:
     add [rb + valid], 0, [rb - 1]
     arb -1
     call print_num
-    out 10
+    out 10    # print '\n'
 
     jz 0, loop
 
@@ -73,10 +77,11 @@ skip_increment:
     ret 0
 .ENDFRAME
 
-# needed by libxib
+# dummy function needed by libxib
 report_libxib_error:
     hlt
 
+# stack space, 50 memory locations, growing down
     ds  50, 0
 stack:
 

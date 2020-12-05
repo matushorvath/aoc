@@ -48,7 +48,7 @@ import (
 )
 
 func main() {
-  fd, err := os.Open("input.txt")
+  fd, err := os.Open("input")
   if err != nil {
     panic(err)
   }

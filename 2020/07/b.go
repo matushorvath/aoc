@@ -1,10 +1,11 @@
-package mainx
+package main
 
 import (
 	"bufio"
 	"fmt"
 	"os"
 	"regexp"
+	"strconv"
 
 	"github.com/kr/pretty"
 )
@@ -20,7 +21,7 @@ func main() {
 	re1 := regexp.MustCompile(`(\w+ \w+) bags contain (.*)`)
 	re2 := regexp.MustCompile(`no other bags|(\d+) (\w+ \w+) bags?(?:, |.)`)
 
-	d := make(map[string]map[string]bool);
+	d := make(map[string]map[string]int);
 
 	for s.Scan() {
 		m1 := re1.FindStringSubmatch(s.Text())
@@ -36,40 +37,44 @@ func main() {
 			if b[1] == "" {
 				continue
 			}
-			// n, err := strconv.Atoi(b[1])
-			// if err != nil {
-			// 	panic(err)
-			// }
+			n, err := strconv.Atoi(b[1])
+			if err != nil {
+				panic(err)
+			}
 
-			if d[b[2]] == nil {
-				d[b[2]] = map[string]bool{ m1[1]: true }
+			if d[m1[1]] == nil {
+				d[m1[1]] = map[string]int{ b[2]: n }
 			} else {
-				d[b[2]][m1[1]] = true
+				d[m1[1]][b[2]] = n
 			}
 		}
 	}
 
 	fmt.Printf("%# v\n", pretty.Formatter(d))
 
-	stack := make([]string, 0, 256)
-	stack = append(stack, "shiny gold")
-	done := make(map[string]bool)
-	done[stack[0]] = true
+	type N struct{ b string; n int }
+	stack := make([]N, 0, 256)
+	stack = append(stack, N{ b: "shiny gold", n: 1 })
+
+	done := make(map[string]int)
+	done[stack[0].b] = 1
 
 	for len(stack) > 0 {
-		var in string
+		var in N
 		in, stack = stack[0], stack[1:]
 
-		for out := range d[in] {
-			//d[in][out] = true;
-			if _, ok := done[out]; !ok {
-				done[out] = true
-				stack = append(stack, out)
-			}
+		for out, cnt := range d[in.b] {
+			done[out] += in.n * cnt
+			stack = append(stack, N{ b: out, n: in.n * cnt })
 		}
+	}
+
+	res := 0
+	for _, n := range done {
+		res += n
 	}
 
 	fmt.Printf("%# v\n", pretty.Formatter(done))
 	//fmt.Printf("%# v\n", pretty.Formatter(d["shiny gold"]))
-	fmt.Printf("%d\n", len(done) - 1)
+	fmt.Printf("%d\n", res - 1)
 }

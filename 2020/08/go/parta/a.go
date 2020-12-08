@@ -7,15 +7,15 @@ import (
 
 func main() {
     v := vm.CreateNew()
-    //err := v.LoadFromFile("../sample")
-    err := v.LoadFromFile("../input")
+    err := v.LoadFromFile("../sample")
+    //err := v.LoadFromFile("../input")
     if err != nil {
         panic(err)
     }
 
     v.Dump()
 
-    halted, err := v.Run()
+    halted, err := v.Exec()
     if err != nil {
         panic(err)
     }

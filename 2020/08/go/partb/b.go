@@ -6,8 +6,8 @@ import (
 
 func main() {
     v := vm.CreateNew()
-    //err := v.LoadFromFile("/home/horvathm/aoc/2020/08/sample")
-    err := v.LoadFromFile("../input")
+    err := v.LoadFromFile("../sample")
+    //err := v.LoadFromFile("../input")
     if err != nil {
         panic(err)
     }
@@ -19,10 +19,10 @@ func main() {
             continue
         }
         v.Reset()
-        old := v.UpdateProg(pos, []vm.In{{ Op: 'n', Ar: in.Ar }})
+        old := v.UpdateProg(pos, []vm.Inst{{ Op: 'n', Ar: in.Ar }})
         //v.Dump()
 
-        halted, err := v.Run()
+        halted, err := v.Exec()
         if err != nil {
             //v.Dump()
             panic(err)

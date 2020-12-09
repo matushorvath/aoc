@@ -1,0 +1,10 @@
+do laveho stlpca som dal cely vstup
+horny riadok prazdny
+
+a potom v 1000x1000 poli vzorec
+=SUM(INDIRECT(ADDRESS(ROW();1)&":"&ADDRESS(COLUMN();1)))
+
+Ctrl+F, dat si pozor a zakliknut ze ma hladat "Values" a nie "Formulas"
+
+a v TC507 je cislo co hladame, a vo formule su indexy zaciatku a konca intervalu
+potom uz len najst min/max

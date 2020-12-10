@@ -40,9 +40,9 @@ func main() {
 			}
 
 			if (sum == tgt) {
-				//log.Printf("%d %d: %d", min, max, min + max)
-				log.Printf("%d %d", nums[last], nums[len(nums) - 1])
-				log.Printf("%d %d", last, len(nums) - 1)
+				log.Printf("%d %d: %d", min, max, min + max)
+				//log.Printf("%d %d", nums[last], nums[len(nums) - 1])
+				//log.Printf("%d %d", last, len(nums) - 1)
 				return
 			}
 			if (sum > tgt) {

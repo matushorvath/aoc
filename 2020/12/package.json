@@ -1,0 +1,15 @@
+{
+  "name": "aoc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "b copy.js",
+  "dependencies": {},
+  "devDependencies": {
+    "eslint": "^7.15.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

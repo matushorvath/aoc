@@ -5,8 +5,9 @@ import (
 )
 
 func main() {
+	turns := 30000000
 	input := []int{0, 20, 7, 16, 1, 18, 15}
-	nums := make(map[int]int)
+	nums := make([]int, turns + len(input) + 1)
 	turn := 1
 
 	for _, i := range input {
@@ -16,19 +17,16 @@ func main() {
 
 	last := input[len(input) - 1];
 
-	for turn <= 30000000 {
-		lastturn, have := nums[last];
+	for turn <= turns {
+		lastturn := nums[last];
 		nums[last] = turn - 1;
 
-		if !have {
+		if lastturn == 0 {
 			last = 0;
 		} else {
 			last = turn - lastturn - 1;
 		}
 
-		if (turn % 100000 == 0) {
-			fmt.Println(turn)
-		}
 		turn++
 	}
 	fmt.Println(turn, last)

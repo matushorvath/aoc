@@ -1,10 +1,10 @@
 #include <iostream>
 #include <vector>
-#include <unordered_map>
 
 int main() {
+	constexpr int TURNS = 30000000;
 	std::vector<int> input = { 0, 20, 7, 16, 1, 18, 15 };
-	std::unordered_map<int, int> nums;
+	std::vector<int> nums(TURNS + input.size() + 1);
 	int turn = 1;
 
 	for (auto&& i : input) {
@@ -14,14 +14,15 @@ int main() {
 
 	int last = input.back();
 
-	while (turn <= 30000000) {
-		auto [lastturn, inserted] = nums.emplace(last, 0);
-		if (inserted) {
+	while (turn <= TURNS) {
+		int lastturn = nums[last];
+		nums[last] = turn - 1;
+
+		if (lastturn == 0) {
 			last = 0;
 		} else {
-			last = turn - lastturn->second - 1;
+			last = turn - lastturn - 1;
 		}
-		lastturn->second = turn - 1;
 
 		turn++;
 	}

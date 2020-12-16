@@ -9,40 +9,34 @@ const rules = rds.split('\n').map(rd => {
     };
 });
 
-const valid = nds.split('\n').slice(1)
+const ticket = nds.split('\n').slice(1)
     .map(r => r.split(',').map(s => parseInt(s, 10)))
     .filter(t => t.every(n => rules.some(r =>
         (n >= r.r1[0] && n <= r.r1[1]) ||
         (n >= r.r2[0] && n <= r.r2[1])
     )));
 
-const fields = rules.map(r => r.n).reduce((p, c) => ({ ...p, [c]: true }), {});
-const canbe = [...Array(valid[0].length)].map(v => ({ ...fields }));
-
-for (const t of valid) {
-    for (const i in t) {
-        const n = t[i];
-        for (const r of rules) {
-            if ((n < r.r1[0] || n > r.r1[1]) && (n < r.r2[0] || n > r.r2[1])) {
-                delete canbe[i][r.n];
-            }
-        }
-    }
-}
+const canbe = Array(ticket[0].length).fill().map((_, i) => rules
+    .filter(r => ticket.every(t =>
+        (t[i] >= r.r1[0] && t[i] <= r.r1[1]) ||
+        (t[i] >= r.r2[0] && t[i] <= r.r2[1])
+    ))
+    .map(r => r.n)
+);
 
 const is = [];
 
 for (let f = 0; f < canbe.length; f++) {
-    const next = Object.keys(canbe.filter(c => Object.keys(c).length === 1)[0])[0];
-
+    const next = canbe.filter(c => c.length === 1)[0][0];
     for (const i in canbe) {
-        const c = canbe[i];
-        if (Object.keys(c).length === 1) {
+        if (canbe[i].length === 1) {
             is[i] = next;
         }
-        delete c[next];
+        canbe[i] = canbe[i].filter(c => c !== next);
     }
 }
+
+console.log(is);
 
 const your = yds.split('\n')[1]
     .split(',').map(s => parseInt(s, 10));

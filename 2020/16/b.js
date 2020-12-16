@@ -16,33 +16,32 @@ const ticket = nds.split('\n').slice(1)
         (n >= r.r2[0] && n <= r.r2[1])
     )));
 
-const canbe = Array(ticket[0].length).fill().map((_, i) => rules
-    .filter(r => ticket.every(t =>
-        (t[i] >= r.r1[0] && t[i] <= r.r1[1]) ||
-        (t[i] >= r.r2[0] && t[i] <= r.r2[1])
-    ))
-    .map(r => r.n)
-);
+const canbe = Array(ticket[0].length).fill()
+    .map((_, i) => ({ i, fs: rules
+        .filter(r => ticket.every(t =>
+            (t[i] >= r.r1[0] && t[i] <= r.r1[1]) ||
+            (t[i] >= r.r2[0] && t[i] <= r.r2[1])
+        ))
+        .map(r => r.n)
+    }))
+    .sort((a, b) => a.fs.length - b.fs.length);
 
-const is = [];
+console.log(canbe);
 
-for (let f = 0; f < canbe.length; f++) {
-    const next = canbe.filter(c => c.length === 1)[0][0];
-    for (const i in canbe) {
-        if (canbe[i].length === 1) {
-            is[i] = next;
-        }
-        canbe[i] = canbe[i].filter(c => c !== next);
+for (let i = 0; i < canbe.length; i++) {
+    for (let j = i + 1; j < canbe.length; j++) {
+        canbe[j].fs = canbe[j].fs.filter(c => c !== canbe[i].fs[0]);
     }
 }
 
+const is = canbe.map(({ i, fs: [v] }) => ({ i, v }));
+
 console.log(is);
 
-const your = yds.split('\n')[1]
-    .split(',').map(s => parseInt(s, 10));
+const your = yds.split('\n')[1].split(',').map(s => parseInt(s, 10));
 
 const mul = is
-    .map((v, i) => /^departure/.test(v) ? your[i] : 1)
+    .map(({ i, v }) => /^departure/.test(v) ? your[i] : 1)
     .reduce((p, c) => p * c, 1);
 
 console.log(mul);

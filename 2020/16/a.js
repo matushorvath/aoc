@@ -9,8 +9,6 @@ const rules = rds.split('\n').map(rd => {
     };
 });
 
-console.log(rules);
-
 const invalid = nds.split('\n').slice(1).map(
     r => r.split(',').map(s => parseInt(s, 10)).filter(n =>
         rules.every(r =>

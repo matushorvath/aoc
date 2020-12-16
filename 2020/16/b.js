@@ -26,22 +26,15 @@ const canbe = Array(ticket[0].length).fill()
     }))
     .sort((a, b) => a.fs.length - b.fs.length);
 
-console.log(canbe);
-
-for (let i = 0; i < canbe.length; i++) {
-    for (let j = i + 1; j < canbe.length; j++) {
-        canbe[j].fs = canbe[j].fs.filter(c => c !== canbe[i].fs[0]);
-    }
-}
-
-const is = canbe.map(({ i, fs: [v] }) => ({ i, v }));
-
-console.log(is);
+const is = canbe.reduce((p, c) => [...p, {
+    i: c.i,
+    f: c.fs.filter(f => p.every(i => f !== i.f))[0]
+}], []);
 
 const your = yds.split('\n')[1].split(',').map(s => parseInt(s, 10));
 
 const mul = is
-    .map(({ i, v }) => /^departure/.test(v) ? your[i] : 1)
+    .map(({ i, f }) => /^departure/.test(f) ? your[i] : 1)
     .reduce((p, c) => p * c, 1);
 
 console.log(mul);

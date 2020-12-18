@@ -1,0 +1,15 @@
+{
+  "name": "aoc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "a.js",
+  "scripts": {
+    "build": "pegjs a.pegjs && pegjs b.pegjs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "pegjs": "^0.10.0"
+  }
+}

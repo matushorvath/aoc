@@ -56,52 +56,104 @@ for (const [edge, ids] of Object.entries(joins)) {
     }
 }
 
-let thisId = Object.keys(corners)[0];
-let thisTile = tiles[thisId];
-let thisRot = false;
+const arrayRemove = (a, v) => {
+    const index = a.indexOf(v);
+    a.splice(index, 1);
+    return a;
+}
+
+let startId = Object.keys(corners)[0];
+let startTile = tiles[startId];
+let startRot = false;
 
 let img = [[{
-    id: thisId,
-    rot: thisRot,
+    id: startId,
+    rot: startRot,
 }]];
 
+let row = 0;
+
 while (true) {
-    let thisEdge, thatId;
+    let thisId = startId;
+    let thisTile = startTile;
+    let thisRot = startRot;
 
-    if (!thisRot) {
-        thisEdge = thisTile.vedges.filter(e => joins[e] && joins[e].length === 2)[0];
-    } else {
-        thisEdge = thisTile.hedges.filter(e => joins[e] && joins[e].length === 2)[0];
+    while (true) {
+        let thisEdge, thatId;
+
+        if (!thisRot) {
+            thisEdge = thisTile.vedges.filter(e => joins[e] && joins[e].length === 2)[0];
+        } else {
+            thisEdge = thisTile.hedges.filter(e => joins[e] && joins[e].length === 2)[0];
+        }
+        if (!thisEdge) break; // line end
+
+        thatId = joins[thisEdge].filter(i => i !== thisId)[0];
+        const thatTile = tiles[thatId];
+
+        const thatRot = !(thatTile.vedges[0] === thisEdge || thatTile.vedges[1] === thisEdge);
+
+        img[row].push({
+            id: thatId,
+            rot: thatRot,
+        });
+
+        console.log(img);
+
+        delete joins[thisEdge];
+        if (!thisRot) {
+            arrayRemove(thisTile.vedges, thisEdge);
+        } else {
+            arrayRemove(thisTile.hedges, thisEdge);
+        }
+        if (!thatRot) {
+            arrayRemove(thatTile.vedges, thisEdge);
+        } else {
+            arrayRemove(thatTile.hedges, thisEdge);
+        }
+
+        thisId = thatId;
+        thisRot = thatRot;
+        thisTile = thatTile;
     }
-    if (!thisEdge) break; // line end
 
-    thatId = joins[thisEdge].filter(i => i !== thisId)[0];
+    let startEdge, belowId;
 
-    const thatTile = tiles[thatId];
+    if (!startRot) {
+        startEdge = startTile.hedges.filter(e => joins[e] && joins[e].length === 2)[0];
+    } else {
+        startEdge = startTile.vedges.filter(e => joins[e] && joins[e].length === 2)[0];
+    }
+    if (!startEdge) break; // done
 
-    const thatRot = !(thatTile.vedges[0] === thisEdge || thatTile.vedges[1] === thisEdge);
+    belowId = joins[startEdge].filter(i => i !== startId)[0];
+    const belowTile = tiles[belowId];
 
-    img[0].push({
-        id: thatId,
-        rot: thatRot,
-    });
+    const belowRot = !(belowTile.hedges[0] === startEdge || belowTile.hedges[1] === startEdge);
+
+    img.push([{
+        id: belowId,
+        rot: belowRot,
+    }]);
+    row++;
+
     console.log(img);
 
-    delete joins[thisEdge];
-    if (!thisRot) {
-        delete thisTile.vedges[thisEdge];
+    delete joins[startEdge];
+    if (!startRot) {
+        arrayRemove(startTile.hedges, startEdge);
     } else {
-        delete thisTile.hedges[thisEdge];
+        arrayRemove(startTile.vedges, startEdge);
     }
-    if (!thatRot) {
-        delete thatTile.vedges[thisEdge];
+    if (!belowRot) {
+        arrayRemove(belowTile.hedges, startEdge);
     } else {
-        delete thatTile.vedges[thisEdge];
+        arrayRemove(belowTile.vedges, startEdge);
     }
 
-    thisId = thatId;
-    thisRot = thatRot;
-    thisTile = thatTile;
+    startId = belowId;
+    startRot = belowRot;
+    startTile = belowTile;
 }
 
 console.log(img);

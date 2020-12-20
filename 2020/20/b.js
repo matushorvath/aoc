@@ -72,6 +72,7 @@ let startRot = false;
 let img = [[{
     id: startId,
     rot: startRot,
+    vflp: undefined,
 }]];
 
 let row = 0;
@@ -80,8 +81,6 @@ while (true) {
     let thisId = startId;
     let thisTile = startTile;
     let thisRot = startRot;
-
-    // TODO should we hflip startTile?
 
     while (true) {
         let thisEdge, thisHflp, thatId;
@@ -108,6 +107,8 @@ while (true) {
 
         const thatRot = !(thatTile.vedges[0].e === thisEdge || thatTile.vedges[1].e === thisEdge);
 
+        // hflip
+
         let thatHflp;
         if (!thatRot) {
             const thatEdgeItem = thatTile.vedges.filter(e => e.e === thisEdge)[0];
@@ -117,9 +118,61 @@ while (true) {
             thatHflp = !thatEdgeItem.t;
         }
 
+        // vflip
+
+        let thatVflp;
+        if (row > 0) {
+            const aboveImgItem = img[row - 1][img[row].length];
+            const aboveId = aboveImgItem.id;
+            const aboveTile = tiles[aboveId];
+            const aboveRot = aboveImgItem.rot;
+
+            let aboveEdge, aboveVflp;
+            if (row === 1) {
+                if (!aboveRot) {
+                    const aboveEdgeItem = aboveTile.hedges.filter(e => joins[e.e] && joins[e.e].length === 2)[0];
+                    aboveEdge = aboveEdgeItem.e;
+                    aboveVflp = aboveEdgeItem.t;
+                } else {
+                    const aboveEdgeItem = aboveTile.vedges.filter(e => joins[e.e] && joins[e.e].length === 2)[0];
+                    aboveEdge = aboveEdgeItem.e;
+                    aboveVflp = !aboveEdgeItem.l;
+                }
+                aboveImgItem.vflp = aboveVflp;
+            } else {
+                if (!aboveRot) {
+                    aboveEdge = aboveTile.hedges[0].e;
+                } else {
+                    aboveEdge = aboveTile.vedges[0].e;
+                }
+                aboveVflp = aboveImgItem.vflp;
+            }
+
+            if (!thatRot) {
+                const thatEdgeItem = thatTile.hedges.filter(e => e.e === aboveEdge)[0];
+                thatVflp = !thatEdgeItem.t;
+            } else {
+                const thatEdgeItem = thatTile.vedges.filter(e => e.e === aboveEdge)[0];
+                thatVflp = thatEdgeItem.l;
+            }
+
+            delete joins[aboveEdge];
+            if (!thatRot) {
+                edgeRemove(thatTile.hedges, aboveEdge);
+            } else {
+                edgeRemove(thatTile.vedges, aboveEdge);
+            }
+            if (!aboveRot) {
+                edgeRemove(aboveTile.hedges, aboveEdge);
+            } else {
+                edgeRemove(aboveTile.vedges, aboveEdge);
+            }
+        }
+
         img[row].push({
             id: thatId,
             rot: thatRot,
+            vflp: thatVflp,
             hflp: thatHflp,
         });
 

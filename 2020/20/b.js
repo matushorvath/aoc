@@ -176,7 +176,7 @@ while (true) {
             hflp: thatHflp,
         });
 
-        console.log(img);
+        //console.log(img);
 
         delete joins[thisEdge];
         if (!thisRot) {
@@ -235,7 +235,7 @@ while (true) {
     }]);
     row++;
 
-    console.log(img);
+    //console.log(img);
 
     delete joins[startEdge];
     if (!startRot) {
@@ -294,7 +294,7 @@ const transform = (body, rot, hflp, vflp) => {
     return out;
 };
 
-const out = []
+const out = [];
 
 for (let i = 0; i < img.length; i++) {
     for (let j = 0; j < img[0].length; j++) {
@@ -313,6 +313,120 @@ for (let i = 0; i < img.length; i++) {
     }
 }
 
-for (let i = 0; i < out.length; i++) {
-    console.log(out[i].join(''));
+const variants = (d) => {
+    const hd = [];
+    const vd = [];
+    const hvd = []
+    const rd = [];
+
+    for (let i = 0; i < d.length; i++) {
+        hd.push([]);
+        vd.push([]);
+        hvd.push([]);
+        rd.push([]);
+
+        for (let j = 0; j < d[0].length; j++) {
+            hd[i][j] = d[i][d[0].length - j - 1];
+            vd[i][j] = d[d.length - i - 1][j];
+            hvd[i][j] = d[d.length - i - 1][d[0].length - j - 1];
+            rd[i][j] = d[j][d.length - i - 1];
+        }
+    }
+
+    const rhd = [];
+    const rvd = [];
+    const rhvd = []
+
+    for (let i = 0; i < rd.length; i++) {
+        rhd.push([]);
+        rvd.push([]);
+        rhvd.push([]);
+
+        for (let j = 0; j < rd[0].length; j++) {
+            rhd[i][j] = rd[i][rd[0].length - j - 1];
+            rvd[i][j] = rd[rd.length - i - 1][j];
+            rhvd[i][j] = rd[rd.length - i - 1][rd[0].length - j - 1];
+        }
+    }
+
+    return [
+        d, hd, vd, hvd,
+        rd, rhd, rvd, rhvd
+    ];
+};
+
+for (const asdf of variants(out)) {
+    console.log('-----');
+    for (let i = 0; i < asdf.length; i++) {
+        console.log(asdf[i].join(''));
+    }
 }
+
+process.exit(0);
+
+let had;
+let pic;
+
+//   01234567890123456789
+// 0                   # 
+// 1 #    ##    ##    ###
+// 2  #  #  #  #  #  #   
+
+for (const asdf of variants(out)) {
+    had = [];
+
+    for (let i = 0; i < asdf.length; i++) {
+        for (let j = 0; j < asdf[0].length; j++) {
+            if (asdf[i + 0] && asdf[i + 1] && asdf[i + 2] &&
+                asdf[i + 0][j + 18] === '#' &&
+                asdf[i + 1][j +  0] === '#' &&
+                asdf[i + 1][j +  5] === '#' &&
+                asdf[i + 1][j +  6] === '#' &&
+                asdf[i + 1][j + 11] === '#' &&
+                asdf[i + 1][j + 12] === '#' &&
+                asdf[i + 1][j + 17] === '#' &&
+                asdf[i + 1][j + 18] === '#' &&
+                asdf[i + 1][j + 19] === '#' &&
+                asdf[i + 2][j +  1] === '#' &&
+                asdf[i + 2][j +  4] === '#' &&
+                asdf[i + 2][j +  7] === '#' &&
+                asdf[i + 2][j + 10] === '#' &&
+                asdf[i + 2][j + 13] === '#' &&
+                asdf[i + 2][j + 16] === '#') {
+
+                if (!had[i + 0]) {
+                    had[i + 0] = [];
+                }
+                if (!had[i + 1]) {
+                    had[i + 1] = [];
+                }
+                if (!had[i + 2]) {
+                    had[i + 2] = [];
+                }
+
+                had[i + 0][j + 18] = true;
+                had[i + 1][j +  0] = true;
+                had[i + 1][j +  5] = true;
+                had[i + 1][j +  6] = true;
+                had[i + 1][j + 11] = true;
+                had[i + 1][j + 12] = true;
+                had[i + 1][j + 17] = true;
+                had[i + 1][j + 18] = true;
+                had[i + 1][j + 19] = true;
+                had[i + 2][j +  1] = true;
+                had[i + 2][j +  4] = true;
+                had[i + 2][j +  7] = true;
+                had[i + 2][j + 10] = true;
+                had[i + 2][j + 13] = true;
+                had[i + 2][j + 16] = true;
+            }
+        }
+    }
+
+    if (had.length > 0) {
+        pic = asdf;
+    }
+}
+
+console.log(pic);
+console.log(had);

@@ -276,14 +276,18 @@ const transform = (body, rot, hflp, vflp) => {
     if (hflp) {
         for (let i = 0; i < out.length; i++) {
             for (let j = 0; j < Math.floor(out[0].length / 2); j++) {
-                out[i][j] = out[i][out[0].length - j - 1]
+                const tmp = out[i][out[0].length - j - 1];
+                out[i][out[0].length - j - 1] = out[i][j];
+                out[i][j] = tmp;
             }
         }
     }
     if (vflp) {
         for (let i = 0; i < Math.floor(out.length / 2); i++) {
             for (let j = 0; j < out[0].length; j++) {
-                out[i][j] = out[out.length - i - 1][j];
+                const tmp = out[out.length - i - 1][j];
+                out[out.length - i - 1][j] = out[i][j];
+                out[i][j] = tmp;
             }
         }
     }

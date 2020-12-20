@@ -254,4 +254,61 @@ while (true) {
     startTile = belowTile;
 }
 
-console.log(img);
+//console.log(img);
+
+const transform = (body, rot, hflp, vflp) => {
+    const out = [];
+    if (rot) {
+        for (let i = 1; i < body.length - 1; i++) {
+            out.push([]);
+            for (let j = 1; j < body[0].length - 1; j++) {
+                out[i - 1][j - 1] = body[j][body.length - i - 1];
+            }
+        }
+    } else {
+        for (let i = 1; i < body.length - 1; i++) {
+            out.push([]);
+            for (let j = 1; j < body[0].length - 1; j++) {
+                out[i - 1][j - 1] = body[i][j];
+            }
+        }
+    }
+    if (hflp) {
+        for (let i = 0; i < out.length; i++) {
+            for (let j = 0; j < Math.floor(out[0].length / 2); j++) {
+                out[i][j] = out[i][out[0].length - j - 1]
+            }
+        }
+    }
+    if (vflp) {
+        for (let i = 0; i < Math.floor(out.length / 2); i++) {
+            for (let j = 0; j < out[0].length; j++) {
+                out[i][j] = out[out.length - i - 1][j];
+            }
+        }
+    }
+    return out;
+};
+
+const out = []
+
+for (let i = 0; i < img.length; i++) {
+    for (let j = 0; j < img[0].length; j++) {
+        const tile = tiles[img[i][j].id];
+        const data = transform(tile.body, img[i][j].rot, img[i][j].hflp, img[i][j].vflp);
+
+        for (let a = 0; a < data.length; a++) {
+            if (!out[i * data.length + a]) {
+                out[i * data.length + a] = [];
+            }
+
+            for (let b = 0; b < data[0].length; b++) {
+                out[i * data.length + a][j * data[0].length + b] = data[a][b];
+            }
+        }
+    }
+}
+
+for (let i = 0; i < out.length; i++) {
+    console.log(out[i].join(''));
+}

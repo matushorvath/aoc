@@ -1,4 +1,4 @@
-const data = require('fs').readFileSync('sample', 'utf8').trim().split('\n\n')
+const data = require('fs').readFileSync('input', 'utf8').trim().split('\n\n')
     .map(t => t.split('\n'));
 
 //console.log(data);
@@ -355,14 +355,14 @@ const variants = (d) => {
     ];
 };
 
-for (const asdf of variants(out)) {
-    console.log('-----');
-    for (let i = 0; i < asdf.length; i++) {
-        console.log(asdf[i].join(''));
-    }
-}
+const vars = variants(out);
 
-process.exit(0);
+// for (const asdf of [vars[6]]) {
+//     console.log('-----');
+//     for (let i = 0; i < asdf.length; i++) {
+//         console.log(asdf[i].join(''));
+//     }
+// }
 
 let had;
 let pic;
@@ -372,7 +372,10 @@ let pic;
 // 1 #    ##    ##    ###
 // 2  #  #  #  #  #  #   
 
-for (const asdf of variants(out)) {
+which = 0;
+
+//for (const asdf of [vars[6]]) {
+for (const asdf of vars) {
     had = [];
 
     for (let i = 0; i < asdf.length; i++) {
@@ -425,8 +428,40 @@ for (const asdf of variants(out)) {
 
     if (had.length > 0) {
         pic = asdf;
+        //console.log(which);
+        break;
+    }
+
+    which++;
+}
+
+// console.log(pic);
+// console.log(had);
+
+let sum = 0;
+
+for (let i = 0; i < pic.length; i++) {
+    for (let j = 0; j < pic[0].length; j++) {
+        if (pic[i][j] === '#' && !(had[i] && had[i][j])) {
+            sum++;
+        }
     }
 }
 
-console.log(pic);
-console.log(had);
+console.log(sum);
+
+for (let i = 0; i < pic.length; i++) {
+    let line = '';
+    for (let j = 0; j < pic[0].length; j++) {
+        if (pic[i][j] === '#') {
+            if (had[i] && had[i][j]) {
+                line += 'O';
+            } else {
+                line += '#';
+            }
+        } else {
+            line += '.';
+        }
+    }
+    console.log(line);
+}

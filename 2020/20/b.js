@@ -373,6 +373,7 @@ let pic;
 // 2  #  #  #  #  #  #   
 
 which = 0;
+hads = 0;
 
 //for (const asdf of [vars[6]]) {
 for (const asdf of vars) {
@@ -422,6 +423,7 @@ for (const asdf of vars) {
                 had[i + 2][j + 10] = true;
                 had[i + 2][j + 13] = true;
                 had[i + 2][j + 16] = true;
+                hads++;
             }
         }
     }
@@ -429,6 +431,7 @@ for (const asdf of vars) {
     if (had.length > 0) {
         pic = asdf;
         //console.log(which);
+        console.log(hads);
         break;
     }
 
@@ -450,17 +453,19 @@ for (let i = 0; i < pic.length; i++) {
 
 console.log(sum);
 
+const chalk = require('chalk');
+
 for (let i = 0; i < pic.length; i++) {
     let line = '';
     for (let j = 0; j < pic[0].length; j++) {
         if (pic[i][j] === '#') {
             if (had[i] && had[i][j]) {
-                line += 'O';
+                line += chalk.magentaBright('O');
             } else {
-                line += '#';
+                line += chalk.blue('~');
             }
         } else {
-            line += '.';
+            line += chalk.blue('.');
         }
     }
     console.log(line);

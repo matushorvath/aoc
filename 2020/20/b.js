@@ -57,13 +57,15 @@ for (const [edge, ids] of Object.entries(joins)) {
     }
 }
 
+//console.log(corners);
+
 const edgeRemove = (a, e) => {
     const index = a.findIndex(x => x.e == e);
     a.splice(index, 1);
     return a;
 }
 
-let startId = Object.keys(corners)[0];
+let startId = Object.keys(corners)[1];
 let startTile = tiles[startId];
 let startRot = false;
 
@@ -82,16 +84,23 @@ while (true) {
     // TODO should we hflip startTile?
 
     while (true) {
-        let thisEdge, thatId;
+        let thisEdge, thisHflp, thatId;
 
         if (!thisRot) {
             const thisEdgeItem = thisTile.vedges.filter(e => joins[e.e] && joins[e.e].length === 2)[0];
             if (!thisEdgeItem) break; // line end
             thisEdge = thisEdgeItem.e;
+            thisHflp = thisEdgeItem.l;
         } else {
             const thisEdgeItem = thisTile.hedges.filter(e => joins[e.e] && joins[e.e].length === 2)[0];
             if (!thisEdgeItem) break; // line end
             thisEdge = thisEdgeItem.e;
+            thisHflp = thisEdgeItem.t;
+        }
+
+        // If we just started a row, flip first tile as needed
+        if (thisId === startId) {
+            img[row][0].hflp = thisHflp;
         }
 
         thatId = joins[thisEdge].filter(i => i !== thisId)[0];
@@ -99,19 +108,19 @@ while (true) {
 
         const thatRot = !(thatTile.vedges[0].e === thisEdge || thatTile.vedges[1].e === thisEdge);
 
-        // let thatHflp;
-        // if (!thatRot) {
-        //     const thatEdgeItem = thatTile.vedges.filter(e => e.e === thisEdge)[0];
-        //     thatHflp = thatEdgeItem.l;
-        // } else {
-        //     const thatEdgeItem = thatTile.hedges.filter(e => e.e === thisEdge)[0];
-        //     thatHflp = thatEdgeItem.t;
-        // }
+        let thatHflp;
+        if (!thatRot) {
+            const thatEdgeItem = thatTile.vedges.filter(e => e.e === thisEdge)[0];
+            thatHflp = !thatEdgeItem.l;
+        } else {
+            const thatEdgeItem = thatTile.hedges.filter(e => e.e === thisEdge)[0];
+            thatHflp = !thatEdgeItem.t;
+        }
 
         img[row].push({
             id: thatId,
             rot: thatRot,
-            //hflp: thatHflp
+            hflp: thatHflp,
         });
 
         console.log(img);
@@ -133,16 +142,23 @@ while (true) {
         thisTile = thatTile;
     }
 
-    let startEdge, belowId;
+    let startEdge, startVflp, belowId;
 
     if (!startRot) {
         const startEdgeItem = startTile.hedges.filter(e => joins[e.e] && joins[e.e].length === 2)[0];
         if (!startEdgeItem) break; // done
         startEdge = startEdgeItem.e;
+        startVflp = startEdgeItem.t;
     } else {
         const startEdgeItem = startTile.vedges.filter(e => joins[e.e] && joins[e.e].length === 2)[0];
         if (!startEdgeItem) break; // done
         startEdge = startEdgeItem.e;
+        startVflp = !startEdgeItem.l
+    }
+
+    // If we just started, flip [0, 0] tile as needed
+    if (row === 0) {
+        img[0][0].vflp = startVflp;
     }
 
     belowId = joins[startEdge].filter(i => i !== startId)[0];
@@ -150,9 +166,19 @@ while (true) {
 
     const belowRot = !(belowTile.hedges[0].e === startEdge || belowTile.hedges[1].e === startEdge);
 
+    let belowVflp;
+    if (!belowRot) {
+        const belowEdgeItem = belowTile.hedges.filter(e => e.e === startEdge)[0];
+        belowVflp = !belowEdgeItem.t;
+    } else {
+        const belowEdgeItem = belowTile.vedges.filter(e => e.e === startEdge)[0];
+        belowVflp = belowEdgeItem.l;
+    }
+
     img.push([{
         id: belowId,
         rot: belowRot,
+        vflp: belowVflp,
     }]);
     row++;
 

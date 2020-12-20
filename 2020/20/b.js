@@ -73,9 +73,9 @@ while (true) {
     } else {
         thisEdge = thisTile.hedges.filter(e => joins[e] && joins[e].length === 2)[0];
     }
+    if (!thisEdge) break; // line end
 
     thatId = joins[thisEdge].filter(i => i !== thisId)[0];
-    if (!thatId) break; // line end
 
     const thatTile = tiles[thatId];
 

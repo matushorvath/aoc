@@ -1,0 +1,45 @@
+is:
+fvjkl
+kfcds
+mxmxvkd
+nhms
+sbzzf
+sqjhc
+trh
+
+
+mxmxvkd kfcds sqjhc nhms (contains dairy, fish)
+trh fvjkl sbzzf mxmxvkd (contains dairy)
+sqjhc fvjkl (contains soy)
+sqjhc mxmxvkd sbzzf (contains fish)
+
+1.
+dairy: (mxmxvkd kfcds sqjhc nhms)
+fish: (mxmxvkd kfcds sqjhc nhms)
+
+2.
+dairy: (mxmxvkd kfcds sqjhc nhms) U (trh fvjkl sbzzf mxmxvkd) = (mxmxvkd)
+fish: (mxmxvkd kfcds sqjhc nhms)
+
+3.
+soy: (sqjhc fvjkl)
+
+4.
+fish: (mxmxvkd kfcds sqjhc nhms) U (sqjhc mxmxvkd sbzzf) = (mxmxvkd sqjhc)
+
+---
+
+for {
+    najde taky kde je len 1
+    da ho prec zo vsetkych ostatnych
+}
+
+1. dairy
+dairy: (mxmxvkd)
+fish: (sqjhc)
+soy: (sqjhc fvjkl)
+
+2. fish
+dairy: (mxmxvkd)
+fish: (sqjhc)
+soy: (fvjkl)

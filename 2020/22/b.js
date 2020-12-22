@@ -20,14 +20,14 @@ const game = (p1, p2) => {
     gnum++;
     // console.log(`\n=== Game ${thisGame} ===`);
 
-    if (p1.every(c => c > p1.length) || p2.every(c => c > p2.length)) {
-        const mx1 = p1.reduce((p, c) => c > p ? c : p, 0);
-        const mx2 = p2.reduce((p, c) => c > p ? c : p, 0);
+    // if (p1.every(c => c > p1.length) || p2.every(c => c > p2.length)) {
+    //     const mx1 = p1.reduce((p, c) => c > p ? c : p, 0);
+    //     const mx2 = p2.reduce((p, c) => c > p ? c : p, 0);
 
-        const w = mx1 > mx2 ? 1 : 2;
-        // console.log('SW', w);
-        return [w, undefined];
-    }
+    //     const w = mx1 > mx2 ? 1 : 2;
+    //     // console.log('SW', w);
+    //     return [w, undefined];
+    // }
 
     let c1, c2;
     let round = 0;

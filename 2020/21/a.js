@@ -19,7 +19,7 @@ for (const item of data) {
             poss[a] = new Set(item.is.filter(x => poss[a].has(x)));
         }
     }
-    //console.log(poss);
+    console.log(poss);
 
     for (const i of item.is) {
         timesi[i] = (timesi[i] || 0) + 1;

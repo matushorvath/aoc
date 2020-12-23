@@ -90,6 +90,8 @@ int main() {
         citr = next_itr(citr);
     }
 
+    //console.log('cups:', c.map((x, n) => n === citr ? `(${x + 1})` : `${x + 1}`).join(' '));
+
     list<int>::iterator oitr;
     for (auto itr = c.begin(); itr != c.end(); ++itr) {
         if (*itr == 0) {

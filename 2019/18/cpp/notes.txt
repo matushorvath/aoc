@@ -1,0 +1,9 @@
+prehladavat bludisko do sirky:
+
+zoznam bodov+klucov kde sme boli v predoslom kroku
+posunut vsetky body o 1
+  ignorujeme body ktore sme uz navstivili s takymi klucmi
+  ak narazime na dvere, tak ideme dalej len ak mame kluc
+  ak narazime na kluc, rozbehneme sa opat vsetkymi smermi
+
+skoncime v momente ked mame vsetky kluce

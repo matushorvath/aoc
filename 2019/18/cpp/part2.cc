@@ -89,7 +89,7 @@ void mergeKey(uint32_t a, std::set<uint32_t>& ks) {
 		if (((a ^ b) & b) == 0) {
 			// The a keyset is a superset of b, remove b
 			ks.erase(itr++);
-			std::cout << 'E';
+			//std::cout << 'E';
 		} else {
 			++itr;
 		}
@@ -97,12 +97,17 @@ void mergeKey(uint32_t a, std::set<uint32_t>& ks) {
 	ks.insert(a);
 }
 
+uint32_t bitcount(uint32_t u) {
+    uint32_t count = u - ((u >> 1) & 033333333333) - ((u >> 2) & 011111111111);
+    return ((count + (count >> 3)) & 030707070707) % 63;
+}
+
 int main() {
-	auto field = load("sample3_8");
+	//auto field = load("sample3_8");
 	//auto field = load("sample4_24");
 	//auto field = load("sample5_32");
 	//auto field = load("sample6_72");
-	//auto field = load("../input");
+	auto field = load("../input");
 	// print(field);
 
 	auto [robots, keyCount] = init(field);
@@ -128,6 +133,8 @@ int main() {
 
 		std::map<std::vector<std::tuple<int, int>>, std::set<uint32_t>> newBorder;
 
+		uint32_t maxKeys = 0;
+
 		for (auto&& [robots, ks] : border) {
 			for (auto&& k : ks) {
 				for (size_t ri = 0; ri < robots.size(); ++ri) {
@@ -147,6 +154,10 @@ int main() {
 								std::cout << "Result: " << steps << std::endl;
 								return 0;
 							}
+							auto nkbc = bitcount(nk);
+							if (nkbc > maxKeys) {
+								maxKeys = nkbc;
+							}
 
 							auto newRobots = robots;
 							newRobots[ri] = { nx, ny };
@@ -160,14 +171,14 @@ int main() {
 			}
 		}
 
-		std::cout << '-';
+		//std::cout << '-';
 		swap(border, newBorder);
 		for (auto&& [robots, ks] : border) {
 			for (auto&& k : ks) {
 				mergeKey(k, visited[robots]);
 			}
 		}
-		std::cout << "V: " << visited.size() << "; B: " << border.size() << std::endl;
+		std::cout << "MxK: " << maxKeys << "; V: " << visited.size() << "; B: " << border.size() << std::endl;
 
 		// for (auto&& [robots, ks] : border) {
 		// 	for (auto&& k : ks) {

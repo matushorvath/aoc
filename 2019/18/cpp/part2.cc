@@ -10,6 +10,8 @@
 #include <map>
 #include <bitset>
 
+typedef std::array<std::tuple<int, int>, 4> Robots;
+
 std::vector<std::vector<char>> load(const std::string& filename) {
 	std::vector<std::vector<char>> out;
 
@@ -25,17 +27,17 @@ std::vector<std::vector<char>> load(const std::string& filename) {
 	return out;
 }
 
-std::tuple<std::vector<std::tuple<int, int>>, int> init(std::vector<std::vector<char>>& field) {
-	std::vector<std::tuple<int, int>> robots;
+std::tuple<Robots, int> init(std::vector<std::vector<char>>& field) {
+	Robots robots;
 	int keyCount = 0;
 
 	for (size_t i = 0; i < field.size(); ++i) {
 		for (size_t j = 0; j < field[i].size(); ++j) {
 			if (field[i][j] == '@') {
-				robots.emplace_back(i - 1, j - 1);
-				robots.emplace_back(i - 1, j + 1);
-				robots.emplace_back(i + 1, j - 1);
-				robots.emplace_back(i + 1, j + 1);
+				robots[0] = { i - 1, j - 1 };
+				robots[1] = { i - 1, j + 1 };
+				robots[2] = { i + 1, j - 1 };
+				robots[3] = { i + 1, j + 1 };
 
 				field[i][j] = field[i - 1][j] = field[i + 1][j] = field[i][j - 1] = field[i][j + 1] = '#';
 				field[i - 1][j - 1] = field[i - 1][j + 1] = field[i + 1][j - 1] = field[i + 1][j + 1] = '.';
@@ -50,8 +52,8 @@ std::tuple<std::vector<std::tuple<int, int>>, int> init(std::vector<std::vector<
 const char* HILT = "\033[1;31m";
 const char* DFLT = "\033[0m";
 
-void print(const std::vector<std::vector<char>>& field, const std::vector<std::tuple<int, int>>& robots = {}) {
-	std::set<std::tuple<int, int>> rset{ robots.begin(), robots.end() };
+void print(const std::vector<std::vector<char>>& field, const Robots& robots = {}) {
+	std::set<std::tuple<int, int>> rset{ robots.cbegin(), robots.cend() };
 
 	for (size_t i = 0; i < field.size(); ++i) {
 		for (size_t j = 0; j < field[i].size(); ++j) {
@@ -120,8 +122,8 @@ int main() {
 	// std::cout << std::get<0>(positions[3]) << ',' << std::get<1>(positions[3]) << ',' << std::get<2>(positions[3]) << std::endl;
 	// std::cout << keyCount << ' ' << allKeys << std::endl;
 
-	std::map<std::vector<std::tuple<int, int>>, std::set<uint32_t>> border{ { robots, { 0 } } };
-	std::map<std::vector<std::tuple<int, int>>, std::set<uint32_t>> visited{ { robots, { 0 } } };
+	std::map<Robots, std::set<uint32_t>> border{ { robots, { 0 } } };
+	std::map<Robots, std::set<uint32_t>> visited{ { robots, { 0 } } };
 
 	int steps = 0;
 
@@ -131,7 +133,7 @@ int main() {
 		std::cout << "========" << std::endl;
 		std::cout << "Step: " << steps << std::endl;
 
-		std::map<std::vector<std::tuple<int, int>>, std::set<uint32_t>> newBorder;
+		std::map<Robots, std::set<uint32_t>> newBorder;
 
 		uint32_t maxKeys = 0;
 
@@ -175,7 +177,8 @@ int main() {
 		swap(border, newBorder);
 		for (auto&& [robots, ks] : border) {
 			for (auto&& k : ks) {
-				mergeKey(k, visited[robots]);
+//				mergeKey(k, visited[robots]);
+				visited[robots].insert(k);
 			}
 		}
 		std::cout << "MxK: " << maxKeys << "; V: " << visited.size() << "; B: " << border.size() << std::endl;

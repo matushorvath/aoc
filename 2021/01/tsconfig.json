@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "esModuleInterop": true,
+        "lib": ["es2020", "dom"],
+        "module": "CommonJS",
+        "noImplicitAny": true,
+        "outDir": "bin",
+        "sourceMap": true,
+        "target": "es2020"
+    },
+    "include": [
+        "src/**/*.ts"
+    ]
+}

@@ -1,7 +1,7 @@
 const fs = require('fs');
 
 // ᑌ
-const ᑎ = function(a, b) { return new Set([...a].filter(x => b.has(x))); }
+const ᑎ = (a, b) => new Set([...a].filter(x => b.has(x)));
 
 const main = async () => {
     const data = fs.readFileSync('input', 'utf8').trimEnd().split(/\r?\n/).map(line =>

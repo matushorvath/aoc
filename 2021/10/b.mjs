@@ -35,15 +35,15 @@ const main = async () => {
             }
         }
 
-        console.log(st);
+        //console.log(st);
 
         if (ok) {
-        let lscore = 0;
-        for (let i = st.length - 1; i >= 0; i--) {
-            lscore = lscore * 5 + pts[pairs[st[i]]];
+            let lscore = 0;
+            for (let i = st.length - 1; i >= 0; i--) {
+                lscore = lscore * 5 + pts[pairs[st[i]]];
+            }
+            scores.push(lscore);
         }
-        scores.push(lscore);
-    }
     }
 
     console.log(scores.sort((a, b) => a - b)[Math.floor(scores.length / 2)]);

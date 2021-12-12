@@ -2,6 +2,8 @@
 
 set -e
 
+# https://github.com/matushorvath/xzintbit
+
 XZINTBIT=~/xzintbit
 IC=$XZINTBIT/vms/go/ic
 

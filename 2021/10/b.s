@@ -381,7 +381,7 @@ error:
 
 error_crash_loop:
     in  [0]
-    jz 0, error_crash_loop
+    jz  0, error_crash_loop
 .ENDFRAME
 
 

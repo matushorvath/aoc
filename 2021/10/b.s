@@ -385,22 +385,22 @@ error_crash_loop:
 .ENDFRAME
 
 
-# stack for parsing
-    ds  500, 0
-parse_stack:
-
+# top of the stack for parsing
 parse_stack_top:
     db  parse_stack
 
-
-# stack for local variables and function calls
-    ds  50, 0
-call_stack:
-
-
-# array of calculated scores starts here
+# pointer to the location for next score
 next_score_ptr:
     db  scores
-scores:
+
+# 1000 = stack for local variables and function calls (grows down)
++1000 = call_stack:
+
+# 500 = stack for parsing (grows down)
++1500 = parse_stack:
+
+# array of calculated scores starts here
++1500 = scores:
+
 
 .EOF

@@ -111,16 +111,28 @@ const magnitude = (n) => {
 
 const main = async () => {
     const input = await fs.readFile('input', 'utf8');
-    const data = input.trimEnd().split(/\r?\n/).map(eval).map(n => map(n, null));
+    const data = input.trimEnd().split(/\r?\n/);
 
-    let sum = data[0];
-    for (let i = 1; i < data.length; i++ ) {
-        let num = data[i];
-        sum = add(sum, num);
-        console.log(print(sum));
+    console.log(fss.stableStringify(data));
+
+    let max = 0;
+
+    for (let i = 0; i < data.length; i++) {
+        for (let j = 0; j < data.length; j++) {
+            if (i !== j) {
+                const a = map(eval(data[i]), null);
+                const b = map(eval(data[j]), null);
+
+                const sum = add(a, b);
+                const mag = magnitude(sum);
+                if (mag > max) max = mag;
+
+                console.log(i, j, mag, print(data[i]), print(data[j]), print(sum));
+            }
+        }
     }
 
-    console.log(magnitude(sum));
+    console.log(magnitude(max));
 };
 
 await main();
@@ -139,3 +151,5 @@ await main();
     // console.log(fss.stableStringify(a));
 
     // console.log(fss.stableStringify(data));
+
+    //4635

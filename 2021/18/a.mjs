@@ -20,8 +20,14 @@ const add = (a, b) => {
             continue;
         }
 
-        // if split
+        if (split(c)) {
+            continue;
+        }
+
+        break;
     }
+
+    return c;
 };
 
 const explode = (n, d) => {
@@ -73,6 +79,26 @@ const add_left_down = (n, x) => {
     else n[0] += x;
 };
 
+const split = (n) => {
+    if (Array.isArray(n[0])) {
+        const done = split(n[0]);
+        if (done) return true;
+    } else if (n[0] > 9) {
+        n[0] = [Math.floor(n[0]/2), Math.ceil(n[0]/2), n];
+        return true;
+    }
+
+    if (Array.isArray(n[1])) {
+        const done = split(n[1]);
+        if (done) return true;
+    } else if (n[1] > 9) {
+        n[1] = [Math.floor(n[1]/2), Math.ceil(n[1]/2), n];
+        return true;
+    }
+
+    return false;
+};
+
 const main = async () => {
     // const input = await fs.readFile('challenge.input', 'utf8');
     // const data = input.trimEnd().split(/\r?\n/);
@@ -81,12 +107,12 @@ const main = async () => {
     // map(a);
     // console.log(fss.stableStringify(a));
 
-    // const a = add([[[[4,3],4],4],[7,[[8,4],9]]], [1,1]);
-    const a = map([[[[[9,8],1],2],3],4]);
+    const a = add([[[[4,3],4],4],[7,[[8,4],9]]], [1,1]);
+    // const a = map([[[[[9,8],1],2],3],4]);
     // const b = map([7,[6,[5,[4,[3,2]]]]]);
     // const b = map([[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]);
-    console.log(fss.stableStringify(a));
-    explode(a, 4);
+    // console.log(fss.stableStringify(a));
+    // explode(a, 4);
     console.log(fss.stableStringify(a));
 
     // console.log(data);

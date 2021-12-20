@@ -6,7 +6,7 @@ import fs from 'fs/promises';
 const ᑎ = (a, b) => new Set([...a].filter(x => b.has(x)));
 
 const main = async () => {
-    const input = await fs.readFile('input', 'utf8');
+    const input = await fs.readFile('input.ex', 'utf8');
     const data = input.trimEnd().split(/\r?\n/);
 
     const scanners = [];
@@ -54,45 +54,63 @@ const main = async () => {
     const dist = (b1, b2) => (b1.x - b2.x)**2 + (b1.y - b2.y)**2 + (b1.z - b2.z)**2;
 
     for (const scanner of scanners) {
+        scanner.rel = [];
         for (const beacon1 of scanner.beacons) {
-            rel[beacon1.bidx] = [];
+            scanner.rel[beacon1.bidx] = [];
             for (const beacon2 of scanner.beacons) {
-                rel[beacon1.bidx][beacon2.bidx] = dist(beacon1, beacon2);
+                scanner.rel[beacon1.bidx][beacon2.bidx] = dist(beacon1, beacon2);
             }
         }
     }
 
-    let matched = 0;
+    for (const scanner1 of scanners) {
+        const s1rel = [];
+        for (const beacon of scanner1.beacons) {
+            for (const rdist of scanner1.rel[beacon.bidx]) {
+                s1rel.push(rdist);
+            }
+        }
+        const s1set = new Set(s1rel.filter(n => n !== undefined));
 
-    for (const beacon1 of beacons) {
-        const b1rel = rel[beacon1.bidx];
-        const b1set = new Set(b1rel.filter(n => n !== undefined));
-        for (const beacon2 of beacons) {
-            if (beacon1.sidx !== beacon2.sidx && beacon1.bidx !== beacon2.bidx) {
-                const b2rel = rel[beacon2.bidx];
-                const b2set = new Set(b2rel.filter(n => n !== undefined));
-
-                let conflict = false;
-                for (let i = 0; i < beacons.length; i++) {
-                    if (b1rel[i] !== undefined && b2rel[i] !== undefined && b1rel[i] !== b2rel[i]) {
-                        console.log('out', b1rel[i], b2rel[i]);
-                        conflict = true;
-                        break;
+        for (const scanner2 of scanners) {
+            if (scanner1.sidx != scanner2.sidx) {
+                const s2rel = [];
+                for (const beacon of scanner2.beacons) {
+                    for (const rdist of scanner2.rel[beacon.bidx]) {
+                        s2rel.push(rdist);
                     }
                 }
+                const s2set = new Set(s2rel.filter(n => n !== undefined));
 
-                if (!conflict && ᑎ(b1set, b2set).size >= 12) {
-                    console.log('got one', beacon1.sidx, beacon1.bidx, beacon2.sidx, beacon2.bidx);
-                    matched++;
-                }
+                console.log(scanner1.sidx, scanner2.sidx, ᑎ(s1set, s2set).size);
             }
         }
     }
 
-    console.log(matched, beacons.length - matched/2);
 
-    // console.log(rel);
+    // for (const scanner1 of scanners) {
+    //     for (const scanner2 of scanners) {
+    //         //const matching = [];
+    //         for (const beacon1 of scanner1.beacons) {
+    //             for (const beacon2 of scanner2.beacons) {
+    //                 if (matching.every(b => b[0] !== beacon1.ridx && b[1] !== beacon1.ridx) &&
+    //                     matching.every(b => b[0] !== beacon2.ridx && b[1] !== beacon2.ridx) &&
+    //                     couldBe(beacon1.bidx, beacon2.bidx, rel)) {
+    //                         console.log('match', beacon1.bidx, beacon2.bidx);
+    //                         matching.push([beacon1.bidx, beacon2.bidx]);
+    //                 }
+    //             }
+    //         }
+
+    //         if (matching.length >= 12) {
+    //             console.log('merge', scanner1.sidx, scanner2.sidx);
+    //         }
+    //     }
+    // }
 };
+
+// const couldBe = (bidx1, bidx2, rel) => {
+// };
 
 await main();
 

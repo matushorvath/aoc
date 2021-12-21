@@ -70,7 +70,10 @@ const main = async () => {
                 s1rel.push({ b1: beacon.bidx, b2: Number(b2idx), dist: scanner1.rel[beacon.bidx][b2idx] });
             }
         }
-        const s1map = new Map(s1rel.filter(n => n !== undefined).map(x => [x.dist, x]));
+        const s1map = new Map(s1rel.map(x => [x.dist, x]));
+        if (s1rel.length !== s1map.size * 2) {
+            console.error('DUPLICATE DISTANCE!!! 1', s1rel.length, s1map.size);
+        }
 
         for (const scanner2 of scanners) {
             if (scanner1.sidx != scanner2.sidx) {
@@ -80,20 +83,50 @@ const main = async () => {
                         s2rel.push({ b1: beacon.bidx, b2: Number(b2idx), dist: scanner2.rel[beacon.bidx][b2idx] });
                     }
                 }
-                const s2map = new Map(s2rel.filter(n => n !== undefined).map(x => [x.dist, x]));
+                const s2map = new Map(s2rel.map(x => [x.dist, x]));
+                if (s2rel.length !== s2map.size * 2) {
+                    console.error('DUPLICATE DISTANCE!!! 2', s2rel.length, s2map.size);
+                }
 
-                const is1 = new Set([...s1rel].filter(x => s2map.has(x.dist)));
-                const is2 = new Set([...s2rel].filter(x => s1map.has(x.dist)));
+                const is = [...s1rel].map(x => x.dist).filter(d => s2map.has(d));
 
                 // console.log(s1map);
                 // console.log(s2map);
 
-                console.log('size', is1.size, is2.size);
-                //console.log('bcns', [...is1].map(({ b1, b2 }) => [b1, b2]), [...is2].map(({ b1, b2 }) => [b1, b2]));
+                // console.log('size', is.length);
+                //console.log('bcns', [...is].map(({ b1, b2 }) => [b1, b2]), [...is2].map(({ b1, b2 }) => [b1, b2]));
+                //console.log('k', [...is.keys()]);
 
-                if (is1.size >= 132) {
-                    console.log('merge', scanner1.sidx, scanner2.sidx);
-                    // console.log(is1);
+                if (is.length >= 132) {
+                    console.log('merge', is.length, scanner1.sidx, scanner2.sidx);
+
+                    const s12map = new Map();
+                    for (const dist of is) {
+                        const c1 = s1map.get(dist);
+                        const c2 = s2map.get(dist);
+
+                        for (const c1b of [c1.b1, c1.b2]) {
+                            if (!s12map.has(c1b)) {
+                                s12map.set(c1b, [c2.b1, c2.b2]);
+                            } else if (s12map.get(c1b).length === 2) {
+                                if ((s12map.get(c1b)[0] === c2.b1 || s12map.get(c1b)[1] === c2.b1) &&
+                                    (s12map.get(c1b)[0] !== c2.b2 && s12map.get(c1b)[1] !== c2.b2)) {
+                                    s12map.set(c1b, [c2.b1]);
+                                } else if ((s12map.get(c1b)[0] === c2.b2 || s12map.get(c1b)[1] === c2.b2) &&
+                                    (s12map.get(c1b)[0] !== c2.b1 && s12map.get(c1b)[1] !== c2.b1)) {
+                                    s12map.set(c1b, [c2.b2]);
+                                // } else {
+                                //     console.error('CONFLICT A');
+                                }
+                            } else if (s12map.get(c1b).length === 1) {
+                                if (s12map.get(c1b)[0] !== c2.b1 && s12map.get(c1b)[0] !== c2.b2) {
+                                    console.error('CONFLICT B');
+                                }
+                            }
+                        }
+                    }
+
+                    console.log(s12map);
                     // console.log(is2);
                     // merge
                 }

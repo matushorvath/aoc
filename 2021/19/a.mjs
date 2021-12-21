@@ -5,8 +5,11 @@ import fs from 'fs/promises';
 // ᑌ
 // const ᑎ = (a, b) => new Set([...a].filter(x => b.has(x)));
 
+// const decs = [1, 0];
+// let di = 0
+
 const main = async () => {
-    const input = await fs.readFile('input.ex', 'utf8');
+    const input = await fs.readFile('input', 'utf8');
     const data = input.trimEnd().split(/\r?\n/);
 
     const scanners = [];
@@ -66,7 +69,7 @@ const main = async () => {
     let changed = true;
     while (changed) {
         changed = false;
-        again: for (const scanner1 of scanners) {
+        cycle_scanner1: for (const scanner1 of scanners) {
             const s1rel = [];
             const s1map = new Map();
             for (const beacon of scanner1.beacons) {
@@ -83,13 +86,14 @@ const main = async () => {
                             s1map.set(dist, [elem]);
                         } else {
                             //console.error('DUPLICATE DISTANCE!!! 1');
+                            continue cycle_scanner1;
                             s1map.get(dist).push(elem);
                         }
                     }
                 }
             }
 
-            for (const scanner2 of scanners) {
+            cycle_scanner2: for (const scanner2 of scanners) {
                 if (scanner1.sidx != scanner2.sidx) {
                     const s2rel = [];
                     const s2map = new Map();
@@ -102,7 +106,8 @@ const main = async () => {
                                 if (!s2map.has(dist)) {
                                     s2map.set(dist, [elem]);
                                 } else {
-                                    console.error('DUPLICATE DISTANCE!!! 2');
+                                    //console.error('DUPLICATE DISTANCE!!! 2');
+                                    continue cycle_scanner2;
                                     s2map.get(dist).push(elem);
                                 }
                             }
@@ -138,6 +143,7 @@ const main = async () => {
                                         s12map.set(c1b, common);
                                         if (common.length === 0) {
                                             console.error('CONFLICT');
+                                            continue cycle_scanner2;
                                         }
                                     }
                                 }
@@ -145,9 +151,27 @@ const main = async () => {
                         }
 
                         // console.log(s12map);
+
+                        // HACK!
                         if ([...s12map.values()].some(v => v.length > 1)) {
                             console.error('NOT UNIQUE');
-                            continue;
+                            // const used = new Set();
+                            // for (const val of s12map.values()) {
+                            //     if (val.length > 1) {
+                            //         console.log('B', val);
+                            //         if (val.length !== 2) console.error('NOT UNIQUE AND > 2');
+                            //         if (used.has(val[decs[di]])) {
+                            //             val.splice(decs[di], 1);
+                            //             used.add(val[(decs[di]+1)%2]);
+                            //         } else {
+                            //             val.splice((decs[di]+1)%2, 1);
+                            //             used.add(val[decs[di]]);
+                            //         }
+                            //         di++;
+                            //         console.log('A', val);
+                            //     }
+                            // }
+                            continue cycle_scanner2;
                         }
 
                         const v1aidx = [...s12map.keys()][0];
@@ -167,8 +191,14 @@ const main = async () => {
                         const v1 = { x: v1b.x - v1a.x, y: v1b.y - v1a.y, z: v1b.z - v1a.z };
                         const v2 = { x: v2b.x - v2a.x, y: v2b.y - v2a.y, z: v2b.z - v2a.z };
 
-                        if (v1.x === v1.y || v1.y === v1.z || v1.z === v1.x) console.error('DUPLICATE NUM 1');
-                        if (v2.x === v2.y || v2.y === v2.z || v2.z === v2.x) console.error('DUPLICATE NUM 2');
+                        if (v1.x === v1.y || v1.y === v1.z || v1.z === v1.x) {
+                            console.error('DUPLICATE NUM 1');
+                            continue cycle_scanner2;
+                        }
+                        if (v2.x === v2.y || v2.y === v2.z || v2.z === v2.x) {
+                            console.error('DUPLICATE NUM 2');
+                            continue cycle_scanner2;
+                        }
 
                         const find_tr = (val) => {
                             if (val === v2.x) return ['x', 1];
@@ -231,14 +261,15 @@ const main = async () => {
                         }
 
                         changed = true;
-                        break again;
+                        break cycle_scanner1;
                     }
                 }
             }
         }
     }
 
-    console.log(scanners[0].beacons.length);
+    console.log(scanners.length);
+    console.log(scanners.reduce((p, c) => p + c.beacons.length, 0));
 };
 
 // const couldBe = (bidx1, bidx2, rel) => {
@@ -249,3 +280,5 @@ await main();
 // 335 too low
 // 593 too high
 // 220 too low
+// 503 wrong
+// 545 wrong

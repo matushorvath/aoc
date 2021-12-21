@@ -10,7 +10,7 @@ const main = async () => {
     const data = input.trimEnd().split(/\r?\n/);
 
     const scanners = [];
-    const beacons = [];
+    // const beacons = [];
 
     let row = 0;
     let bidx = 0;
@@ -35,13 +35,13 @@ const main = async () => {
                 z: Number(m[3])
             });
 
-            beacons.push({
-                bidx,
-                sidx,
-                x: Number(m[1]),
-                y: Number(m[2]),
-                z: Number(m[3])
-            });
+            // beacons.push({
+            //     bidx,
+            //     sidx,
+            //     x: Number(m[1]),
+            //     y: Number(m[2]),
+            //     z: Number(m[3])
+            // });
 
             bidx++;
         }
@@ -127,33 +127,26 @@ const main = async () => {
                     }
 
                     console.log(s12map);
-                    // console.log(is2);
-                    // merge
+
+                    const v1aidx = [...s12map.keys()][0];
+                    const v1bidx = [...s12map.keys()][1];
+
+                    const v2aidx = s12map.get(v1aidx)[0];
+                    const v2bidx = s12map.get(v1bidx)[0];
+
+                    const v1a = scanner1.beacons.find(b => b.bidx === v1aidx);
+                    const v1b = scanner1.beacons.find(b => b.bidx === v1bidx);
+                    const v2a = scanner2.beacons.find(b => b.bidx === v2aidx);
+                    const v2b = scanner2.beacons.find(b => b.bidx === v2bidx);
+
+                    console.log(v1a, v1b);
+                    console.log(v2a, v2b);
+
+                    process.exit(0);
                 }
             }
         }
     }
-
-
-    // for (const scanner1 of scanners) {
-    //     for (const scanner2 of scanners) {
-    //         //const matching = [];
-    //         for (const beacon1 of scanner1.beacons) {
-    //             for (const beacon2 of scanner2.beacons) {
-    //                 if (matching.every(b => b[0] !== beacon1.ridx && b[1] !== beacon1.ridx) &&
-    //                     matching.every(b => b[0] !== beacon2.ridx && b[1] !== beacon2.ridx) &&
-    //                     couldBe(beacon1.bidx, beacon2.bidx, rel)) {
-    //                         console.log('match', beacon1.bidx, beacon2.bidx);
-    //                         matching.push([beacon1.bidx, beacon2.bidx]);
-    //                 }
-    //             }
-    //         }
-
-    //         if (matching.length >= 12) {
-    //             console.log('merge', scanner1.sidx, scanner2.sidx);
-    //         }
-    //     }
-    // }
 };
 
 // const couldBe = (bidx1, bidx2, rel) => {

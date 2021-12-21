@@ -68,30 +68,48 @@ const main = async () => {
         changed = false;
         again: for (const scanner1 of scanners) {
             const s1rel = [];
+            const s1map = new Map();
             for (const beacon of scanner1.beacons) {
                 for (const b2idx in scanner1.rel[beacon.bidx]) {
-                    s1rel.push({ b1: beacon.bidx, b2: Number(b2idx), dist: scanner1.rel[beacon.bidx][b2idx] });
+                    if (beacon.bidx < b2idx) {
+                        // const tmp = s1rel.find(b => b.dist === scanner1.rel[beacon.bidx][b2idx]);
+                        // if (tmp && (beacon.bidx !== tmp.b2 || Number(b2idx) !== tmp.b1)) { // DBG
+                        //     console.log('DD', tmp.dist, beacon.bidx, Number(b2idx), tmp.b1, tmp.b2);
+                        // }
+                        const dist =  scanner1.rel[beacon.bidx][b2idx];
+                        const elem = { b1: beacon.bidx, b2: Number(b2idx), dist };
+                        s1rel.push(elem);
+                        if (!s1map.has(dist)) {
+                            s1map.set(dist, [elem]);
+                        } else {
+                            console.error('DUPLICATE DISTANCE!!! 1');
+                            s1map.get(dist).push(elem);
+                        }
+                    }
                 }
-            }
-            const s1map = new Map(s1rel.map(x => [x.dist, x]));
-            if (s1rel.length !== s1map.size * 2) {
-                console.error('DUPLICATE DISTANCE!!! 1', s1rel.length, s1map.size*2);
             }
 
             for (const scanner2 of scanners) {
                 if (scanner1.sidx != scanner2.sidx) {
                     const s2rel = [];
+                    const s2map = new Map();
                     for (const beacon of scanner2.beacons) {
                         for (const b2idx in scanner2.rel[beacon.bidx]) {
-                            s2rel.push({ b1: beacon.bidx, b2: Number(b2idx), dist: scanner2.rel[beacon.bidx][b2idx] });
+                            if (beacon.bidx < b2idx) {
+                                const dist = scanner2.rel[beacon.bidx][b2idx];
+                                const elem = { b1: beacon.bidx, b2: Number(b2idx), dist };
+                                s2rel.push(elem);
+                                if (!s2map.has(dist)) {
+                                    s2map.set(dist, [elem]);
+                                } else {
+                                    console.error('DUPLICATE DISTANCE!!! 2');
+                                    s2map.get(dist).push(elem);
+                                }
+                            }
                         }
                     }
-                    const s2map = new Map(s2rel.map(x => [x.dist, x]));
-                    if (s2rel.length !== s2map.size * 2) {
-                        console.error('DUPLICATE DISTANCE!!! 2', s2rel.length, s2map.size*2);
-                    }
 
-                    const is = [...s1rel].map(x => x.dist).filter(d => s2map.has(d));
+                    const is = s1rel.map(x => x.dist).filter(d => s2map.has(d));
 
                     // console.log(s1map);
                     // console.log(s2map);
@@ -100,30 +118,27 @@ const main = async () => {
                     //console.log('bcns', [...is].map(({ b1, b2 }) => [b1, b2]), [...is2].map(({ b1, b2 }) => [b1, b2]));
                     //console.log('k', [...is.keys()]);
 
-                    if (is.length >= 132) {
+                    // This won't work if two elems has the same distance
+                    if (is.length >= 66) {
                         console.log('merge', is.length, scanner1.sidx, scanner2.sidx);
 
                         const s12map = new Map();
                         for (const dist of is) {
-                            const c1 = s1map.get(dist);
-                            const c2 = s2map.get(dist);
+                            const c1s = s1map.get(dist);
+                            const c2s = s2map.get(dist);
 
-                            for (const c1b of [c1.b1, c1.b2]) {
-                                if (!s12map.has(c1b)) {
-                                    s12map.set(c1b, [c2.b1, c2.b2]);
-                                } else if (s12map.get(c1b).length === 2) {
-                                    if ((s12map.get(c1b)[0] === c2.b1 || s12map.get(c1b)[1] === c2.b1) &&
-                                        (s12map.get(c1b)[0] !== c2.b2 && s12map.get(c1b)[1] !== c2.b2)) {
-                                        s12map.set(c1b, [c2.b1]);
-                                    } else if ((s12map.get(c1b)[0] === c2.b2 || s12map.get(c1b)[1] === c2.b2) &&
-                                        (s12map.get(c1b)[0] !== c2.b1 && s12map.get(c1b)[1] !== c2.b1)) {
-                                        s12map.set(c1b, [c2.b2]);
-                                    // } else {
-                                    //     console.error('CONFLICT A');
-                                    }
-                                } else if (s12map.get(c1b).length === 1) {
-                                    if (s12map.get(c1b)[0] !== c2.b1 && s12map.get(c1b)[0] !== c2.b2) {
-                                        console.error('CONFLICT B');
+                            for (const c1 of c1s) {
+                                for (const c1b of [c1.b1, c1.b2]) {
+                                    const c2bs = c2s.flatMap(c2 => [c2.b1, c2.b2]);
+                                    if (!s12map.has(c1b)) {
+                                        s12map.set(c1b, c2bs);
+                                    } else {
+                                        const c2bs_set = new Set(c2bs);
+                                        const common = s12map.get(c1b).filter(x => c2bs_set.has(x));
+                                        s12map.set(c1b, common);
+                                        if (common.length === 0) {
+                                            console.error('CONFLICT');
+                                        }
                                     }
                                 }
                             }
@@ -190,9 +205,9 @@ const main = async () => {
                             if (!scanner1.beacons.find(b =>
                                 b.x === nbcn.x && b.y === nbcn.y && b.z === nbcn.z)) {
 
-                                console.log('adding');
+                                // console.log('adding');
                                 scanner1.beacons.push(nbcn);
-                            } else console.log('skip');
+                            }// else console.log('skip');
                         }
 
                         console.log(scanner1.beacons);

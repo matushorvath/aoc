@@ -82,7 +82,7 @@ const main = async () => {
                         if (!s1map.has(dist)) {
                             s1map.set(dist, [elem]);
                         } else {
-                            console.error('DUPLICATE DISTANCE!!! 1');
+                            //console.error('DUPLICATE DISTANCE!!! 1');
                             s1map.get(dist).push(elem);
                         }
                     }
@@ -145,6 +145,10 @@ const main = async () => {
                         }
 
                         // console.log(s12map);
+                        if ([...s12map.values()].some(v => v.length > 1)) {
+                            console.error('NOT UNIQUE');
+                            continue;
+                        }
 
                         const v1aidx = [...s12map.keys()][0];
                         const v1bidx = [...s12map.keys()][1];
@@ -244,3 +248,4 @@ await main();
 
 // 335 too low
 // 593 too high
+// 220 too low

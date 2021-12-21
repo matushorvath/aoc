@@ -126,7 +126,7 @@ const main = async () => {
                         }
                     }
 
-                    console.log(s12map);
+                    // console.log(s12map);
 
                     const v1aidx = [...s12map.keys()][0];
                     const v1bidx = [...s12map.keys()][1];
@@ -139,10 +139,31 @@ const main = async () => {
                     const v2a = scanner2.beacons.find(b => b.bidx === v2aidx);
                     const v2b = scanner2.beacons.find(b => b.bidx === v2bidx);
 
-                    console.log(v1a, v1b);
-                    console.log(v2a, v2b);
+                    // console.log(v1a, v1b);
+                    // console.log(v2a, v2b);
 
-                    process.exit(0);
+                    const v1 = { x: v1b.x - v1a.x, y: v1b.y - v1a.y, z: v1b.z - v1a.z };
+                    const v2 = { x: v2b.x - v2a.x, y: v2b.y - v2a.y, z: v2b.z - v2a.z };
+
+                    if (v1.x === v1.y || v1.y === v1.z || v1.z === v1.x) console.error('DUPLICATE NUM 1');
+                    if (v2.x === v2.y || v2.y === v2.z || v2.z === v2.x) console.error('DUPLICATE NUM 2');
+
+                    const find_tr = (val) => {
+                        if (val === v2.x) return ['x', 1];
+                        if (val === -v2.x) return ['x', -1];
+                        if (val === v2.y) return ['y', 1];
+                        if (val === -v2.y) return ['y', -1];
+                        if (val === v2.z) return ['z', 1];
+                        if (val === -v2.z) return ['z', -1];
+                    }
+                    const tr = {};
+                    tr['x'] = find_tr(v1.x);
+                    tr['y'] = find_tr(v1.y);
+                    tr['z'] = find_tr(v1.z);
+
+                    console.log(v1);
+                    console.log(v2);
+                    console.log(tr);
                 }
             }
         }

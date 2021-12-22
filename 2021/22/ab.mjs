@@ -110,16 +110,8 @@ const main = async () => {
         v: false
     }];
 
-    // console.log(root);
-    // console.log(steps[0]);
-    // split(root, 0, steps[0]);
-    // console.log(root);
-
     for (const step of steps) {
-        // console.log('s', step);
-        // console.log('nb', nodes);
-
-        const add = [];
+        const newNodes = [];
         for (let nidx = 0; nidx < nodes.length; nidx++) {
             const node = nodes[nidx];
 
@@ -129,24 +121,16 @@ const main = async () => {
                 step.v !== node.v) {
 
                 delete nodes[nidx];
-                const list = split(node, step);
-                add.push(...list);
-
-                // console.log('adding', nidx, list);
+                newNodes.push(...split(node, step));
             }
         }
 
-        nodes = [...nodes.filter(n => n !== undefined), ...add];
-        // console.log('na', nodes);
+        nodes = [...nodes.filter(n => n !== undefined), ...newNodes];
     }
 
-    let sum = 0;
-    for (const node of nodes.filter(n => n.v)) {
-        sum +=
-            (node.xt - node.xf + 1) *
-            (node.yt - node.yf + 1) *
-            (node.zt - node.zf + 1);
-    }
+    let sum = nodes
+        .filter(n => n.v)
+        .reduce((p, c) => p + (c.xt - c.xf + 1) * (c.yt - c.yf + 1) * (c.zt - c.zf + 1), 0);
 
     console.log(sum);
 };

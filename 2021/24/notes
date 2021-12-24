@@ -1,0 +1,57 @@
+A 11 14 10 14 -8 14 -11 10 -6 -9 12 -5 -4 -9
+B  7  8 16  8  3 12   1  8  8 14  4 14 15  6
+C  1  1  1  1 26  1  26  1 26 26  1 26 26 26
+
+
+1. z = w0 + 7 [8..16]
+2. z = [8..16]+14 === w F --> z = z * 26 + w1 + 8
+3. z = 
+
+
+
+
+
+13. 
+14. z = w14 + 9 [10..18]
+
+
+
+const fn = (w) => {
+    if (z % 26 + A === w) {
+        z = z / C
+    } else {
+        z = (z / C) * 26 + w + B
+    }
+}
+
+inp w
+mul x 0
+add x z
+mod x 26
+div z 1
+add x 11
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 7
+mul y x
+add z y
+
+
+
+
+const fn = (w) => {
+    const x = (z % 26 + A !== w);
+
+    y = 25 * x + 1
+    z = (z / C) * y
+
+    y = (w + B) * x
+    z = z + y
+}

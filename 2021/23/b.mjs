@@ -29,17 +29,32 @@ const chmb = {
     p: 'D',
 }
 
-const mxi = 5;
-const seq = (a, b) => [...new Array(Math.abs(a-b)+1)].map((_, i) => i+Math.min(a, b));
+const mxi = 3;
+const seq = (a, b) => {
+    const f = Math.min(a, b);
+    const t = Math.max(a, b);
+    return [...new Array(t-f+1)].map((_, i) => i+f);
+}
 const apeq = (a, b) => chmb[a] === chmb[b];
-const cost = (o) => ({ A: 1, B: 10, C: 100, D: 1000 }[chmb[o]]);
-const roomj = (o) => ({ A: 3, B: 5, C: 7, D: 9 }[chmb[o]]);
+const cost = (o) => {
+    switch (chmb[o]) {
+        case 'A': return 1;
+        case 'B': return 10;
+        case 'C': return 100;
+        case 'D': return 1000;
+    }
+}
+const roomj = (o) => {
+    switch (chmb[o]) {
+        case 'A': return 3;
+        case 'B': return 5;
+        case 'C': return 7;
+        case 'D': return 9;
+    }
+};
 const print = (d) => console.log(d.map(row => row.join('')).join('\n'));
 
-let smn = Infinity;
-
 const visited = new Map();
-let printed = false;
 
 const mkcfgkey = config => 'aeimbfjncgkodhlp'
     .slice(0, (mxi - 1) * 4)
@@ -57,25 +72,19 @@ const isdone = (d) => {
 };
 
 const step = (d, config, s) => {
-    if (s > smn) return false;
+    // if (s > smn) return Infinity;
 
     const cfgkey = mkcfgkey(config);
     if (visited[cfgkey] < s) {
-        return false;
+        return visited[cfgkey];
     }
     visited.set(cfgkey, s);
 
-    //print(d);
     if (isdone(d)) {
-        smn = s;
-        // if (!printed && s === 12521) {
-        //     printed = true;
-        //     return true;
-        // }
-        return false;
+        return s;
     }
 
-    let pr = false;
+    let smn = Infinity;
 
     for (const [o, [i, j]] of Object.entries(config)) {
         const rjo = roomj(o);
@@ -87,7 +96,7 @@ const step = (d, config, s) => {
                 d[imx][rjo] = o;
                 d[i][j] = '.';
                 config[o] = [imx, rjo];
-                pr = pr || step(d, config, s + cost(o) * (imx - i + Math.abs(rjo - j)));
+                smn = Math.min(smn, step(d, config, s + cost(o) * (imx - i + Math.abs(rjo - j))));
                 d[i][j] = o;
                 d[imx][rjo] = '.';
                 config[o] = [i, j];
@@ -108,7 +117,7 @@ const step = (d, config, s) => {
                             d[1][k] = o;
                             d[i][j] = '.';
                             config[o] = [1, k];
-                            pr = pr || step(d, config, s + cost(o) * (i - 1 + Math.abs(j - k)));
+                            smn = Math.min(smn, step(d, config, s + cost(o) * (i - 1 + Math.abs(j - k))));
                             d[i][j] = o;
                             d[1][k] = '.';
                             config[o] = [i, j];
@@ -119,15 +128,11 @@ const step = (d, config, s) => {
         }
     }
 
-    if (pr) {
-        console.log(s);
-        print(d);
-    }
-    return pr;
+    return smn;
 };
 
 const main = async () => {
-    const input = await fs.readFile('inputb', 'utf8');
+    const input = await fs.readFile('inputa.ex', 'utf8');
     const d = input.trimEnd().split(/\r?\n/).map(row => row.split(''));
 
     const config = {};
@@ -145,11 +150,8 @@ const main = async () => {
         }
     }
 
-    print(d);
-    console.log(config);
-
-    step(d, config, 0)
-    console.log(smn);
+    const score = step(d, config, 0);
+    console.log(score);
 };
 
 await main();

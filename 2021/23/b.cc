@@ -31,8 +31,8 @@ inline int roomj(char object) {
     throw logic_error("roomj unknown");
 };
 
-void print(const vector<vector<char>>& data) {
-    for (auto&& line : data) {
+void print(const vector<vector<char>>& d) {
+    for (auto&& line : d) {
         for (auto&& chr : line) {
             cout << chr;
         }
@@ -46,9 +46,11 @@ void print(const set<tuple<char, int, int>>& config) {
     }
 }
 
-map<set<tuple<char, int, int>>, int> visited;
+map<vector<tuple<char, int, int>>, int> visited;
+vector<vector<char>> d;
+vector<tuple<char, int, int>> config;
 
-bool isdone(const set<tuple<char, int, int>>& config) {
+bool isdone(const vector<tuple<char, int, int>>& config) {
     // cout << "------" << endl;
     for (auto&& [object, i, j] : config) {
         if (i < 2 || j != roomj(object)) return false;
@@ -73,10 +75,10 @@ int findidx(int f, int t, function<bool(int)> fn) {
     throw logic_error("failed to find");
 }
 
-int step(vector<vector<char>>& data, const set<tuple<char, int, int>>& config, int score) {
+int step(int score) {
     // if (s > smn) return Infinity;
 
-    // print(data);
+    // print(d);
     // print(config);
 
     auto itr = visited.find(config);
@@ -91,49 +93,58 @@ int step(vector<vector<char>>& data, const set<tuple<char, int, int>>& config, i
 
     int smn = numeric_limits<int>::max();
 
-    for (auto&& item : config) {
+    for (auto& item : config) {
         char object = get<0>(item);
         int i = get<1>(item);
         int j = get<2>(item);
 
         int rjo = roomj(object);
         if (i == 1) { // in hall
-            if (every(j, rjo, [&](int n) { return j == n || data[i][n] == '.'; }) &&
-                data[2][rjo] == '.' &&
-                every(3, mxi, [&](int n) { return data[n][rjo] == '.' || data[n][rjo] == object; })) { // can move to own room
+            if (every(j, rjo, [&](int n) { return j == n || d[i][n] == '.'; }) &&
+                d[2][rjo] == '.' &&
+                every(3, mxi, [&](int n) { return d[n][rjo] == '.' || d[n][rjo] == object; })) { // can move to own room
 
                 // try move to own room
-                int imx = findidx(mxi, 2, [&](int n) { return data[n][rjo] == '.'; });
-                data[imx][rjo] = object;
-                data[i][j] = '.';
-                auto newConfig = config;
-                newConfig.erase(make_tuple(object, i, j));
-                newConfig.emplace(object, imx, rjo);
-                smn = min(smn, step(data, newConfig, score + cost(object) * (imx - i + abs(rjo - j))));
-                data[i][j] = object;
-                data[imx][rjo] = '.';
+                int imx = findidx(mxi, 2, [&](int n) { return d[n][rjo] == '.'; });
+
+                d[imx][rjo] = object;
+                d[i][j] = '.';
+
+                auto tmpItem = make_tuple(object, imx, rjo);
+                swap(item, tmpItem);
+
+                smn = min(smn, step(score + cost(object) * (imx - i + abs(rjo - j))));
+
+                d[i][j] = object;
+                d[imx][rjo] = '.';
+
+                swap(tmpItem, item);
             }
         } else { // in room
             if (j != rjo || // not in own room; or
                 (i != mxi && // not on bottom
-                !every(i+1, mxi, [&](int n) { return data[n][j] == '.' || data[n][j] == object; }))) { // with different ap below
+                !every(i+1, mxi, [&](int n) { return d[n][j] == '.' || d[n][j] == object; }))) { // with different ap below
 
-                if (every(1, i-1, [&](int n) { return data[n][j] == '.'; }) &&
-                    (data[1][j+1] == '.' || data[1][j-1] == '.')) { // can move out
+                if (every(1, i-1, [&](int n) { return d[n][j] == '.'; }) &&
+                    (d[1][j+1] == '.' || d[1][j-1] == '.')) { // can move out
 
                     // try move out
-                    int jmn = findidx(j-1, 0, [&](int n) { return data[1][n] != '.'; }) + 1;
-                    int jmx = findidx(j+1, 12, [&](int n) { return data[1][n] != '.'; }) - 1;
+                    int jmn = findidx(j-1, 0, [&](int n) { return d[1][n] != '.'; }) + 1;
+                    int jmx = findidx(j+1, 12, [&](int n) { return d[1][n] != '.'; }) - 1;
                     for (int k = jmn; k <= jmx; k++) {
                         if (k != j) {
-                            data[1][k] = object;
-                            data[i][j] = '.';
-                            auto newConfig = config;
-                            newConfig.erase(make_tuple(object, i, j));
-                            newConfig.emplace(object, 1, k);
-                            smn = min(smn, step(data, newConfig, score + cost(object) * (i - 1 + abs(j - k))));
-                            data[i][j] = object;
-                            data[1][k] = '.';
+                            d[1][k] = object;
+                            d[i][j] = '.';
+
+                            auto tmpItem = make_tuple(object, 1, k);
+                            swap(item, tmpItem);
+
+                            smn = min(smn, step(score + cost(object) * (i - 1 + abs(j - k))));
+
+                            d[i][j] = object;
+                            d[1][k] = '.';
+
+                            swap(tmpItem, item);
                         }
                     }
                 }
@@ -148,25 +159,22 @@ int step(vector<vector<char>>& data, const set<tuple<char, int, int>>& config, i
 int main() {
     ifstream in("inputa.ex");
 
-    vector<vector<char>> data;
-
     string line;
     while (getline(in, line)) {
-        data.emplace_back(line.begin(), line.end());
+        d.emplace_back(line.begin(), line.end());
     }
 
-    set<tuple<char, int, int>> config;
-    for (int i = 0; i < data.size(); i++) {
-        for (int j = 0; j < data[i].size(); j++) {
-            if (data[i][j] >= 'A' && data[i][j] <= 'D') {
-                config.emplace(data[i][j], i, j);
+    for (int i = 0; i < d.size(); i++) {
+        for (int j = 0; j < d[i].size(); j++) {
+            if (d[i][j] >= 'A' && d[i][j] <= 'D') {
+                config.emplace_back(d[i][j], i, j);
             }
         }
     }
 
-    // print(data);
+    // print(d);
     // print(config);
 
-    int score = step(data, config, 0);
+    int score = step(0);
     cout << score << endl;
 };

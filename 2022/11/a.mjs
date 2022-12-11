@@ -11,12 +11,14 @@ const main = async () => {
 
     for (const monkey of data) {
         const m = monkey.match(/Monkey (\d):\n  Starting items: (.+)\n  Operation: (.+)\n  Test: divisible by (\d+)\n    If true: throw to monkey (\d)\n    If false: throw to monkey (\d)/);
-        const [, id, items, op, test, tid, fid] = [...m];
+        const [, id, items, op, test, tid, fid] = m;
+
+        const op_renamed = op.replaceAll('new', 'neues');
 
         monkeys[id] = {
             id: Number(id),
             items: items.split(', ').map(Number),
-            op: op.replaceAll('new', 'neues'),
+            op: old => { let neues; eval(op_renamed); return neues; },
             test: Number(test),
             target: {
                 true: Number(tid),
@@ -33,12 +35,8 @@ const main = async () => {
             let item;
             while (item = monkey.items.shift()) {
                 console.log('  Inspect ', item);
-                item = ((i) => {
-                    let neues;
-                    let old = i;
-                    eval(monkey.op);
-                    return neues;
-                })(item);
+
+                item = monkey.op(item);
                 console.log('    Increase to ', item);
 
                 item = Math.floor(item / 3);

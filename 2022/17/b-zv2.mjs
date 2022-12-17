@@ -121,8 +121,8 @@ const print = (ch, rx, ry) => {
 };
 
 const main = async () => {
-    //const input = await fs.readFile('example', 'utf8');
-    const input = await fs.readFile('input', 'utf8');
+    //const input = await fs.readFile('example', 'utf8'); const pmul = 7; const zv = 400;
+    const input = await fs.readFile('input', 'utf8'); const pmul = 343; const zv = 3646105;
     const data = input.trimEnd().split('').map(c => c === '<' ? -1 : 1);
 
     let ch = [];
@@ -131,15 +131,19 @@ const main = async () => {
     let di = 0;
     let rt = 0;
 
-    const period = data.length * 5 * 343;
-    console.log('p', period)
+    const period = data.length * 5 * pmul;
+    console.log('p', period);
 
     let cutx = 0;
     let maxh;
-    let prevmaxh = 0;
+    let prevmaxh = -1;
 
     for (let a = 0; a < 10; a++) {
         for (let r = 0; r < period; r++) {
+            if (r === zv) {
+                console.log('a=', a, 'r=', r, 'maxh=', cutx + maxx + 1, 'prevh=', prevmaxh + 1, 'D=', cutx + maxx - prevmaxh);
+            }
+
             let rx = maxx + 4;
             let ry = 2;
 
@@ -163,11 +167,6 @@ const main = async () => {
                     break;
                 }
                 //print(ch, rx, ry);
-            }
-
-            if (r === 3646105) {
-                console.log('a=', a, 'r=', r, 'maxh=', cutx + maxx + 1);
-                break;
             }
 
             if (r % 50455 === 0) {

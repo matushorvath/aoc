@@ -121,8 +121,8 @@ const print = (ch, rx, ry) => {
 };
 
 const main = async () => {
-    //const input = await fs.readFile('example', 'utf8'); const pmul = 7;
-    const input = await fs.readFile('input', 'utf8'); const pmul = 343;
+    //const input = await fs.readFile('example', 'utf8');
+    const input = await fs.readFile('input', 'utf8');
     const data = input.trimEnd().split('').map(c => c === '<' ? -1 : 1);
 
     let ch = [];
@@ -131,61 +131,77 @@ const main = async () => {
     let di = 0;
     let rt = 0;
 
-    const period = data.length * 5 * pmul;
-    console.log('p', period);
+    // let cutx = 0;
+    // let maxh;
+    // let prevmaxh = -1;
 
-    let cutx = 0;
-    let maxh;
-    let prevmaxh = -1;
+    const rep = {};
 
-    for (let a = 0; a < 10; a++) {
-        for (let r = 0; r < period; r++) {
-            let rx = maxx + 4;
-            let ry = 2;
+    for (let r = 0; r < 10000; r++) {
+        let rx = maxx + 4;
+        let ry = 2;
 
-            //print(ch, rx, ry);
-
-            while (true) {
-                if (!collidey(ch, rx, ry + data[di], rt)) {
-                    ry += data[di];
-                }
-                di = (di + 1) % data.length;
-
-                //print(ch, rx, ry);
-
-                if (!collidex(ch, rx - 1, ry, rt)) {
-                    rx--;
-                } else {
-                    merge(ch, rx, ry, rt);
-                    maxx = Math.max(maxx, height(rx, rt));
-                    rt = (rt + 1) % 5;
-
+        const depth = [];
+        for (let c = 0; c < 7; c++) {
+            for (let b = maxx; b >= 0; b--) {
+                if (ch[b]?.[c]) {
+                    depth[c] = maxx - b;
                     break;
                 }
-                //print(ch, rx, ry);
-            }
-
-            if (r % 50455 === 0) {
-                let border = maxx;
-                for (let c = 0; c < 7; c++) {
-                    for (let b = maxx; b >= 0; b--) {
-                        if (ch[b]?.[c]) {
-                            if (border > b) border = b;
-                            break;
-                        }
-                    }
-                }
-
-                ch = ch.slice(border);
-                maxx -= border;
-                cutx += border;
+                depth[c] = maxx;
             }
         }
 
-        maxh = cutx + maxx;
-        console.log(maxh + 1, prevmaxh + 1, maxh - prevmaxh/*, (a + 1) * period*/);
-        prevmaxh = maxh;
+        const state = `${rx - maxx} ${ry} ${rt} ${depth} ${di}`;
+        if (rep[state]) {
+            console.log('period', r - rep[state].r, r, rep[state].r);
+            console.log('height', maxx - rep[state].maxx, maxx + 1, rep[state].maxx + 1);
+            break;
+        }
+        rep[state] = { r, maxx };
+
+        //print(ch, rx, ry);
+
+        while (true) {
+            if (!collidey(ch, rx, ry + data[di], rt)) {
+                ry += data[di];
+            }
+            di = (di + 1) % data.length;
+
+            //print(ch, rx, ry);
+
+            if (!collidex(ch, rx - 1, ry, rt)) {
+                rx--;
+            } else {
+                merge(ch, rx, ry, rt);
+                maxx = Math.max(maxx, height(rx, rt));
+                rt = (rt + 1) % 5;
+
+                break;
+            }
+            //print(ch, rx, ry);
+        }
+
+        // if (r % 50455 === 0) {
+        //     let border = maxx;
+        //     for (let c = 0; c < 7; c++) {
+        //         for (let b = maxx; b >= 0; b--) {
+        //             if (ch[b]?.[c]) {
+        //                 if (border > b) border = b;
+        //                 break;
+        //             }
+        //         }
+        //     }
+
+        //     ch = ch.slice(border);
+        //     maxx -= border;
+        //     cutx += border;
+        // }
     }
+
+    // maxh = cutx + maxx;
+    // console.log(maxh + 1, prevmaxh + 1, maxh - prevmaxh/*, (a + 1) * period*/);
+    // prevmaxh = maxh;
 };
 
 await main();

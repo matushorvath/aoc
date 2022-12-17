@@ -1,0 +1,29 @@
+---
+ex
+
+firstr = 28
+periodr = 35
+
+firsth = 49
+periodh = 53
+
+(1000000000000 - firstr) / periodr = div zv mod
+(1000000000000 - 28) / 35 = 28571428570 zv 22
+
+res = firsth + periodh * div + f(mod) =
+49 + 53 * 28571428570 + f(22)[29] = 
+
+---
+ex
+
+firstr = 101
+periodr = 1715
+
+firsth = 156
+periodh = 2616
+
+(1000000000000 - firstr) / periodr = div zv mod
+(1000000000000 - 101) / 1715 = 583090378 zv 1629
+
+res = firsth + periodh * div + f(mod) =
+156 + 2616 * 583090378 + f(1629)[2483] = 1525364431487

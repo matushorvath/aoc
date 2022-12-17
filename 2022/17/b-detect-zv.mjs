@@ -121,8 +121,8 @@ const print = (ch, rx, ry) => {
 };
 
 const main = async () => {
-    //const input = await fs.readFile('example', 'utf8'); const pmul = 7;
-    const input = await fs.readFile('input', 'utf8'); const pmul = 343;
+    //const input = await fs.readFile('example', 'utf8'); const vals = [28, 35, 22]; // firstr, periodr, mod
+    const input = await fs.readFile('input', 'utf8'); const vals = [101, 1715, 1629]; // firstr, periodr, mod
     const data = input.trimEnd().split('').map(c => c === '<' ? -1 : 1);
 
     let ch = [];
@@ -131,15 +131,15 @@ const main = async () => {
     let di = 0;
     let rt = 0;
 
-    const period = data.length * 5 * pmul;
-    console.log('p', period);
+    // let cutx = 0;
+    // let maxh;
+    // let prevmaxh = -1;
+    let prevmaxx = -1;
 
-    let cutx = 0;
-    let maxh;
-    let prevmaxh = -1;
+    // const rep = {};
 
-    for (let a = 0; a < 10; a++) {
-        for (let r = 0; r < period; r++) {
+    for (const cntr of vals) {
+        for (let r = 0; r < cntr; r++) {
             let rx = maxx + 4;
             let ry = 2;
 
@@ -164,28 +164,15 @@ const main = async () => {
                 }
                 //print(ch, rx, ry);
             }
-
-            if (r % 50455 === 0) {
-                let border = maxx;
-                for (let c = 0; c < 7; c++) {
-                    for (let b = maxx; b >= 0; b--) {
-                        if (ch[b]?.[c]) {
-                            if (border > b) border = b;
-                            break;
-                        }
-                    }
-                }
-
-                ch = ch.slice(border);
-                maxx -= border;
-                cutx += border;
-            }
         }
 
-        maxh = cutx + maxx;
-        console.log(maxh + 1, prevmaxh + 1, maxh - prevmaxh/*, (a + 1) * period*/);
-        prevmaxh = maxh;
+        console.log(cntr, maxx + 1, prevmaxx + 1, maxx - prevmaxx);
+        prevmaxx = maxx;
     }
+
+    // maxh = cutx + maxx;
+    // console.log(maxh + 1, prevmaxh + 1, maxh - prevmaxh/*, (a + 1) * period*/);
+    // prevmaxh = maxh;
 };
 
 await main();

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Network | Basic Usage | Standalone Build</title>
+
+    <style type="text/css">
+      html,
+      body,
+      #mynetwork {
+        margin: 0px;
+        padding: 0px;
+      }
+
+      #mynetwork {
+        position: fixed;
+        left: 0px;
+        top: 0px;
+        bottom: 0px;
+        right: 50%;
+        min-height: 100vh;
+        border-right: 1px solid lightgray;
+        background: white;
+      }
+
+      #text {
+        position: absolute;
+        left: 50%;
+        padding: 1em;
+      }
+
+      #title {
+        margin-bottom: 5em;
+      }
+    </style>
+
+    <!-- <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script> -->
+  </head>
+
+  <body>
+    <div id="mynetwork"></div>
+    <script type="text/javascript">
+        import { DataSet, Network } from "vis-network/standalone";
+        
+      // create an array with nodes
+      var nodes = new vis.DataSet([
+  { id: 'AA', label: 0 },
+{ id: 'DD', label: 1 },
+{ id: 'II', label: 2 },
+{ id: 'BB', label: 3 },
+{ id: 'CC', label: 4 },
+{ id: 'EE', label: 5 },
+{ id: 'FF', label: 6 },
+{ id: 'GG', label: 7 },
+{ id: 'HH', label: 8 },
+{ id: 'JJ', label: 9 }
+  ]);
+
+  // create an array with edges
+  var edges = new vis.DataSet([
+  { from: 0, to: 1 },{ from: 0, to: 2 },{ from: 0, to: 3 },
+{ from: 1, to: 4 },{ from: 1, to: 0 },{ from: 1, to: 5 },
+{ from: 2, to: 0 },{ from: 2, to: 9 },
+{ from: 3, to: 4 },{ from: 3, to: 0 },
+{ from: 4, to: 1 },{ from: 4, to: 3 },
+{ from: 5, to: 6 },{ from: 5, to: 1 },
+{ from: 6, to: 5 },{ from: 6, to: 7 },
+{ from: 7, to: 6 },{ from: 7, to: 8 },
+{ from: 8, to: 7 },
+{ from: 9, to: 2 }
+  ]);
+
+      // create a network
+      var container = document.getElementById("mynetwork");
+      var data = {
+        nodes: nodes,
+        edges: edges,
+      };
+      var options = {};
+      var network = new vis.Network(container, data, options);
+    </script>
+  </body>
+</html>

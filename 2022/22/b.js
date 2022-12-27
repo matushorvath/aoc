@@ -3,46 +3,49 @@
 const fs = require('fs/promises');
 
 const normalize = (p, d) => {
-    if (p.x === -1 && p.y >= 50 && p.y < 100) { // 1
-        p.x = 150 + (p.y - 50); p.y = 0;
-        d.x = d.y; d.y = -d.x || 0; // R
-    } else if (p.x === -1 && p.y >= 100 && p.y < 150) { // 2
-        p.x = 199; p.y = p.y - 100;
-    } else if (p.y === 49 && p.x >= 0 && p.x < 50) { // 3
-        p.x = 149 - p.x; p.y = 0;
-        d.x = d.x; d.y = -d.y || 0; // -Y
-    } else if (p.y === 150 && p.x >= 0 && p.x < 50) { // 4
-        p.x = 149 - p.x; p.y = 99;
-        d.x = d.x; d.y = -d.y || 0; // -Y
-    } else if (p.x === 50 && p.y >= 100 && p.y < 150) { // 5
-        p.x = 50 + (p.y - 100); p.y = 99;
-        d.x = d.y; d.y = -d.x || 0; // R
-    } else if (p.y === 49 && p.x >= 50 && p.x < 100) { // 6
-        p.x = 100; p.y = p.x - 50;
-        d.x = -d.y || 0; d.y = d.x; // L
-    } else if (p.y === 100 && p.x >= 50 && p.x < 100) { // 7
-        p.x = 49; p.y = 100 + (p.x - 50);
-        d.x = -d.y || 0; d.y = d.x; // L
-    } else if (p.x === 99 && p.y >= 0 && p.y < 50) { // 8
-        p.x = 50 + p.y; p.y = 50;
-        d.x = d.y; d.y = -d.x || 0; // R
-    } else if (p.y === -1 && p.x >= 100 && p.x < 150) { // 9
-        p.x = 49 - (p.x - 100); p.y = 50;
-        d.x = d.x; d.y = -d.y || 0; // -Y
-    } else if (p.y === 100 && p.x >= 100 && p.x < 150) { // 10
-        p.x = 49 - (p.x - 100); p.y = 149;
-        d.x = d.x; d.y = -d.y || 0; // -Y
-    } else if (p.x === 150 && p.y >= 50 && p.y < 100) { // 11
-        p.x = 150 + (p.y - 50); p.y = 49;
-        d.x = d.y; d.y = -d.x || 0; // R
-    } else if (p.y === -1 && p.x >= 150 && p.x < 200) { // 12
-        p.x = 0; p.y = 50 + p.x - 150;
-        d.x = -d.y || 0; d.y = d.x; // L
-    } else if (p.y === 50 && p.x >= 150 && p.x < 200) { // 13
-        p.x = 149; p.y = 50 + (p.x - 150);
-        d.x = -d.y || 0; d.y = d.x; // L
-    } else if (p.x === 200 && p.y >= 0 && p.y < 50) { // 14
-        p.x = 0; p.y = 100 + p.y;
+    const op = { ...p };
+    const od = { ...d };
+
+    if (op.x === -1 && op.y >= 50 && op.y < 100) { // 1
+        p.x = 150 + (op.y - 50); p.y = 0;
+        d.x = od.y; d.y = -od.x || 0; // R
+    } else if (op.x === -1 && op.y >= 100 && op.y < 150) { // 2
+        p.x = 199; p.y = op.y - 100;
+    } else if (op.y === 49 && op.x >= 0 && op.x < 50) { // 3
+        p.x = 149 - op.x; p.y = 0;
+        d.x = od.x; d.y = -od.y || 0; // -Y
+    } else if (op.y === 150 && op.x >= 0 && op.x < 50) { // 4
+        p.x = 149 - op.x; p.y = 99;
+        d.x = od.x; d.y = -od.y || 0; // -Y
+    } else if (op.x === 50 && op.y >= 100 && op.y < 150) { // 5
+        p.x = 50 + (op.y - 100); p.y = 99;
+        d.x = od.y; d.y = -od.x || 0; // R
+    } else if (op.y === 49 && op.x >= 50 && op.x < 100) { // 6
+        p.x = 100; p.y = op.x - 50;
+        d.x = -od.y || 0; d.y = od.x; // L
+    } else if (op.y === 100 && op.x >= 50 && op.x < 100) { // 7
+        p.x = 49; p.y = 100 + (op.x - 50);
+        d.x = -od.y || 0; d.y = od.x; // L
+    } else if (op.x === 99 && op.y >= 0 && op.y < 50) { // 8
+        p.x = 50 + op.y; p.y = 50;
+        d.x = od.y; d.y = -od.x || 0; // R
+    } else if (op.y === -1 && op.x >= 100 && op.x < 150) { // 9
+        p.x = 49 - (op.x - 100); p.y = 50;
+        d.x = od.x; d.y = -od.y || 0; // -Y
+    } else if (op.y === 100 && op.x >= 100 && op.x < 150) { // 10
+        p.x = 49 - (op.x - 100); p.y = 149;
+        d.x = od.x; d.y = -od.y || 0; // -Y
+    } else if (op.x === 150 && op.y >= 50 && op.y < 100) { // 11
+        p.x = 150 + (op.y - 50); p.y = 49;
+        d.x = od.y; d.y = -od.x || 0; // R
+    } else if (op.y === -1 && op.x >= 150 && op.x < 200) { // 12
+        p.x = 0; p.y = 50 + op.x - 150;
+        d.x = -od.y || 0; d.y = od.x; // L
+    } else if (op.y === 50 && op.x >= 150 && op.x < 200) { // 13
+        p.x = 149; p.y = 50 + (op.x - 150);
+        d.x = -od.y || 0; d.y = od.x; // L
+    } else if (op.x === 200 && op.y >= 0 && op.y < 50) { // 14
+        p.x = 0; p.y = 100 + op.y;
     } else {
         return false;
     }

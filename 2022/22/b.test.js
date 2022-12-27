@@ -26,25 +26,29 @@ const makeinput = (...points) => {
 const print = map => console.log(map.map(r => r.join('')).join('\n'));
 
 test('Counts steps correctly', async () => {
-    await expect(run(makeinput(), [12])).resolves.toStrictEqual([{ x: 0, y: 62 }, { x: 0, y: 1 }]);
+    await expect(run(makeinput(), [13])).resolves.toStrictEqual([{ x: 0, y: 63 }, { x: 0, y: 1 }]);
 });
 
 test('Hits a wall and stops', async () => {
-    await expect(run(makeinput([0, 60]), [12])).resolves.toStrictEqual([{ x: 0, y: 59 }, { x: 0, y: 1 }]);
+    await expect(run(makeinput([0, 60]), [13])).resolves.toStrictEqual([{ x: 0, y: 59 }, { x: 0, y: 1 }]);
 });
 
 test('Turns right', async () => {
-    await expect(run(makeinput(), ['R', 12])).resolves.toStrictEqual([{ x: 12, y: 50 }, { x: 1, y: 0 }]);
+    await expect(run(makeinput(), ['R', 13])).resolves.toStrictEqual([{ x: 13, y: 50 }, { x: 1, y: 0 }]);
 });
 
 test('Turns left', async () => {
-    await expect(run(makeinput(), ['R', 12, 'L', 6])).resolves.toStrictEqual([{ x: 12, y: 56 }, { x: 0, y: 1 }]);
+    await expect(run(makeinput(), ['R', 13, 'L', 6])).resolves.toStrictEqual([{ x: 13, y: 56 }, { x: 0, y: 1 }]);
 });
 
 test.each(['L', 'R'])('Turns 180 for X and %s', async (dir) => {
-    await expect(run(makeinput(), ['R', 12, dir, dir, 4])).resolves.toStrictEqual([{ x: 8, y: 50 }, { x: -1, y: 0 }]);
+    await expect(run(makeinput(), ['R', 13, dir, dir, 4])).resolves.toStrictEqual([{ x: 9, y: 50 }, { x: -1, y: 0 }]);
 });
 
 test.each(['L', 'R'])('Turns 180 for Y and %s', async (dir) => {
-    await expect(run(makeinput(), [12, dir, dir, 4])).resolves.toStrictEqual([{ x: 0, y: 58 }, { x: 0, y: -1 }]);
+    await expect(run(makeinput(), [13, dir, dir, 4])).resolves.toStrictEqual([{ x: 0, y: 59 }, { x: 0, y: -1 }]);
+});
+
+test('Wraps around for scenario 1', async () => {
+    await expect(run(makeinput(), [13, 'L', 1])).resolves.toStrictEqual([{ x: 163, y: 0 }, { x: 0, y: 1 }]);
 });

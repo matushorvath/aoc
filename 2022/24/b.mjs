@@ -52,7 +52,7 @@ const main = async () => {
     let patht = Infinity;
 
     let s;
-    while (s = stack.pop()) {
+    while (s = stack.shift()) {
         if (patht <= s.t) continue;
 
         const key = `${s.x} ${s.y} ${s.t % period} ${s.p}`;

@@ -46,7 +46,7 @@ const main = async () => {
     const B = { x: 0, y: 1 };
     const E = { x: data.length - 1, y: data[0].length - 2 };
 
-    const stack = [{ ...B, t: 0}];
+    const stack = [{ ...B, t: 0, p: 0 }];
     const seen = new Set();
 
     let patht = Infinity;
@@ -55,7 +55,7 @@ const main = async () => {
     while (s = stack.pop()) {
         if (patht <= s.t) continue;
 
-        const key = `${s.x} ${s.y} ${s.t % period}`;
+        const key = `${s.x} ${s.y} ${s.t % period} ${s.p}`;
         if (seen[key] <= s.t) continue;
         seen[key] = s.t;
 
@@ -64,24 +64,28 @@ const main = async () => {
             continue;
         }
 
-        if (s.x === E.x && s.y === E.y) {
+        if (s.p === 2 && s.x === E.x && s.y === E.y) {
             patht = s.t;
-            console.log(patht, 'stack', stack.length, 'seen', seen.length);
+            console.log(patht, 'stack', stack.length, 'seen', seen.size);
         }
 
-        stack.push({ x: s.x, y: s.y, t: s.t + 1 });
+        let p = s.p;
+        if (s.p === 0 && s.x === E.x && s.y === E.y) p = 1;
+        if (s.p === 1 && s.x === B.x && s.y === B.y) p = 2;
+
+        stack.push({ x: s.x, y: s.y, t: s.t + 1, p });
 
         if (s.x > 0 && data[s.x - 1][s.y] !== '#') {
-            stack.push({ x: s.x - 1, y: s.y, t: s.t + 1 });
+            stack.push({ x: s.x - 1, y: s.y, t: s.t + 1, p });
         }
         if (s.y > 0 && data[s.x][s.y - 1] !== '#') {
-            stack.push({ x: s.x, y: s.y - 1, t: s.t + 1 });
+            stack.push({ x: s.x, y: s.y - 1, t: s.t + 1, p });
         }
         if (s.x < data.length - 1 && data[s.x + 1][s.y] !== '#') {
-            stack.push({ x: s.x + 1, y: s.y, t: s.t + 1 });
+            stack.push({ x: s.x + 1, y: s.y, t: s.t + 1, p });
         }
         if (s.y < data[0].length - 1 && data[s.x][s.y + 1] !== '#') {
-            stack.push({ x: s.x, y: s.y + 1, t: s.t + 1 });
+            stack.push({ x: s.x, y: s.y + 1, t: s.t + 1, p });
         }
     }
 
@@ -89,7 +93,3 @@ const main = async () => {
 };
 
 await main();
-
-// WA 701 high
-// WA 639 high
-// WA 634 high

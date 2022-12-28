@@ -2,6 +2,13 @@
 
 import fs from 'fs/promises';
 
+// napad:
+// blizardy maju periodu pocet riadkov * pocet stlpcov
+// namiesto stavu vsetkych blizardov v bl staci ukladat aktualny cas % perioda blizardov,
+// ak je modulo rovnake, su vsetky blizardy v tom istom stave
+
+// NODE_OPTIONS=--max_old_space_size=16384 node a.mjs
+
 const main = async () => {
     //const input = await fs.readFile('example', 'utf8');
     const input = await fs.readFile('input', 'utf8');
@@ -39,14 +46,20 @@ const main = async () => {
 
     let s;
     while (s = stack.pop()) {
+        if (patht <= s.t) continue;
+
+        const key = mkkey(s);
+        if (seen[key] <= s.t) continue;
+        seen[key] = s.t;
+
         if (s.bl.some(b => b.x === s.x && b.y === s.y)) {
             continue;
         }
 
-        const key = mkkey(s);
-        if (seen[key] < s.t || patht < s.t) continue;
-        seen[key] = s.t;
-        if (s.x === E.x && s.y === E.y) patht = s.t;
+        if (s.x === E.x && s.y === E.y) {
+            patht = s.t;
+            console.log(patht, 'stack', stack.length, 'seen', seen.length);
+        }
 
         const newbl = advance(s.bl);
 
@@ -70,3 +83,7 @@ const main = async () => {
 };
 
 await main();
+
+// WA 701 high
+// WA 639 high
+// WA 634 high

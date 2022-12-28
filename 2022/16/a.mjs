@@ -8,36 +8,57 @@ const main = async () => {
     const data = Object.fromEntries(input.trimEnd().split(/\r?\n/).map(l => {
         const m = l.match(/Valve (.+) has flow rate=(.+); tunnels? leads? to valves? (.+)/);
         return [m[1], {
-            v: m[1],
-            f: Number(m[2]),
-            t: m[3].split(', ')
+            id: m[1],
+            rate: Number(m[2]),
+            neig: m[3].split(', ')
         }];
     }));
 
-    let maxr = 0;
+    const stack = [{ rel: 0, rate: 0, time: 0, pos: 'AA', open: new Set() }];
+    const seen = {};
 
-    const stack = [{ r: 0, f: 0, t: 0, p: 'AA', o: new Set() }];
-    while (stack.length > 0) {
-        const s = stack.pop();
+    let maxrel = 0;
 
-        if (s.t >= 30) {
-            if (s.r > maxr) {
-                maxr = s.r;
-                console.log(maxr);
+    let s;
+    while (s = stack.pop()) {
+        const key = `${s.pos} ${[...s.open].join(' ')}`;
+        if (seen[key] && seen[key].time <= s.time && seen[key].rel >= s.rel) continue;
+
+        if (!seen[key]) seen[key] = { time: Infinity, rel: -Infinity };
+        if (seen[key].time > s.time) seen[key].time = s.time;
+        if (seen[key].rel < s.rel) seen[key].rel = s.rel;
+
+        if (s.time === 30) {
+            if (s.rel > maxrel) {
+                maxrel = s.rel;
+                console.log(maxrel, 'stack', stack.length, 'seen', Object.keys(seen).size);
             }
             continue;
         }
 
-        if (!s.o.has(s.p) && data[s.p].f > 0) {
-            stack.push({ r: s.r + s.f, f: s.f + data[s.p].f, t: s.t + 1, p: s.p, o: new Set([...s.o, s.p]) });
+        //if (!s.o.has(s.p) && data[s.p].f > 0) {
+        if (data[s.pos].rate > 0 && !s.open.has(s.pos)) {
+            stack.push({
+                rel: s.rel + s.rate,
+                rate: s.rate + data[s.pos].rate,
+                time: s.time + 1,
+                pos: s.pos,
+                open: new Set([...s.open, s.pos])
+            });
         }
 
-        for (const n of data[s.p].t) {
-            stack.push({ r: s.r + s.f, f: s.f, t: s.t + 1, p: n, o: s.o });
+        for (const n of data[s.pos].neig) {
+            stack.push({
+                rel: s.rel + s.rate,
+                rate: s.rate,
+                time: s.time + 1,
+                pos: n,
+                open: s.open
+            });
         }
     }
 
-    console.log(maxr);
+    console.log(maxrel);
 };
 
 await main();

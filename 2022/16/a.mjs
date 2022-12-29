@@ -31,12 +31,11 @@ const main = async () => {
         if (s.time === 30) {
             if (s.rel > maxrel) {
                 maxrel = s.rel;
-                console.log(maxrel, 'stack', stack.length, 'seen', Object.keys(seen).size);
+                console.log(maxrel, 'stack', stack.length);
             }
             continue;
         }
 
-        //if (!s.o.has(s.p) && data[s.p].f > 0) {
         if (data[s.pos].rate > 0 && !s.open.has(s.pos)) {
             stack.push({
                 rel: s.rel + s.rate,

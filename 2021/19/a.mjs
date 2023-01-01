@@ -139,11 +139,12 @@ const main = async () => {
                     //console.log(scanner1.sid, scanner2.sid, commonBids);
 
                     // TODO determine scanner 2 position rel to data[0]
-                    // = scanner 1 position rel to data[0] + beacon position rel to scanner 1 - beacon position rel to scanner 2
+                    // = scanner 1 position rel to data[0] + beacon position rel to scanner 1 - beacon position rel to scanner 2 (I think converted using orientation)
                     // do that for each beacon, they should be equal
                     // if not equal, this is not the correct orientation
                     // TODO for that we need a mapping between scanner 1 beacons and scanner 2 beacons
-                    // TODO we also need position of each scanner relative to scanner 1
+                    // TODO Then map each beacon position rel to data[0]
+                    // = (I think) Convert beacon position using orientation (done below) + scanner 2 position rel to data[0]
 
                     const beacons = [];
                     for (const bid of commonBids) {

@@ -4,7 +4,7 @@ import fs from 'fs/promises';
 import stringify from "json-stringify-pretty-compact";
 
 const main = async () => {
-    //const input = await fs.readFile('simple', 'utf8'); const COMMON = 2;
+    //const input = await fs.readFile('simple', 'utf8'); const COMMON = 3;
     const input = await fs.readFile('example', 'utf8'); const COMMON = 12;
     //const input = await fs.readFile('input', 'utf8'); const COMMON = 12;
     const data = input.trimEnd().split(/\r?\n\r?\n/)
@@ -19,7 +19,7 @@ const main = async () => {
             })
         }));
 
-    console.log(stringify(data, { maxLength: 160 }));
+    //console.log(stringify(data, { maxLength: 160 }));
 
     // Calc relative coordinates between beacons within one scanner
     for (const scanner of data) {
@@ -32,7 +32,7 @@ const main = async () => {
         }
     }
 
-    console.log(stringify(data.map(s => s.rel), { maxLength: 160 }));
+    //console.log(stringify(data.map(s => s.rel), { maxLength: 160 }));
 
     // Calc relative coordinates between beacons under each of the 24 possible scanner orientations; sort them in a repeatable way
     const compareRelCoords = (a, b) => {
@@ -45,13 +45,15 @@ const main = async () => {
         }
     };
 
+    const mkrkey = (mul0, mul1, mul2, rot) => `${mul0} ${mul1} ${mul2} ${rot}`;
+
     for (const scanner of data) {
         scanner.rotated = {};
         for (const mul0 of [-1, 1]) {
             for (const mul1 of [-1, 1]) {
                 for (const mul2 of [-1, 1]) {
                     for (const rot of [[0, 1, 2], [1, 2, 0], [2, 0, 1]]) {
-                        const rkey = `${mul0} ${mul1} ${mul2} ${rot}`;
+                        const rkey = mkrkey(mul0, mul1, mul2, rot);
                         scanner.rotated[rkey] = [];
 
                         for (let bid1 = 0; bid1 < scanner.beacons.length; bid1++) {
@@ -76,49 +78,90 @@ const main = async () => {
         }
     }
 
-    // Match beacons between two scanners, using first orientation of beacon 1 and each orientation of beacon 2
-    const intersectSortedBeacons = (beacons1, beacons2) => {
+    // Match beacon distances between two scanners, using first orientation of scanner 1 and each orientation of scanner 2
+    const intersectSortedDistances = (distances1, distances2) => {
         const [common, extra1, extra2] = [[], [], []];
         let [i1, i2] = [0, 0];
 
-        while (i1 < beacons1.length && i2 < beacons2.length) {
-            const cmp = compareRelCoords(beacons1[i1], beacons2[i2]);
+        while (i1 < distances1.length && i2 < distances2.length) {
+            const cmp = compareRelCoords(distances1[i1], distances2[i2]);
             if (cmp < 0) {
-                extra1.push([...beacons1[i1].rel]);
+                extra1.push(distances2[i2]);
                 i1++;
             } else if (cmp > 0) {
-                extra2.push([...beacons2[i2].rel]);
+                extra2.push(distances2[i2]);
                 i2++;
             } else {
-                common.push([...beacons1[i1].rel]);
+                common.push(distances1[i1]);
                 i1++; i2++;
             }
         }
 
-        while (i1 < beacons1.length) {
-            extra1.push([...beacons1[i1].rel]);
+        while (i1 < distances1.length) {
+            extra1.push(distances1[i1]);
             i1++;
         }
 
-        while (i2 < beacons2.length) {
-            extra2.push([...beacons2[i2].rel]);
+        while (i2 < distances2.length) {
+            extra2.push(distances2[i2]);
             i2++;
         }
 
         return [common, extra1, extra2];
     };
 
+    const mkrkey_native = (s) => mkrkey(s.orientation.mul0, s.orientation.mul1, s.orientation.mul2, s.orientation.rot);
+
     const CONNS = COMMON * (COMMON - 1) / 2;
 
-    const scanner1 = data[0];
-    const beacons1 = scanner1.rotated['1 1 1 0,1,2'];
-    for (const scanner2 of data) if (scanner1 !== scanner2) {
-        for (const [rot2, beacons2] of Object.entries(scanner2.rotated)) {
-            const [common, extra1, extra2] = intersectSortedBeacons(beacons1, beacons2);
-            if (common.length >= CONNS) {
-                console.log('found', scanner1.sid, scanner2.sid, 'rot', rot2);
-                console.log('c', common, 'e1', extra1, 'e2', extra2);
+    data[0].orientation = { mul0: 1, mul1: 1, mul2: 1, rot: [0, 1, 2] };
+    const squeue = [data[0]];
+    const beacons = [...data[0].beacons.map(b => b.loc)];
+
+    let scanner1;
+    while (scanner1 = squeue.pop()) {
+        const distances1 = scanner1.rotated[mkrkey_native(scanner1)];
+
+        for (const scanner2 of data) if (scanner1 !== scanner2) {
+            const candidate_beacons = [];
+
+            for (const [rot, distances2] of Object.entries(scanner2.rotated)) {
+                const [common, , extra] = intersectSortedDistances(distances1, distances2);
+                if (common.length >= CONNS) {
+                    //console.log('found', scanner2.sid, 'rot', rot);
+                    //console.log('c', common, 'e', extra);
+
+                    const m = rot.match(/(.+) (.+) (.+) (.+),(.+),(.+)/);
+                    const [, mul0, mul1, mul2, rot0, rot1, rot2] = m.map(Number);
+                    //console.log(mul0, mul1, mul2, rot0, rot1, rot2);
+
+                    const commonBids = [...new Set(common.flatMap(({ bid1, bid2 }) => [bid1, bid2]))].sort((a, b) => a - b);
+                    //console.log(scanner1.sid, scanner2.sid, commonBids);
+
+                    // TODO determine scanner 2 position rel to data[0]
+                    // = scanner 1 position rel to data[0] + beacon position rel to scanner 1 - beacon position rel to scanner 2
+                    // do that for each beacon, they should be equal
+                    // if not equal, this is not the correct orientation
+                    // TODO for that we need a mapping between scanner 1 beacons and scanner 2 beacons
+                    // TODO we also need position of each scanner relative to scanner 1
+
+                    const beacons = [];
+                    for (const bid of commonBids) {
+                        const tmp = [];
+                        tmp[rot0] = scanner2.beacons[bid].loc[0] * mul0 || 0;
+                        tmp[rot1] = scanner2.beacons[bid].loc[1] * mul1 || 0;
+                        tmp[rot2] = scanner2.beacons[bid].loc[2] * mul2 || 0;
+                        beacons.push(tmp);
+                    }
+                    candidate_beacons.push({
+                        orientation: { mul0, mul1, mul2, rot: [rot0, rot1, rot2] },
+                        beacons
+                    })
+                }
             }
+
+            console.log(stringify(candidate_beacons, { maxLength: 160 }));
+            break;
         }
     }
 

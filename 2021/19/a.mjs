@@ -162,12 +162,19 @@ const main = async () => {
 
                     let scanner2Position;
                     for (const bid2 of commonBids2) {
-                        const beaconToScanner2 = [];
-                        beaconToScanner2[rot0] = -scanner2.beacons[bid2].loc[0] * mul0 || 0;
-                        beaconToScanner2[rot1] = -scanner2.beacons[bid2].loc[1] * mul1 || 0;
-                        beaconToScanner2[rot2] = -scanner2.beacons[bid2].loc[2] * mul2 || 0;
+                        const beacon1 = scanner1.beacons[bidMap[bid2]];
+                        const beacon2 = scanner2.beacons[bid2];
 
-                        const scanner1ToBeacon = scanner1.beacons[bidMap[bid2]].loc;
+                        const beaconToScanner2 = [];
+                        beaconToScanner2[rot0] = -beacon2.loc[0] * mul0 || 0;
+                        beaconToScanner2[rot1] = -beacon2.loc[1] * mul1 || 0;
+                        beaconToScanner2[rot2] = -beacon2.loc[2] * mul2 || 0;
+
+                        const scanner1ToBeacon = [];
+                        scanner1ToBeacon[scanner1.orientation.rot[0]] = beacon1.loc[0] * scanner1.orientation.mul0 || 0;
+                        scanner1ToBeacon[scanner1.orientation.rot[1]] = beacon1.loc[1] * scanner1.orientation.mul1 || 0;
+                        scanner1ToBeacon[scanner1.orientation.rot[2]] = beacon1.loc[2] * scanner1.orientation.mul2 || 0;
+
                         const newScanner2Position = [0, 0, 0].map((_, i) => scanner1.position[i] + scanner1ToBeacon[i] + beaconToScanner2[i]);
                         //console.log(scanner2.sid, scanner2Position);
                         if (scanner2Position && !scanner2Position.every((_, i) => scanner2Position[i] === newScanner2Position[i])) {

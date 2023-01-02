@@ -186,7 +186,7 @@ const main = async () => {
                     // map each extra scanner 2 beacon position rel to data[0]
                     // = convert beacon position using orientation + scanner 2 position rel to data[0]
 
-                    for (const beacon2 of scanner2.beacons) if ((beacon2.bid in bidMap)) {
+                    for (const beacon2 of scanner2.beacons) if (!(beacon2.bid in bidMap)) {
                         const scanner2ToBeacon = [];
                         scanner2ToBeacon[rot0] = beacon2.loc[0] * mul0 || 0;
                         scanner2ToBeacon[rot1] = beacon2.loc[1] * mul1 || 0;
@@ -196,9 +196,15 @@ const main = async () => {
                         addedBeacons.push(beaconPosition);
                     }
 
-                    console.log(scanner2.sid, addedBeacons);
+                    //console.log(scanner2.sid, addedBeacons);
 
                     break;
+                }
+            }
+
+            for (const beacon of addedBeacons) {
+                if (!beacons.some(([c0, c1, c2]) => c0 === beacon[0] && c1 === beacon[1] && c2 === beacon[2])) {
+                    beacons.push(beacon);
                 }
             }
 
@@ -207,7 +213,7 @@ const main = async () => {
         }
     }
 
-    //console.log(stringify(data.map(s => s.rotated), { maxLength: 240 }));
+    console.log(beacons.length);
 };
 
 await main();

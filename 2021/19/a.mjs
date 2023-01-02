@@ -116,6 +116,7 @@ const main = async () => {
     const CONNS = COMMON * (COMMON - 1) / 2;
 
     data[0].orientation = { mul0: 1, mul1: 1, mul2: 1, rot: [0, 1, 2] };
+    data[0].position = [0, 0, 0]; // all positions are rel to this beacon
     const squeue = [data[0]];
     const beacons = [...data[0].beacons.map(b => b.loc)];
 
@@ -126,7 +127,7 @@ const main = async () => {
         for (const scanner2 of data) if (scanner1 !== scanner2) {
             const candidate_beacons = [];
 
-            for (const [rot, distances2] of Object.entries(scanner2.rotated)) {
+            rotation_loop: for (const [rot, distances2] of Object.entries(scanner2.rotated)) {
                 const [common, , extra] = intersectSortedDistances(distances1, distances2);
                 if (common.length >= CONNS) {
                     //console.log('found', scanner2.sid, 'rot', rot);
@@ -154,13 +155,31 @@ const main = async () => {
 
                     console.log(scanner1.sid, scanner2.sid, rot, stringify(bidMap, { maxLength: 240 }));
 
-                    // TODO determine scanner 2 position rel to data[0]
-                    // = scanner 1 position rel to data[0] + beacon position rel to scanner 1 - beacon position rel to scanner 2 (I think converted using orientation)
-                    // do that for each beacon, they should be equal
-                    // if not equal, this is not the correct orientation
-                    // TODO for that we need a mapping between scanner 1 beacons and scanner 2 beacons
                     // TODO Then map each beacon position rel to data[0]
                     // = (I think) Convert beacon position using orientation (done below) + scanner 2 position rel to data[0]
+
+                    // determine scanner 2 position rel to data[0]
+                    // = scanner 1 position rel to data[0] + beacon position rel to scanner 1 - beacon position rel to scanner 2 (I think converted using orientation)
+                    // do that for each beacon, they should be equal; if not equal, this is not the correct orientation
+
+                    let scanner2Position;
+                    for (const bid2 of commonBids2) {
+                        const beaconToScanner2 = [];
+                        beaconToScanner2[rot0] = -scanner2.beacons[bid2].loc[0] * mul0 || 0;
+                        beaconToScanner2[rot1] = -scanner2.beacons[bid2].loc[1] * mul1 || 0;
+                        beaconToScanner2[rot2] = -scanner2.beacons[bid2].loc[2] * mul2 || 0;
+
+                        const scanner1ToBeacon = scanner1.beacons[bidMap[bid2]].loc;
+                        const newScanner2Position = [0, 0, 0].map((_, i) => scanner1.position[i] + scanner1ToBeacon[i] + beaconToScanner2[i]);
+                        //console.log(scanner2.sid, scanner2Position);
+                        if (scanner2Position && !scanner2Position.every((_, i) => scanner2Position[i] === newScanner2Position[i])) {
+                            // this is not the correct orientation
+                            continue rotation_loop;
+                        }
+                        scanner2Position = newScanner2Position;
+                    }
+
+                    console.log(scanner2.sid, scanner2Position);
 
                     // const beacons = [];
                     // for (const bid2 of commonBids2) {
@@ -178,7 +197,7 @@ const main = async () => {
             }
 
             console.log(stringify(candidate_beacons, { maxLength: 240 }));
-            break;
+            //break;
         }
     }
 

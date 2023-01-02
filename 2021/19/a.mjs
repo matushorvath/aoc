@@ -117,6 +117,7 @@ const main = async () => {
 
     data[0].orientation = { mul0: 1, mul1: 1, mul2: 1, rot: [0, 1, 2] };
     data[0].position = [0, 0, 0]; // all positions are rel to this beacon
+    data[0].processed = true;
     const squeue = [data[0]];
     const beacons = [...data[0].beacons.map(b => b.loc)];
 
@@ -124,8 +125,8 @@ const main = async () => {
     while (scanner1 = squeue.pop()) {
         const distances1 = scanner1.rotated[mkrkey_native(scanner1)];
 
-        for (const scanner2 of data) if (scanner1 !== scanner2) {
-            const candidate_beacons = [];
+        for (const scanner2 of data) if (scanner1 !== scanner2 && !scanner2.processed) {
+            const addedBeacons = [];
 
             rotation_loop: for (const [rot, distances2] of Object.entries(scanner2.rotated)) {
                 const [common, , extra] = intersectSortedDistances(distances1, distances2);
@@ -153,13 +154,10 @@ const main = async () => {
                         } else throw new Error('wtf');
                     }
 
-                    console.log(scanner1.sid, scanner2.sid, rot, stringify(bidMap, { maxLength: 240 }));
-
-                    // TODO Then map each beacon position rel to data[0]
-                    // = (I think) Convert beacon position using orientation (done below) + scanner 2 position rel to data[0]
+                    //console.log(scanner1.sid, scanner2.sid, rot, stringify(bidMap, { maxLength: 240 }));
 
                     // determine scanner 2 position rel to data[0]
-                    // = scanner 1 position rel to data[0] + beacon position rel to scanner 1 - beacon position rel to scanner 2 (I think converted using orientation)
+                    // = scanner 1 position rel to data[0] + beacon position rel to scanner 1 - beacon position rel to scanner 2 (converted using orientation)
                     // do that for each beacon, they should be equal; if not equal, this is not the correct orientation
 
                     let scanner2Position;
@@ -180,23 +178,31 @@ const main = async () => {
                     }
 
                     console.log(scanner2.sid, scanner2Position);
+                    scanner2.orientation = { mul0, mul1, mul2, rot: [rot0, rot1, rot2] };
+                    scanner2.position = scanner2Position;
+                    scanner2.processed = true;
+                    squeue.push(scanner2);
 
-                    // const beacons = [];
-                    // for (const bid2 of commonBids2) {
-                    //     const tmp = [];
-                    //     tmp[rot0] = scanner2.beacons[bid2].loc[0] * mul0 || 0;
-                    //     tmp[rot1] = scanner2.beacons[bid2].loc[1] * mul1 || 0;
-                    //     tmp[rot2] = scanner2.beacons[bid2].loc[2] * mul2 || 0;
-                    //     beacons.push(tmp);
-                    // }
-                    // candidate_beacons.push({
-                    //     orientation: { mul0, mul1, mul2, rot: [rot0, rot1, rot2] },
-                    //     beacons
-                    // })
+                    // map each extra scanner 2 beacon position rel to data[0]
+                    // = convert beacon position using orientation + scanner 2 position rel to data[0]
+
+                    for (const beacon2 of scanner2.beacons) if ((beacon2.bid in bidMap)) {
+                        const scanner2ToBeacon = [];
+                        scanner2ToBeacon[rot0] = beacon2.loc[0] * mul0 || 0;
+                        scanner2ToBeacon[rot1] = beacon2.loc[1] * mul1 || 0;
+                        scanner2ToBeacon[rot2] = beacon2.loc[2] * mul2 || 0;
+
+                        const beaconPosition = [0, 0, 0].map((_, i) => scanner2.position[i] + scanner2ToBeacon[i]);
+                        addedBeacons.push(beaconPosition);
+                    }
+
+                    console.log(scanner2.sid, addedBeacons);
+
+                    break;
                 }
             }
 
-            console.log(stringify(candidate_beacons, { maxLength: 240 }));
+            //console.log(stringify(candidate_beacons, { maxLength: 240 }));
             //break;
         }
     }

@@ -1,13 +1,15 @@
 'use strict';
 
 import fs from 'fs/promises';
-import { connect } from 'http2';
 import stringify from "json-stringify-pretty-compact";
+
+// TODO generovanie rotated nevygeneruje spravne vsetky moznosti pootacania suradnic
 
 const main = async () => {
     //const input = await fs.readFile('simple', 'utf8'); const COMMON = 3;
-    const input = await fs.readFile('example', 'utf8'); const COMMON = 12;
-    //const input = await fs.readFile('input', 'utf8'); const COMMON = 12;
+    //const input = await fs.readFile('test-1', 'utf8'); const COMMON = 3;
+    //const input = await fs.readFile('example', 'utf8'); const COMMON = 12;
+    const input = await fs.readFile('input', 'utf8'); const COMMON = 12;
     const data = input.trimEnd().split(/\r?\n\r?\n/)
         .map((s, sid) => ({
             sid,
@@ -53,7 +55,7 @@ const main = async () => {
         for (const mul0 of [-1, 1]) {
             for (const mul1 of [-1, 1]) {
                 for (const mul2 of [-1, 1]) {
-                    for (const rot of [[0, 1, 2], [1, 2, 0], [2, 0, 1]]) {
+                    for (const rot of [[0, 1, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0], [1, 0, 2], [0, 2, 1]]) {
                         const rkey = mkrkey(mul0, mul1, mul2, rot);
                         scanner.rotated[rkey] = [];
 
@@ -79,7 +81,7 @@ const main = async () => {
         }
     }
 
-    // Match beacon distances between two scanners, using first orientation of scanner 1 and each orientation of scanner 2
+    // Match beacon distances between two scanners
     const intersectSortedDistances = (distances1, distances2) => {
         const [common, extra1, extra2] = [[], [], []];
         let [i1, i2] = [0, 0];
@@ -130,6 +132,7 @@ const main = async () => {
 
             rotation_loop: for (const [rot, distances2] of Object.entries(scanner2.rotated)) {
                 const [common, , extra] = intersectSortedDistances(distances1, distances2);
+                //console.log(scanner1.sid, scanner2.sid, common.length, extra.length);
                 if (common.length >= CONNS) {
                     //console.log('found', scanner2.sid, 'rot', rot);
                     //console.log('c', common, 'e', extra);
@@ -213,7 +216,7 @@ const main = async () => {
                         addedBeacons.push(beaconPosition);
                     }
 
-                    console.log(scanner2.sid, addedBeacons);
+//                    console.log(scanner2.sid, addedBeacons);
 
                     break;
                 }

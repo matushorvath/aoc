@@ -123,6 +123,8 @@ const main = async () => {
     const squeue = [data[0]];
     const beacons = [...data[0].beacons.map(b => b.loc)];
 
+    const scanners = [];
+
     let scanner1;
     while (scanner1 = squeue.pop()) {
         const distances1 = scanner1.rotated[mkrkey_native(scanner1)];
@@ -200,6 +202,7 @@ const main = async () => {
                     scanner2.position = scanner2Position;
                     scanner2.processed = true;
                     squeue.push(scanner2);
+                    scanners.push(scanner2Position);
 
                     // map each extra scanner 2 beacon position rel to data[0]
                     // = convert beacon position using orientation + scanner 2 position rel to data[0]
@@ -233,7 +236,15 @@ const main = async () => {
         }
     }
 
-    console.log(beacons.length);
+    let maxd = -Infinity;
+    for (const s1 of scanners) {
+        for (const s2 of scanners) {
+            const d = Math.abs(s1[0] - s2[0]) + Math.abs(s1[1] - s2[1]) + Math.abs(s1[2] - s2[2]);
+            if (d > maxd) maxd = d;
+        }
+    }
+
+    console.log(maxd);
 };
 
 await main();

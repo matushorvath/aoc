@@ -22,9 +22,9 @@ const main = async () => {
     const CAP = amphipods.length;
 
     const print = (pos) => {
-        const lends = pos.lend.map(a => String.fromCharCode('A'.charCodeAt(0) + a)).join('').padStart(2, '.');
-        const rends = pos.rend.reverse().map(a => String.fromCharCode('A'.charCodeAt(0) + a)).join('').padEnd(2, '.');
-        const midss = pos.mids.map(a => a >= 0 ? String.fromCharCode('A'.charCodeAt(0) + a) : '.').join('').padEnd(3, '.');
+        const lends = pos.lend.map(a => a >= 0 ? String.fromCharCode('A'.charCodeAt(0) + a) : '.').join('');
+        const rends = pos.rend.map(a => a >= 0 ? String.fromCharCode('A'.charCodeAt(0) + a) : '.').reverse().join('');
+        const midss = pos.mids.map(a => a >= 0 ? String.fromCharCode('A'.charCodeAt(0) + a) : '.').join('');
         const roomss = pos.rooms.map(room => room.map(a => String.fromCharCode('A'.charCodeAt(0) + a)));
 
         console.log('#############');
@@ -39,11 +39,12 @@ const main = async () => {
                 `${i === 0 ? '##' : '  '}`
             ].join(''));
         }
-        console.log('  #########  ', '\n');
+        console.log('  #########  ');
+        console.log();
     };
  
     const data = {
-        lend: [], rend: [], mids: [-1, -1, -1],
+        lend: [-1, -1], rend: [-1, -1], mids: [-1, -1, -1],
         rooms: amphipods[0].map((_, c) => amphipods.map((_, r) => amphipods[CAP - r - 1][c]))
     };
 
@@ -106,11 +107,17 @@ const main = async () => {
             ];
             // MIDCHK[rtype][mididx].every(i => mids[i] < 0)
 
-            if (lend.length < 2 && MIDCHK[rtype][0].every(i => mids[i] < 0)) todo.push({
-                pos: { lend: [...lend, atype], rend, mids, rooms: nrooms },
-                energy: energy + ((CAP - room.length) + 1 + Math.abs(2 * (0 - rtype) - 1)) * (10 ** atype)
-                    + (lend.length > 0 ? (10 ** lend[0]) : 0) // retroactively move it deeper
-            });
+            if (MIDCHK[rtype][0].every(i => mids[i] < 0)) {
+                if (lend[0] < 0 && lend[1] >= 0) todo.push({
+                    pos: { lend: [lend[1], atype], rend, mids, rooms: nrooms },
+                    energy: energy + ((CAP - room.length) + 1 + Math.abs(2 * (0 - rtype) - 1)) * (10 ** atype)
+                        + (10 ** lend[1]) // with retroactive move
+                });
+                else if (lend[1] < 0) todo.push({
+                    pos: { lend: [lend[0], atype], rend, mids, rooms: nrooms },
+                    energy: energy + ((CAP - room.length) + 1 + Math.abs(2 * (0 - rtype) - 1)) * (10 ** atype)
+                });
+            };
             if (MIDCHK[rtype][1].every(i => mids[i] < 0)) todo.push({
                 pos: { lend, rend, mids: [atype, mids[1], mids[2]], rooms: nrooms },
                 energy: energy + ((CAP - room.length) + 1 + Math.abs(2 * (1 - rtype) - 1)) * (10 ** atype)
@@ -123,11 +130,17 @@ const main = async () => {
                 pos: { lend, rend, mids: [mids[0], mids[1], atype], rooms: nrooms },
                 energy: energy + ((CAP - room.length) + 1 + Math.abs(2 * (3 - rtype) - 1)) * (10 ** atype)
             });
-            if (rend.length < 2 && MIDCHK[rtype][4].every(i => mids[i] < 0)) todo.push({
-                pos: { lend, rend:  [...rend, atype], mids, rooms: nrooms },
-                energy: energy + ((CAP - room.length) + 1 + Math.abs(2 * (4 - rtype) - 1)) * (10 ** atype)
-                    + (rend.length > 0 ? (10 ** rend[0]) : 0) // retroactively move it deeper
-            });
+            if (MIDCHK[rtype][4].every(i => mids[i] < 0)) {
+                if (rend[0] < 0 && rend[1] >= 0) todo.push({
+                    pos: { lend, rend: [rend[1], atype], mids, rooms: nrooms },
+                    energy: energy + ((CAP - room.length) + 1 + Math.abs(2 * (4 - rtype) - 1)) * (10 ** atype)
+                        + (10 ** rend[1]) // with retroactive move
+                });
+                else if (rend[1] < 0) todo.push({
+                    pos: { lend, rend: [rend[0], atype], mids, rooms: nrooms },
+                    energy: energy + ((CAP - room.length) + 1 + Math.abs(2 * (4 - rtype) - 1)) * (10 ** atype)
+                });
+            };
         }
 
         // Move topmost lend/rend to room

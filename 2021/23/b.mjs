@@ -2,6 +2,9 @@
 
 import fs from 'fs/promises';
 
+// TODO do koncov idem zbytocne hlboko; treba ist co najplytsie treba, a ak potom bude chciet ist dalsi,
+// treba doratat energiu ako keby som povodne isiel hlbsie
+
 const mkkey = pos => `${pos.lend} ${pos.rend} ${pos.mids} ${pos.rooms[0]} ${pos.rooms[1]} ${pos.rooms[2]} ${pos.rooms[3]}`;
 
 const main = async () => {
@@ -18,7 +21,7 @@ const main = async () => {
 
     const print = (pos) => {
         const lends = pos.lend.map(a => String.fromCharCode('A'.charCodeAt(0) + a)).join('').padEnd(2, '.');
-        const rends = pos.rend.map(a => String.fromCharCode('A'.charCodeAt(0) + a)).join('').padStart(2, '.');
+        const rends = pos.rend.reverse().map(a => String.fromCharCode('A'.charCodeAt(0) + a)).join('').padStart(2, '.');
         const midss = pos.mids.map(a => a >= 0 ? String.fromCharCode('A'.charCodeAt(0) + a) : '.').join('').padEnd(3, '.');
         const roomss = pos.rooms.map(room => room.map(a => String.fromCharCode('A'.charCodeAt(0) + a)));
 
@@ -50,10 +53,11 @@ const main = async () => {
 
     let state;
     while (state = todo.pop()) {
-        print(state.pos);
-
         const { pos, energy } = state;
         const { lend, rend, mids, rooms } = pos;
+
+        console.log(energy);
+        print(pos);
 
         if (energy > minenergy) continue;
 
@@ -68,63 +72,179 @@ const main = async () => {
         }
 
         // Move topmost ams in rooms
+        // {
+        //     // Room 0
+        //     const rtype = 0;
+        //     const room = rooms[rtype];
+        //     const atype = room[room.length - 1];
+
+        //     // Move if in incorrect room, or if foreigners are below
+        //     const move = atype !== undefined && atype !== rtype || !room.every(oatype => oatype === atype);
+
+        //     if (move) {
+        //         if (lend.length < 2) todo.push({
+        //             pos: {
+        //                 lend: [...lend, atype],
+        //                 rend,
+        //                 mids,
+        //                 rooms: [[...room.slice(0, -1)], rooms[1], rooms[2], rooms[3]]
+        //             },
+        //             energy: energy + ((CAP - room.length) + 1 + (2 - lend.length)) * (10 ** atype)
+        //         });
+        //         if (mids[0] < 0) todo.push({
+        //             pos: {
+        //                 lend,
+        //                 rend,
+        //                 mids: [atype, mids[1], mids[2]],
+        //                 rooms: [[...room.slice(0, -1)], rooms[1], rooms[2], rooms[3]]
+        //             },
+        //             energy: energy + ((CAP - room.length) + 1 + 1) * (10 ** atype)
+        //         });
+        //         if (mids[0] < 0 && mids[1] < 0) todo.push({
+        //             pos: {
+        //                 lend,
+        //                 rend,
+        //                 mids: [mids[0], atype, mids[2]],
+        //                 rooms: [[...room.slice(0, -1)], rooms[1], rooms[2], rooms[3]]
+        //             },
+        //             energy: energy + ((CAP - room.length) + 1 + 3) * (10 ** atype)
+        //         });
+        //         if (mids[0] < 0 && mids[1] < 0 && mids[2] < 0) todo.push({
+        //             pos: {
+        //                 lend,
+        //                 rend,
+        //                 mids: [mids[0], mids[1], atype],
+        //                 rooms: [[...room.slice(0, -1)], rooms[1], rooms[2], rooms[3]]
+        //             },
+        //             energy: energy + ((CAP - room.length) + 1 + 5) * (10 ** atype)
+        //         });
+        //         if (mids[0] < 0 && mids[1] < 0 && mids[2] < 0 && rend.length < 2) todo.push({
+        //             pos: {
+        //                 lend,
+        //                 rend:  [...rend, atype],
+        //                 mids,
+        //                 rooms: [[...room.slice(0, -1)], rooms[1], rooms[2], rooms[3]]
+        //             },
+        //             energy: energy + ((CAP - room.length) + 1 + 6 + (2 - rend.length)) * (10 ** atype)
+        //         });
+        //     }
+        // }
+
         {
-            // Room 0
-            const rtype = 0;
+            // Room 1
+            const rtype = 1;
             const room = rooms[rtype];
             const atype = room[room.length - 1];
 
             // Move if in incorrect room, or if foreigners are below
-            const move = atype !== rtype || !room.every(oatype => oatype === atype);
+            const move = atype !== undefined && atype !== rtype || !room.every(oatype => oatype === atype);
 
             if (move) {
-                if (lend.length < 2) todo.push({
+                if (mids[0] < 0 && lend.length < 2) todo.push({
                     pos: {
                         lend: [...lend, atype],
                         rend,
                         mids,
-                        rooms: [[...room.slice(0, -1)], rooms[1], rooms[2], rooms[3]]
+                        rooms: [rooms[0], [...room.slice(0, -1)], rooms[2], rooms[3]]
                     },
-                    energy: energy + ((CAP - room.length) + 1 + (2 - lend.length)) * (10 ** atype)
+                    energy: energy + ((CAP - room.length) + 1 + 2 + (2 - lend.length)) * (10 ** atype)
                 });
                 if (mids[0] < 0) todo.push({
                     pos: {
                         lend,
                         rend,
                         mids: [atype, mids[1], mids[2]],
-                        rooms: [[...room.slice(0, -1)], rooms[1], rooms[2], rooms[3]]
+                        rooms: [rooms[0], [...room.slice(0, -1)], rooms[2], rooms[3]]
                     },
                     energy: energy + ((CAP - room.length) + 1 + 1) * (10 ** atype)
                 });
-                if (mids[0] < 0 && mids[1] < 0) todo.push({
+                if (mids[1] < 0) todo.push({
                     pos: {
                         lend,
                         rend,
                         mids: [mids[0], atype, mids[2]],
-                        rooms: [[...room.slice(0, -1)], rooms[1], rooms[2], rooms[3]]
+                        rooms: [rooms[0], [...room.slice(0, -1)], rooms[2], rooms[3]]
                     },
                     energy: energy + ((CAP - room.length) + 1 + 1) * (10 ** atype)
                 });
-                if (mids[0] < 0 && mids[1] < 0 && mids[2] < 0) todo.push({
+                if (mids[1] < 0 && mids[2] < 0) todo.push({
                     pos: {
                         lend,
                         rend,
                         mids: [mids[0], mids[1], atype],
-                        rooms: [[...room.slice(0, -1)], rooms[1], rooms[2], rooms[3]]
+                        rooms: [rooms[0], [...room.slice(0, -1)], rooms[2], rooms[3]]
                     },
-                    energy: energy + ((CAP - room.length) + 1 + 1) * (10 ** atype)
+                    energy: energy + ((CAP - room.length) + 1 + 3) * (10 ** atype)
                 });
-                if (mids[0] < 0 && mids[1] < 0 && mids[2] < 0 && rend.length < 2) todo.push({
+                if (mids[1] < 0 && mids[2] < 0 && rend.length < 2) todo.push({
                     pos: {
                         lend,
                         rend:  [...rend, atype],
                         mids,
-                        rooms: [[...room.slice(0, -1)], rooms[1], rooms[2], rooms[3]]
+                        rooms: [rooms[0], [...room.slice(0, -1)], rooms[2], rooms[3]]
                     },
-                    energy: energy + ((CAP - room.length) + 1 + (2 - lend.length)) * (10 ** atype)
+                    energy: energy + ((CAP - room.length) + 1 + 4 + (2 - rend.length)) * (10 ** atype)
                 });
             }
         }
+
+        // {
+        //     // Room 3
+        //     const rtype = 3;
+        //     const room = rooms[rtype];
+        //     const atype = room[room.length - 1];
+
+        //     // Move if in incorrect room, or if foreigners are below
+        //     const move = atype !== undefined && atype !== rtype || !room.every(oatype => oatype === atype);
+
+        //     if (move) {
+        //         if (mids[2] < 0 && mids[1] < 0 && mids[0] < 0 && lend.length < 2) todo.push({
+        //             pos: {
+        //                 lend: [...lend, atype],
+        //                 rend,
+        //                 mids,
+        //                 rooms: [rooms[0], rooms[1], rooms[2], [...room.slice(0, -1)]]
+        //             },
+        //             energy: energy + ((CAP - room.length) + 1 + 6 + (2 - lend.length)) * (10 ** atype)
+        //         });
+        //         if (mids[2] < 0 && mids[1] < 0 && mids[0] < 0) todo.push({
+        //             pos: {
+        //                 lend,
+        //                 rend,
+        //                 mids: [atype, mids[1], mids[2]],
+        //                 rooms: [rooms[0], rooms[1], rooms[2], [...room.slice(0, -1)]]
+        //             },
+        //             energy: energy + ((CAP - room.length) + 1 + 5) * (10 ** atype)
+        //         });
+        //         if (mids[2] < 0 && mids[1] < 0) todo.push({
+        //             pos: {
+        //                 lend,
+        //                 rend,
+        //                 mids: [mids[0], atype, mids[2]],
+        //                 rooms: [rooms[0], rooms[1], rooms[2], [...room.slice(0, -1)]]
+        //             },
+        //             energy: energy + ((CAP - room.length) + 1 + 3) * (10 ** atype)
+        //         });
+        //         if (mids[2] < 0) todo.push({
+        //             pos: {
+        //                 lend,
+        //                 rend,
+        //                 mids: [mids[0], mids[1], atype],
+        //                 rooms: [rooms[0], rooms[1], rooms[2], [...room.slice(0, -1)]]
+        //             },
+        //             energy: energy + ((CAP - room.length) + 1 + 1) * (10 ** atype)
+        //         });
+        //         if (rend.length < 2) todo.push({
+        //             pos: {
+        //                 lend,
+        //                 rend:  [...rend, atype],
+        //                 mids,
+        //                 rooms: [rooms[0], rooms[1], rooms[2], [...room.slice(0, -1)]]
+        //             },
+        //             energy: energy + ((CAP - room.length) + 1 + (2 - rend.length)) * (10 ** atype)
+        //         });
+        //     }
+        // }
     }
 
     console.log(minenergy);

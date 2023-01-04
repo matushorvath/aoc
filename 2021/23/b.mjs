@@ -54,6 +54,10 @@ const main = async () => {
     const seen = {};
     let minenergy = Infinity;
 
+    let maxq = -Infinity;
+    let pos_maxq;
+    let energy_maxq;
+
     let state;
     while (state = todo.pop()) {
         const { pos, energy } = state;
@@ -67,6 +71,13 @@ const main = async () => {
         const key = mkkey(pos);
         if (seen[key] && seen[key] < energy) continue;
         seen[key] = energy;
+
+        const quality = rooms.reduce((tc, room, rtype) => tc + room.reduce((rc, atype) => rc + ((atype === rtype) ? 1 : 0), 0), 0);
+        if (quality > maxq) {
+            maxq = quality;
+            pos_maxq = pos;
+            energy_maxq = energy;
+        }
 
         if (lend.length === 0 && rend.length === 0 && mids.every(a => a === -1)
                 && rooms.every((room, rtype) => room.every(atype => atype === rtype))) {
@@ -190,6 +201,9 @@ const main = async () => {
             };
         }
     }
+
+    console.log('maxq', maxq, 'energy', energy_maxq);
+    print(pos_maxq);
 
     console.log(minenergy);
 

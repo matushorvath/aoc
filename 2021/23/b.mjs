@@ -74,272 +74,88 @@ const main = async () => {
         }
 
         // Move topmost ams in rooms
-        {
-            // Room 0
-            const rtype = 0;
+        for (let rtype = 0; rtype < 4; rtype++) {
             const room = rooms[rtype];
             const atype = room[room.length - 1];
 
             // Move if in incorrect room, or if foreigners are below
             const move = atype !== undefined && atype !== rtype || !room.every(oatype => oatype === atype);
+            if (!move) continue;
 
-            if (move) {
-                if (lend.length < 2) todo.push({
-                    pos: {
-                        lend: [...lend, atype],
-                        rend,
-                        mids,
-                        rooms: [room.slice(0, -1), rooms[1], rooms[2], rooms[3]]
-                    },
-                    energy: energy + ((CAP - room.length) + 1 + 1) * (10 ** atype)
-                        + (lend.length > 0 ? (10 ** lend[0]) : 0) // retroactively move it deeper
-                });
-                if (mids[0] < 0) todo.push({
-                    pos: {
-                        lend,
-                        rend,
-                        mids: [atype, mids[1], mids[2]],
-                        rooms: [room.slice(0, -1), rooms[1], rooms[2], rooms[3]]
-                    },
-                    energy: energy + ((CAP - room.length) + 1 + 1) * (10 ** atype)
-                });
-                if (mids[0] < 0 && mids[1] < 0) todo.push({
-                    pos: {
-                        lend,
-                        rend,
-                        mids: [mids[0], atype, mids[2]],
-                        rooms: [room.slice(0, -1), rooms[1], rooms[2], rooms[3]]
-                    },
-                    energy: energy + ((CAP - room.length) + 1 + 3) * (10 ** atype)
-                });
-                if (mids[0] < 0 && mids[1] < 0 && mids[2] < 0) todo.push({
-                    pos: {
-                        lend,
-                        rend,
-                        mids: [mids[0], mids[1], atype],
-                        rooms: [room.slice(0, -1), rooms[1], rooms[2], rooms[3]]
-                    },
-                    energy: energy + ((CAP - room.length) + 1 + 5) * (10 ** atype)
-                });
-                if (mids[0] < 0 && mids[1] < 0 && mids[2] < 0 && rend.length < 2) todo.push({
-                    pos: {
-                        lend,
-                        rend:  [...rend, atype],
-                        mids,
-                        rooms: [room.slice(0, -1), rooms[1], rooms[2], rooms[3]]
-                    },
-                    energy: energy + ((CAP - room.length) + 1 + 7) * (10 ** atype)
-                        + (rend.length > 0 ? (10 ** rend[0]) : 0) // retroactively move it deeper
-                });
-            }
+            const nrooms = [...rooms];
+            nrooms[rtype] = room.slice(0, -1);
+
+            // mididx = 0, 1, 2, 3, 4
+            // 0   -1 1 3 5 7
+            // 1   -3 -1 1 3 5
+            // 2   -5 -3 -1 1 3
+            // 3   -7 -5 -3 -1 1
+            // Math.abs(2 * (mididx - rtype) - 1)
+
+            // mididx = 0, 1, 2, 3, 4
+            //     |   |   |   |   |  
+            // 0       0   01  012 012
+            // 1   0   0    1   12  12
+            // 2   01  01   1   1   12
+            // 3   012 012  12   2    
+            const MIDCHK = [
+                [[     ], [0    ], [0,1  ], [0,1,2], [0,1,2]],
+                [[0,   ], [0    ], [  1  ], [  1,2], [  1,2]],
+                [[0,1  ], [0,1  ], [  1  ], [    2], [    2]],
+                [[0,1,2], [0,1,2], [  1,2], [    2], [     ]]
+            ];
+            // MIDCHK[rtype][mididx].every(i => mids[i] < 0)
+
+            if (lend.length < 2 && MIDCHK[rtype][0].every(i => mids[i] < 0)) todo.push({
+                pos: { lend: [...lend, atype], rend, mids, rooms: nrooms },
+                energy: energy + ((CAP - room.length) + 1 + Math.abs(2 * (0 - rtype) - 1)) * (10 ** atype)
+                    + (lend.length > 0 ? (10 ** lend[0]) : 0) // retroactively move it deeper
+            });
+            if (MIDCHK[rtype][1].every(i => mids[i] < 0)) todo.push({
+                pos: { lend, rend, mids: [atype, mids[1], mids[2]], rooms: nrooms },
+                energy: energy + ((CAP - room.length) + 1 + Math.abs(2 * (1 - rtype) - 1)) * (10 ** atype)
+            });
+            if (MIDCHK[rtype][2].every(i => mids[i] < 0)) todo.push({
+                pos: { lend, rend, mids: [mids[0], atype, mids[2]], rooms: nrooms },
+                energy: energy + ((CAP - room.length) + 1 + Math.abs(2 * (2 - rtype) - 1)) * (10 ** atype)
+            });
+            if (MIDCHK[rtype][3].every(i => mids[i] < 0)) todo.push({
+                pos: { lend, rend, mids: [mids[0], mids[1], atype], rooms: nrooms },
+                energy: energy + ((CAP - room.length) + 1 + Math.abs(2 * (3 - rtype) - 1)) * (10 ** atype)
+            });
+            if (rend.length < 2 && MIDCHK[rtype][4].every(i => mids[i] < 0)) todo.push({
+                pos: { lend, rend:  [...rend, atype], mids, rooms: nrooms },
+                energy: energy + ((CAP - room.length) + 1 + Math.abs(2 * (4 - rtype) - 1)) * (10 ** atype)
+                    + (rend.length > 0 ? (10 ** rend[0]) : 0) // retroactively move it deeper
+            });
         }
 
-        {
-            // Room 1
-            const rtype = 1;
-            const room = rooms[rtype];
-            const atype = room[room.length - 1];
-
-            // Move if in incorrect room, or if foreigners are below
-            const move = atype !== undefined && atype !== rtype || !room.every(oatype => oatype === atype);
-
-            if (move) {
-                if (mids[0] < 0 && lend.length < 2) todo.push({
-                    pos: {
-                        lend: [...lend, atype],
-                        rend,
-                        mids,
-                        rooms: [rooms[0], room.slice(0, -1), rooms[2], rooms[3]]
-                    },
-                    energy: energy + ((CAP - room.length) + 1 + 3) * (10 ** atype)
-                        + (lend.length > 0 ? (10 ** lend[0]) : 0) // retroactively move it deeper
-                });
-                if (mids[0] < 0) todo.push({
-                    pos: {
-                        lend,
-                        rend,
-                        mids: [atype, mids[1], mids[2]],
-                        rooms: [rooms[0], room.slice(0, -1), rooms[2], rooms[3]]
-                    },
-                    energy: energy + ((CAP - room.length) + 1 + 1) * (10 ** atype)
-                });
-                if (mids[1] < 0) todo.push({
-                    pos: {
-                        lend,
-                        rend,
-                        mids: [mids[0], atype, mids[2]],
-                        rooms: [rooms[0], room.slice(0, -1), rooms[2], rooms[3]]
-                    },
-                    energy: energy + ((CAP - room.length) + 1 + 1) * (10 ** atype)
-                });
-                if (mids[1] < 0 && mids[2] < 0) todo.push({
-                    pos: {
-                        lend,
-                        rend,
-                        mids: [mids[0], mids[1], atype],
-                        rooms: [rooms[0], room.slice(0, -1), rooms[2], rooms[3]]
-                    },
-                    energy: energy + ((CAP - room.length) + 1 + 3) * (10 ** atype)
-                });
-                if (mids[1] < 0 && mids[2] < 0 && rend.length < 2) todo.push({
-                    pos: {
-                        lend,
-                        rend:  [...rend, atype],
-                        mids,
-                        rooms: [rooms[0], room.slice(0, -1), rooms[2], rooms[3]]
-                    },
-                    energy: energy + ((CAP - room.length) + 1 + 5) * (10 ** atype)
-                        + (rend.length > 0 ? (10 ** rend[0]) : 0) // retroactively move it deeper
-                });
-            }
-        }
-
+        // Move topmost lend/rend to room
         // {
-        //     // Room 2
-        //     const rtype = 2;
-        //     const room = rooms[rtype];
-        //     const atype = room[room.length - 1];
+        //     // Left end
+        //     const atype = lend[0];
+        //     const room = rooms[atype];
 
-        //     // Move if in incorrect room, or if foreigners are below
-        //     const move = atype !== undefined && atype !== rtype || !room.every(oatype => oatype === atype);
+        //     // Move the room has no foreigners and the route is free
+        //     const move = atype !== undefined && room.every(oatype => oatype === atype)
+        //         && mids.every((a, i) => i >= atype || a < 0)
 
         //     if (move) {
-        //         if (mids[1] < 0 && mids[0] < 0 && lend.length < 2) todo.push({
+        //         const nrooms = [...rooms];
+        //         nrooms[atype] = [...rooms[atype], atype];
+
+        //         todo.push({
         //             pos: {
-        //                 lend: [...lend, atype],
+        //                 lend: lend.slice(1),
         //                 rend,
         //                 mids,
-        //                 rooms: [rooms[0], rooms[1], room.slice(0, -1), rooms[3]]
-        //             },
-        //             energy: energy + ((CAP - room.length) + 1 + 5) * (10 ** atype)
-        //                 + (lend.length > 0 ? (10 ** lend[0]) : 0) // retroactively move it deeper
-        //         });
-        //         if (mids[1] < 0 && mids[0] < 0) todo.push({
-        //             pos: {
-        //                 lend,
-        //                 rend,
-        //                 mids: [atype, mids[1], mids[2]],
-        //                 rooms: [rooms[0], rooms[1], room.slice(0, -1), rooms[3]]
-        //             },
-        //             energy: energy + ((CAP - room.length) + 1 + 3) * (10 ** atype)
-        //         });
-        //         if (mids[1] < 0) todo.push({
-        //             pos: {
-        //                 lend,
-        //                 rend,
-        //                 mids: [mids[0], atype, mids[2]],
-        //                 rooms: [rooms[0], rooms[1], room.slice(0, -1), rooms[3]]
-        //             },
-        //             energy: energy + ((CAP - room.length) + 1 + 1) * (10 ** atype)
-        //         });
-        //         if (mids[1] < 0 && mids[2] < 0) todo.push({
-        //             pos: {
-        //                 lend,
-        //                 rend,
-        //                 mids: [mids[0], mids[1], atype],
-        //                 rooms: [rooms[0], rooms[1], room.slice(0, -1), rooms[3]]
-        //             },
-        //             energy: energy + ((CAP - room.length) + 1 + 1) * (10 ** atype)
-        //         });
-        //         if (mids[1] < 0 && mids[2] < 0 && rend.length < 2) todo.push({
-        //             pos: {
-        //                 lend,
-        //                 rend:  [...rend, atype],
-        //                 mids,
-        //                 rooms: [rooms[0], rooms[1], room.slice(0, -1), rooms[3]]
-        //             },
-        //             energy: energy + ((CAP - room.length) + 1 + 3) * (10 ** atype)
-        //                 + (rend.length > 0 ? (10 ** rend[0]) : 0) // retroactively move it deeper
-        //         });
-        //     }
-        // }
-
-        // {
-        //     // Room 3
-        //     const rtype = 3;
-        //     const room = rooms[rtype];
-        //     const atype = room[room.length - 1];
-
-        //     // Move if in incorrect room, or if foreigners are below
-        //     const move = atype !== undefined && atype !== rtype || !room.every(oatype => oatype === atype);
-
-        //     if (move) {
-        //         if (mids[2] < 0 && mids[1] < 0 && mids[0] < 0 && lend.length < 2) todo.push({
-        //             pos: {
-        //                 lend: [...lend, atype],
-        //                 rend,
-        //                 mids,
-        //                 rooms: [rooms[0], rooms[1], rooms[2], room.slice(0, -1)]
+        //                 rooms: nrooms
         //             },
         //             energy: energy + ((CAP - room.length) + 1 + 7) * (10 ** atype)
         //                 + (lend.length > 0 ? (10 ** lend[0]) : 0) // retroactively move it deeper
         //         });
-        //         if (mids[2] < 0 && mids[1] < 0 && mids[0] < 0) todo.push({
-        //             pos: {
-        //                 lend,
-        //                 rend,
-        //                 mids: [atype, mids[1], mids[2]],
-        //                 rooms: [rooms[0], rooms[1], rooms[2], room.slice(0, -1)]
-        //             },
-        //             energy: energy + ((CAP - room.length) + 1 + 5) * (10 ** atype)
-        //         });
-        //         if (mids[2] < 0 && mids[1] < 0) todo.push({
-        //             pos: {
-        //                 lend,
-        //                 rend,
-        //                 mids: [mids[0], atype, mids[2]],
-        //                 rooms: [rooms[0], rooms[1], rooms[2], room.slice(0, -1)]
-        //             },
-        //             energy: energy + ((CAP - room.length) + 1 + 3) * (10 ** atype)
-        //         });
-        //         if (mids[2] < 0) todo.push({
-        //             pos: {
-        //                 lend,
-        //                 rend,
-        //                 mids: [mids[0], mids[1], atype],
-        //                 rooms: [rooms[0], rooms[1], rooms[2], room.slice(0, -1)]
-        //             },
-        //             energy: energy + ((CAP - room.length) + 1 + 1) * (10 ** atype)
-        //         });
-        //         if (rend.length < 2) todo.push({
-        //             pos: {
-        //                 lend,
-        //                 rend:  [...rend, atype],
-        //                 mids,
-        //                 rooms: [rooms[0], rooms[1], rooms[2], room.slice(0, -1)]
-        //             },
-        //             energy: energy + ((CAP - room.length) + 1 + 1) * (10 ** atype)
-        //                 + (rend.length > 0 ? (10 ** rend[0]) : 0) // retroactively move it deeper
-        //         });
         //     }
         // }
-
-        // Move topmost lend/rend to room
-        {
-            // Left end
-            const atype = lend[0];
-            const room = rooms[atype];
-
-            // Move the room has no foreigners and the route is free
-            const move = atype !== undefined && room.every(oatype => oatype === atype)
-                && mids.every((a, i) => i >= atype || a < 0)
-
-            if (move) {
-                const nrooms = [...rooms];
-                nrooms[atype] = [...rooms[atype], atype];
-
-                todo.push({
-                    pos: {
-                        lend: lend.slice(1),
-                        rend,
-                        mids,
-                        rooms: nrooms
-                    },
-                    energy: energy + ((CAP - room.length) + 1 + 7) * (10 ** atype)
-                        + (lend.length > 0 ? (10 ** lend[0]) : 0) // retroactively move it deeper
-                });
-            }
-        }
     }
 
     console.log(minenergy);

@@ -63,8 +63,8 @@ const main = async () => {
         const { pos, energy } = state;
         const { lend, rend, mids, rooms } = pos;
 
-        console.log(energy);
-        print(pos);
+        // console.log(energy);
+        // print(pos);
 
         if (energy > minenergy) continue;
 
@@ -79,7 +79,7 @@ const main = async () => {
             energy_maxq = energy;
         }
 
-        if (lend.length === 0 && rend.length === 0 && mids.every(a => a === -1)
+        if (lend.every(a => a === -1) && rend.every(a => a === -1) && mids.every(a => a === -1)
                 && rooms.every((room, rtype) => room.every(atype => atype === rtype))) {
             minenergy = energy;
             continue;
@@ -128,6 +128,44 @@ const main = async () => {
                 todo.push({
                     pos: { lend, rend: nrend, mids, rooms: nrooms },
                     energy: energy + ((2 - idx) + (2 * (3 - atype)) + (CAP - room.length)) * (10 ** atype)
+                });
+            }
+        }
+
+        // Move mid points to room
+        {
+            const MIDCHK = [
+                [[     ], [0    ], [0,1  ]],
+                [[     ], [     ], [  1  ]],
+                [[  1  ], [     ], [     ]],
+                [[  1,2], [    2], [     ]]
+            ];
+            // midi: 0-3 (= mididx below - 1)
+            // MIDCHK[atype][midi].every(i => mids[i] < 0)
+
+            // 0   -1 -3 -5
+            // 1    1 -1 -3
+            // 2    3  1 -1
+            // 3    5  3  1
+            // Math.abs(2 * (rtype - midi) - 1)
+
+            for (let midi = 0; midi < 4; midi++) {
+                const atype = mids[midi];
+                const room = rooms[atype];
+
+                // Move the room if it has no foreigners and the route is free
+                const move = atype >= 0 && room.every(oatype => oatype === atype)
+                    && MIDCHK[atype][midi].every(i => mids[i] < 0);
+                if (!move) continue;
+
+                const nmids = [...mids];
+                nmids[midi] = -1;
+                const nrooms = [...rooms];
+                nrooms[atype] = [...rooms[atype], atype];
+
+                todo.push({
+                    pos: { lend, rend, mids: nmids, rooms: nrooms },
+                    energy: energy + (Math.abs(2 * (atype - midi) - 1) + (CAP - room.length)) * (10 ** atype)
                 });
             }
         }
@@ -205,46 +243,7 @@ const main = async () => {
     console.log('maxq', maxq, 'energy', energy_maxq);
     print(pos_maxq);
 
-    console.log(minenergy);
-
-    //         } else if (x === 1) {
-    //             // A in hallway:
-    //             // - to target room unless it has any foreigners
-    //             if ((y === desty - 1 || y === desty + 1) && !occ(pos, 1, desty) && !occ(pos, 2, desty)
-    //                     && pos.every(({ ot, oy }) => oy !== desty || ot === t)) {
-    //                 const npos = clone(pos);
-    //                 npos[i].x = 2; npos[i].y = desty;
-    //                 todo.push({ pos: npos, moved: -1, energy: nenergy });
-    //             }
-    //             // TODO move as far down as possible, stay there
-
-    //             if (moved === i) {
-    //                 // A in hallway, last that moved:
-    //                 // - to hallway but not in front of any exit
-    //                 if ((y === 2 || y === 4 || y === 6 || y === 8) && !occ(pos, 1, y + 1) && !occ(pos, 1, y + 2)) {
-    //                     // Move by 2, so we don't stop in front of exit
-    //                     const npos = clone(pos);
-    //                     npos[i].x = 1; npos[i].y = y + 2;
-    //                     todo.push({ pos: npos, moved: i, energy: nenergy });
-    //                 } else if (y < 11 && !occ(pos, 1, y + 1)) {
-    //                     const npos = clone(pos);
-    //                     npos[i].x = 1; npos[i].y = y + 1;
-    //                     todo.push({ pos: npos, moved: i, energy: nenergy });
-    //                 }
-
-    //                 if ((y === 4 || y === 6 || y === 8 || y === 10) && !occ(pos, 1, y - 1) && !occ(pos, 1, y - 2)) {
-    //                     // Move by 2, so we don't stop in front of exit
-    //                     const npos = clone(pos);
-    //                     npos[i].x = 1; npos[i].y = y - 2;
-    //                     todo.push({ pos: npos, moved: i, energy: nenergy });
-    //                 } else if (y > 1 && !occ(pos, 1, y - 1)) {
-    //                     const npos = clone(pos);
-    //                     npos[i].x = 1; npos[i].y = y - 1;
-    //                     todo.push({ pos: npos, moved: i, energy: nenergy });
-    //                 }
-    //             }
-    //         }
-    //     }
+    console.log('>', minenergy);
 };
 
 await main();

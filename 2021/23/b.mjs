@@ -74,7 +74,54 @@ const main = async () => {
             continue;
         }
 
-        // Move topmost ams in rooms
+        // Move topmost lend/rend to room
+        {
+            // Left end
+            const idx = lend[1] >= 0 ? 1 : 0;
+            const atype = lend[idx];
+            const room = rooms[atype];
+
+            // Move the room if it has no foreigners and the route is free
+            const move = atype >= 0 && room.every(oatype => oatype === atype)
+                && mids.every((a, i) => i >= atype || a < 0);
+
+            if (move) {
+                const nlend = [...lend];
+                nlend[idx] = -1;
+                const nrooms = [...rooms];
+                nrooms[atype] = [...rooms[atype], atype];
+
+                todo.push({
+                    pos: { lend: nlend, rend, mids, rooms: nrooms },
+                    energy: energy + ((2 - idx) + (2 * atype) + (CAP - room.length)) * (10 ** atype)
+                });
+            }
+        }
+
+        {
+            // Right end
+            const idx = rend[1] >= 0 ? 1 : 0;
+            const atype = rend[idx];
+            const room = rooms[atype];
+
+            // Move the room if it has no foreigners and the route is free
+            const move = atype >= 0 && room.every(oatype => oatype === atype)
+                && mids.every((a, i) => i < atype || a < 0);
+
+            if (move) {
+                const nrend = [...rend];
+                nrend[idx] = -1;
+                const nrooms = [...rooms];
+                nrooms[atype] = [...rooms[atype], atype];
+
+                todo.push({
+                    pos: { lend, rend: nrend, mids, rooms: nrooms },
+                    energy: energy + ((2 - idx) + (2 * (3 - atype)) + (CAP - room.length)) * (10 ** atype)
+                });
+            }
+        }
+
+        // Move topmost ams from rooms
         for (let rtype = 0; rtype < 4; rtype++) {
             const room = rooms[rtype];
             const atype = room[room.length - 1];
@@ -142,33 +189,6 @@ const main = async () => {
                 });
             };
         }
-
-        // Move topmost lend/rend to room
-        // {
-        //     // Left end
-        //     const atype = lend[0];
-        //     const room = rooms[atype];
-
-        //     // Move the room has no foreigners and the route is free
-        //     const move = atype !== undefined && room.every(oatype => oatype === atype)
-        //         && mids.every((a, i) => i >= atype || a < 0)
-
-        //     if (move) {
-        //         const nrooms = [...rooms];
-        //         nrooms[atype] = [...rooms[atype], atype];
-
-        //         todo.push({
-        //             pos: {
-        //                 lend: lend.slice(1),
-        //                 rend,
-        //                 mids,
-        //                 rooms: nrooms
-        //             },
-        //             energy: energy + ((CAP - room.length) + 1 + 7) * (10 ** atype)
-        //                 + (lend.length > 0 ? (10 ** lend[0]) : 0) // retroactively move it deeper
-        //         });
-        //     }
-        // }
     }
 
     console.log(minenergy);

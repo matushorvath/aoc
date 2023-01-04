@@ -11,10 +11,10 @@ const mkkey = pos => `${pos.lend} ${pos.rend} ${pos.mids} ${pos.rooms[0]} ${pos.
 
 const main = async () => {
     //const input = await fs.readFile('inputa.done', 'utf8');
-    const input = await fs.readFile('examplea', 'utf8');
+    //const input = await fs.readFile('examplea', 'utf8');
     //const input = await fs.readFile('exampleb', 'utf8');
     //const input = await fs.readFile('inputa', 'utf8');
-    //const input = await fs.readFile('inputb', 'utf8');
+    const input = await fs.readFile('inputb', 'utf8');
 
     const amphipods = input.trimEnd().split(/\r?\n/).slice(2, -1)
         .map(row => [row[3], row[5], row[7], row[9]].map(ch => ch.charCodeAt(0) - 'A'.charCodeAt(0)));
@@ -54,9 +54,9 @@ const main = async () => {
     const seen = {};
     let minenergy = Infinity;
 
-    let maxq = -Infinity;
-    let pos_maxq;
-    let energy_maxq;
+    // let maxq = -Infinity;
+    // let pos_maxq;
+    // let energy_maxq;
 
     let state;
     while (state = todo.pop()) {
@@ -66,22 +66,23 @@ const main = async () => {
         // console.log(energy);
         // print(pos);
 
-        if (energy > minenergy) continue;
+        if (energy >= minenergy) continue;
 
         const key = mkkey(pos);
-        if (seen[key] && seen[key] < energy) continue;
+        if (seen[key] && seen[key] <= energy) continue;
         seen[key] = energy;
 
-        const quality = rooms.reduce((tc, room, rtype) => tc + room.reduce((rc, atype) => rc + ((atype === rtype) ? 1 : 0), 0), 0);
-        if (quality > maxq) {
-            maxq = quality;
-            pos_maxq = pos;
-            energy_maxq = energy;
-        }
+        // const quality = rooms.reduce((tc, room, rtype) => tc + room.reduce((rc, atype) => rc + ((atype === rtype) ? 1 : 0), 0), 0);
+        // if (quality > maxq) {
+        //     maxq = quality;
+        //     pos_maxq = pos;
+        //     energy_maxq = energy;
+        // }
 
         if (lend.every(a => a === -1) && rend.every(a => a === -1) && mids.every(a => a === -1)
                 && rooms.every((room, rtype) => room.every(atype => atype === rtype))) {
             minenergy = energy;
+            console.log(minenergy);
             continue;
         }
 
@@ -240,8 +241,8 @@ const main = async () => {
         }
     }
 
-    console.log('maxq', maxq, 'energy', energy_maxq);
-    print(pos_maxq);
+    // console.log('maxq', maxq, 'energy', energy_maxq);
+    // print(pos_maxq);
 
     console.log('>', minenergy);
 };

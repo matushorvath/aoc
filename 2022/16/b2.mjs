@@ -71,45 +71,69 @@ const main = async () => {
     // console.log();
     // print(dist);
 
-    const T = 30; // TODO pos2 26
+    const T = 26;
 
-    const stack = [{ rel: 0, time: 0, pos1: vids['AA'], /*pos2: vids['AA'], */open: new Set(), comment: [] }];
+    const stack = [{ rel: 0, ac: [{ time: 0, pos: vids['AA'] }, { time: 0, pos: vids['AA'] }], open: new Set(), comment: [] }];
     const seen = {};
 
     let max;
 
     let state;
     while (state = stack.pop()) {
-        // const key = `${state.pos1} ${state.pos2} ${state.rel} ${[...state.open].sort().join(' ')}`;
-        // if (seen[key] !== undefined && seen[key] <= state.time) continue;
-        // seen[key] = state.time;
+        const key = `${state.ac[0].pos} ${state.ac[1].pos} ${state.rel} ${[...state.open].sort().join(' ')}`;
+        if (seen[key] !== undefined && seen[key][0] <= state.ac[0].time && seen[key][1] <= state.ac[1].time) continue;
+        seen[key] = [state.ac[0].time, state.ac[1].time];
+
+        const idx = state.ac[0].time < state.ac[1].time ? 0 : 1;
+        const oth = idx === 1 ? 0 : 1;
 
         if (max === undefined || max.rel < state.rel) {
             max = state;
-            //console.log('time', max.time, 'rel', max.rel, 'open', max.open.size);
+            console.log('time', max.ac[0].time, max.ac[1].time, 'rel', max.rel, 'open', max.open.size);
         }
 
-        const openable = data.filter(v => v.rate > 0 && !state.open.has(v.id));
+        const newopen = new Set([...state.open, state.ac[idx].pos]);
+        const openable = data.filter(v => v.rate > 0 && !newopen.has(v.id));
 
-        for (const move1 of openable) if (move1.id !== state.pos1) {
-            // for (const move2 of openable) if (move2 !== state.pos2 && move2 !== move1) {
-                const newstate = {
-                    rel: state.rel + data[move1.id].rate * (T - state.time - dist[state.pos1][move1.id].cost - 1),
-                    time: state.time + dist[state.pos1][move1.id].cost + 1,
-                    pos1: move1.id,
-                    open: new Set([...state.open, move1.id])
-                };
+        for (const move1 of openable) if (move1.id !== state.ac[0].pos && move1.id !== state.ac[1].pos ) {
+            const newstate = {
+                rel: state.rel + data[move1.id].rate * (T - state.ac[idx].time - dist[state.ac[idx].pos][move1.id].cost - 1),
+                ac: [...state.ac],
+                open: newopen
+            };
 
-                newstate.comment = [
-                    ...state.comment,
-                    [
-                        `${newstate.time + 1}: ${dist[state.pos1][move1.id].route.map(vid => `${names[vid]}(${vid})`)},`,
-                        `${names[newstate.pos1]}(${newstate.pos1}), rel ${newstate.rel}`
-                    ].join('')
-                ];
+            newstate.ac[idx] = {
+                time: state.ac[idx].time + dist[state.ac[idx].pos][move1.id].cost + 1,
+                pos: move1.id
+            };
 
-                if (newstate.time < T) stack.push(newstate);
-            // }
+            newstate.comment = [
+                ...state.comment,
+                [
+                    `${newstate.ac[idx].time + 1}: [${idx}]: `,
+                    `${dist[state.ac[idx].pos][move1.id].route.map(vid => `${names[vid]}(${vid})`)},${names[newstate.ac[idx].pos]}(${newstate.ac[idx].pos}), `,
+                    `rel ${newstate.rel}`
+                ].join('')
+            ];
+
+            if (newstate.ac[idx].time < T) stack.push(newstate);
+        }
+
+        // don't do anything until end option
+        if (state.ac[oth].time < T) {
+            const newstate = {
+                rel: state.rel,
+                ac: [...state.ac],
+                open: newopen,
+                comment: state.comment
+            };
+
+            newstate.ac[idx] = {
+                time: 30,
+                pos: state.pos
+            };
+
+            stack.push(newstate);
         }
     }
 

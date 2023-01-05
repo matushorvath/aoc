@@ -92,7 +92,7 @@ const main = async () => {
         const openable = data.filter(v => v.rate > 0 && !state.open.has(v.id));
 
         for (const move1 of openable) if (move1.id !== state.pos1) {
-            // for (const move2 of openable) if (move2 !== state.pos2 && move2 !== move1) {
+            // for (const move2 of openable) if (move2.id !== state.pos2 && move2.id !== move1.id) {
                 const newstate = {
                     rel: state.rel + data[move1.id].rate * (T - state.time - dist[state.pos1][move1.id].cost - 1),
                     time: state.time + dist[state.pos1][move1.id].cost + 1,

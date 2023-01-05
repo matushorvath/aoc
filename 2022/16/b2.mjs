@@ -79,7 +79,7 @@ const main = async () => {
     let max;
 
     let state;
-    while (state = stack.pop()) {
+    while ((state = stack.pop()) && (max === undefined || max.rel < 2416)) {
         const key = `${state.ac[0].pos} ${state.ac[1].pos} ${state.rel} ${[...state.open].sort().join(' ')}`;
         if (seen[key] !== undefined && seen[key][0] <= state.ac[0].time && seen[key][1] <= state.ac[1].time) continue;
         seen[key] = [state.ac[0].time, state.ac[1].time];

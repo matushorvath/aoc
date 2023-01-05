@@ -14,10 +14,11 @@ const main = async () => {
         }];
     }));
 
-    const stack = [{ rel: 0, rate: 0, time: 0, pos: 'AA', open: new Set() }];
+    const stack = [{ rel: 0, rate: 0, time: 0, pos: 'AA', open: new Set(), comment: [] }];
     const seen = {};
 
     let maxrel = 0;
+    let maxcomment;
 
     let s;
     while (s = stack.pop()) {
@@ -31,18 +32,21 @@ const main = async () => {
         if (s.time === 30) {
             if (s.rel > maxrel) {
                 maxrel = s.rel;
+                maxcomment = s.comment;
                 console.log(maxrel, 'stack', stack.length);
             }
             continue;
         }
 
         if (data[s.pos].rate > 0 && !s.open.has(s.pos)) {
+            const comment = [...s.comment, `${s.time + 1 + 1}: ${s.pos}`]
             stack.push({
                 rel: s.rel + s.rate,
                 rate: s.rate + data[s.pos].rate,
                 time: s.time + 1,
                 pos: s.pos,
-                open: new Set([...s.open, s.pos])
+                open: new Set([...s.open, s.pos]),
+                comment
             });
         }
 
@@ -52,12 +56,14 @@ const main = async () => {
                 rate: s.rate,
                 time: s.time + 1,
                 pos: n,
-                open: s.open
+                open: s.open,
+                comment: s.comment
             });
         }
     }
 
     console.log(maxrel);
+    console.log(maxcomment?.join('\n'));
 };
 
 await main();

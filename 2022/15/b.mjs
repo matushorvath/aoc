@@ -4,8 +4,8 @@ import fs from 'fs/promises';
 import 'core-js/actual/array/find-last-index.js'; // node.js <18
 
 const main = async () => {
-    const input = await fs.readFile('example', 'utf8'); const My = 20;
-    //const input = await fs.readFile('input', 'utf8'); const My = 4000000;
+    //const input = await fs.readFile('example', 'utf8'); const My = 20;
+    const input = await fs.readFile('input', 'utf8'); const My = 4000000;
 
     const data = input.trimEnd().split(/\r?\n/).map(l => {
         const m = l.match(/Sensor at x=(.+), y=(.+): closest beacon is at x=(.+), y=(.+)/);

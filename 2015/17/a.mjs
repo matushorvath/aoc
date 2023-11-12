@@ -15,20 +15,21 @@ const data = input.trimEnd().split(/\r?\n/).map(Number);
 
 //console.log(data);
 
-const q = [{ vol: 0, filled: [], empty: data }];
-let count = 0;
+const q = [{ vol: 0, filled: [], empty: [...data.keys()] }];
+const results = new Set();
 
 while (q.length > 0) {
     const { vol, filled, empty } = q.pop();
-    for (const [idx, emc] of Object.entries(empty)) {
-        const nvol = vol + emc;
+    for (const [idx, adding] of Object.entries(empty)) {
+        const nvol = vol + data[adding];
+        const nfilled = [...filled, adding];
         if (nvol === tvol) {
-            console.log([...filled, emc]);
-            count++;
+            console.log(nfilled.map(i => data[i]));
+            results.add(JSON.stringify(nfilled.sort((a, b) => a - b)));
         } else if (nvol < tvol) {
-            q.push({ vol: nvol, filled: [...filled, emc], empty: empty.toSpliced(idx, 1) });
+            q.push({ vol: nvol, filled: nfilled, empty: empty.toSpliced(idx, 1) });
         }
     }
 }
 
-console.log('result', count);
+console.log('result', results, results.size);

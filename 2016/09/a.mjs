@@ -2,7 +2,7 @@ import fs from 'fs/promises';
 
 // The screen is 50 pixels wide and 6 pixels tall, all of which start off,
 
-//const input = await fs.readFile('example', 'utf8');
+//const input = await fs.readFile('examplea', 'utf8');
 const input = await fs.readFile('input', 'utf8');
 
 const data = input.trimEnd().split(/\r?\n/)[0];

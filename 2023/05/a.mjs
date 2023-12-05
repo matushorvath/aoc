@@ -14,6 +14,26 @@ const maps = mapData.map(b => {
 
 console.log(seeds, JSON.stringify(maps, undefined, 2));
 
+const max = Math.max(...maps.find(m => m.from === 'seed').rules.map(r => r.src + r.len - 1));
+const ranges = [[0, max]];
 
+console.log(ranges);
+
+let from = 'seed';
+while (from !== 'location') {
+    const map = maps.find(m => m.from === from);
+    const sorted = map.rules.toSorted((a, b) => b.src > a.src ? 1 : -1);
+
+    let lastSrc = 0;
+    let rangesI = 0;
+    let sortedI = 0;
+
+    const output = [];
+    while (true) {
+        if (ranges[rangesI][0] < sorted[sortedI].src) {
+            if (lastSrc < ranges[rangesI][0] - 1) output.push([lastSrc, ranges[rangesI][0] - 1]);
+            output.push([ranges[rangesI][0] - 1, 
+
+}
 
 //console.log('result', );

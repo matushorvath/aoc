@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "compute-lcm": "^1.1.2"
+  }
+}

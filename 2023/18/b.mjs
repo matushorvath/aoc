@@ -1,27 +1,28 @@
-import { countReset } from 'console';
 import fs from 'fs/promises';
 import os from "os";
 
 //const input = await fs.readFile('example', 'utf8');
+//const input = await fs.readFile('example2', 'utf8');
+//const input = await fs.readFile('example3', 'utf8');
 const input = await fs.readFile('input', 'utf8');
 
-const data = input.trimEnd().split(/\r?\n/).map(r => { // A
-    const m = r.match(/(.) (\d+) \(#(.{6})\)/);
-    return {
-        dir: m[1],
-        len: Number(m[2])
-    };
-});
-
-// const n2d = ['R', 'D', 'L', 'U']
-//
-// const data = input.trimEnd().split(/\r?\n/).map(r => { // B
-//     const m = r.match(/. \d+ \(#(.{5})(.)\)/);
+// const data = input.trimEnd().split(/\r?\n/).map(r => { // A
+//     const m = r.match(/(.) (\d+) \(#(.{6})\)/);
 //     return {
-//         dir: n2d[Number(m[2])],
-//         len: parseInt(m[1], 16)
+//         dir: m[1],
+//         len: Number(m[2])
 //     };
 // });
+
+const n2d = ['R', 'D', 'L', 'U']
+
+const data = input.trimEnd().split(/\r?\n/).map(r => { // B
+    const m = r.match(/. \d+ \(#(.{5})(.)\)/);
+    return {
+        dir: n2d[Number(m[2])],
+        len: parseInt(m[1], 16)
+    };
+});
 
 //console.log(data);
 
@@ -125,14 +126,25 @@ const count = (f) => {
     const { rmn, rmx, cmn, cmx } = bounds(f);
 
     let sum = 0;
+    let ph = new Set();
     for (const row of f.toSorted((a, b) => b.f < a.f ? 1 : -1)) {
         for (let r = (row.f === -Infinity ? rmn : row.f); r <= (row.t === Infinity ? rmx : row.t); r++) {
             let inside = false;
-            let lastv = false;
+            let hashcount = 0;
+            let hashstart;
+            const ch = new Set();
 
             for (const col of row.cs.toSorted((a, b) => b.f < a.f ? 1 : -1)) {
-                if (col.v && !lastv) inside = !inside;
-                lastv = col.v;
+                if (!col.v) {
+                    if (hashcount > 0) {
+                        if (hashcount === 1 || ph.has(hashstart) !== ph.has(col.f - 1)) inside = !inside;
+                    }
+                    hashcount = 0;
+                } else {
+                    if (hashcount === 0) hashstart = col.f;
+                    hashcount += col.t - col.f + 1;
+                    if (col.f === col.t) ch.add(col.f);
+                }
 
                 if (col.v || inside) {
                     const cf = (col.f === -Infinity ? cmn : col.f);
@@ -140,7 +152,8 @@ const count = (f) => {
                     sum += ct - cf + 1;
                 }
             }
-            console.log(sum);
+            ph = ch;
+            //console.log(sum);
         }
     }
 
@@ -151,6 +164,8 @@ const field = [{ f: -Infinity, t: Infinity, cs: [{ f: -Infinity, t: Infinity }] 
 let pos = [0, 0];
 
 for (const { dir, len } of data) {
+    //console.log(dir, len);
+
     const { type, src, tgt, npos } = lparam(pos, dir, len);
     if (type === 'v') {
         setv(field, src[0], tgt[0], src[1]);
@@ -163,6 +178,6 @@ for (const { dir, len } of data) {
     //print(field);
 }
 
-print(field);
+//print(field);
 
 console.log('result', count(field));

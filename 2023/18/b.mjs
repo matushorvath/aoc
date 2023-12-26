@@ -2,8 +2,8 @@ import { countReset } from 'console';
 import fs from 'fs/promises';
 import os from "os";
 
-const input = await fs.readFile('example', 'utf8');
-//const input = await fs.readFile('input', 'utf8');
+//const input = await fs.readFile('example', 'utf8');
+const input = await fs.readFile('input', 'utf8');
 
 const data = input.trimEnd().split(/\r?\n/).map(r => { // A
     const m = r.match(/(.) (\d+) \(#(.{6})\)/);
@@ -42,8 +42,11 @@ const set = (f, ri, ci) => {
     if (fr.f !== fr.t) {
         if (fr.f <= ri - 1) f.push({ f: fr.f, t: ri - 1, cs: fr.cs });
         if (ri + 1 <= fr.t) f.push({ f: ri + 1, t: fr.t, cs: fr.cs });
-        fr = f[fri] = { f: ri, t: ri, cs: [...fr.cs] };
+        fr = f[fri] = { f: ri, t: ri, cs: fr.cs };
     }
+
+    fr.cs = structuredClone(fr.cs);
+    fc = fr.cs[fci];
 
     if (fc.f !== fc.t) {
         if (fc.f <= ci - 1) fr.cs.push({ f: fc.f, t: ci - 1, v: fc.v });

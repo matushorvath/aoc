@@ -30,31 +30,58 @@ const data = input.trimEnd().split(/\r?\n/).map(r => { // A
 //     f[r][c] = true;
 // }
 
-const set = (f, ri, ci) => {
-    const fri = f.findIndex(r => r.f <= ri && r.t >= ri);
-    let fr = f[fri];
+const setv = (f, ri1, ri2, ci) => {
+    const frs = f.filter(r => r.t >= ri1 && r.f <= ri2);
 
-    const fci = fr.cs.findIndex(c => c.f <= ci && c.t >= ci);
-    let fc = fr.cs[fci];
+    for (const fr of frs) {
+        if (fr.f !== fr.t) {
+            if (fr.f <= ri1 - 1) f.push({ f: fr.f, t: ri1 - 1, cs: fr.cs });
+            if (ri2 + 1 <= fr.t) f.push({ f: ri2 + 1, t: fr.t, cs: fr.cs });
 
-    if (fc.v) return;
+            fr.f = Math.max(fr.f, ri1);
+            fr.t = Math.min(fr.t, ri2);
+        }
+
+        fr.cs = structuredClone(fr.cs);
+        const fc = fr.cs.find(c => c.f <= ci && c.t >= ci);
+
+        if (fc.f !== fc.t) {
+            if (fc.f <= ci - 1) fr.cs.push({ f: fc.f, t: ci - 1, v: fc.v });
+            if (ci + 1 <= fc.t) fr.cs.push({ f: ci + 1, t: fc.t, v: fc.v });
+
+            fc.f = ci;
+            fc.t = ci;
+        }
+
+        fc.v = true;
+    }
+};
+
+const seth = (f, ri, ci1, ci2) => {
+    const fr = f.find(r => r.f <= ri && r.t >= ri);
 
     if (fr.f !== fr.t) {
         if (fr.f <= ri - 1) f.push({ f: fr.f, t: ri - 1, cs: fr.cs });
         if (ri + 1 <= fr.t) f.push({ f: ri + 1, t: fr.t, cs: fr.cs });
-        fr = f[fri] = { f: ri, t: ri, cs: fr.cs };
+
+        fr.f = ri;
+        fr.t = ri;
     }
 
     fr.cs = structuredClone(fr.cs);
-    fc = fr.cs[fci];
+    const fcs = fr.cs.filter(c => c.t >= ci1 && c.f <= ci2);
 
-    if (fc.f !== fc.t) {
-        if (fc.f <= ci - 1) fr.cs.push({ f: fc.f, t: ci - 1, v: fc.v });
-        if (ci + 1 <= fc.t) fr.cs.push({ f: ci + 1, t: fc.t, v: fc.v });
-        fc = fr.cs[fci] = { f: ci, t: ci, v: fc.v };
+    for (const fc of fcs) {
+        if (fc.f !== fc.t) {
+            if (fc.f <= ci1 - 1) fr.cs.push({ f: fc.f, t: ci1 - 1, v: fc.v });
+            if (ci2 + 1 <= fc.t) fr.cs.push({ f: ci2 + 1, t: fc.t, v: fc.v });
+
+            fc.f = Math.max(fc.f, ci1);
+            fc.t = Math.min(fc.t, ci2);
+        }
+
+        fc.v = true;
     }
-
-    fc.v = true;
 };
 
 const lparam = (pos, dir, len) => {
@@ -113,6 +140,7 @@ const count = (f) => {
                     sum += ct - cf + 1;
                 }
             }
+            console.log(sum);
         }
     }
 
@@ -120,21 +148,15 @@ const count = (f) => {
 };
 
 const field = [{ f: -Infinity, t: Infinity, cs: [{ f: -Infinity, t: Infinity }] }];
-set(field, 0, 0);
-
 let pos = [0, 0];
 
 for (const { dir, len } of data) {
     const { type, src, tgt, npos } = lparam(pos, dir, len);
     if (type === 'v') {
-        for (let r = src[0]; r <= tgt[0]; r++) {
-            set(field, r, src[1]);
-        }
+        setv(field, src[0], tgt[0], src[1]);
         pos = npos;
     } else if (type === 'h') {
-        for (let c = src[1]; c <= tgt[1]; c++) {
-            set(field, src[0], c);
-        }
+        seth(field, src[0], src[1], tgt[1]);
         pos = npos;
     }
 

@@ -1,90 +1,70 @@
 import fs from 'fs/promises';
 
-//const input = await fs.readFile('example', 'utf8');
-const input = await fs.readFile('input', 'utf8');
+const input = await fs.readFile('example', 'utf8');
+//const input = await fs.readFile('input', 'utf8');
 
 const data = input.trimEnd().split(/\r?\n/).map(r => r.split('').map(Number));
 
 //console.log(data);
 
-const q = [{ r: 0, c: 0, len: 0, dr: 0, dc: 1, loss: 0, path: [] }];
-const mins = {};
+const q = [{
+    cpos: { r: data.length - 5, c: data[0].length - 1 },
+    ppos: { r: data.length - 1, c: data[0].length - 1 },
+    len: 4
+}, {
+    cpos: { r: data.length - 1, c: data[0].length - 5 },
+    ppos: { r: data.length - 1, c: data[0].length - 1 },
+    len: 4
+}];
 
-const mkkey = (r, c, dr, dc) => ((r * data.length + c) * data[0].length + (dr + 1)) * 3 + (dc + 1);
+const mmkey = (r, c, l) => ((r + 1) * 100 + (c + 1)) * 100 + l;
+const costs = new Array(data.length).fill().map(() => new Array(data[0].length).fill().map(() => {}));
 
-const nz = n => n === -0 ? 0 : n;
-
-const push1 = (data, or, oc, olen, ndr, ndc, oloss, opath) => {
-    const nr = or + ndr;
-    const nc = oc + ndc;
-    if (nr < 0 || nr > data.length - 1 || nc < 0 || nc > data[0].length - 1) return;
-
-    const nlen = olen + 1;
-    const nloss = oloss + data[nr][nc];
-
-    const key = mkkey(nr, nc, ndr, ndc);
-    if (mins[key]?.some(({ loss }, len) => len < nlen && loss <= nloss)) return;
-
-    const npath = undefined;
-    //const npath = [...opath, [nr, nc]];
-    if (!mins[key]) mins[key] = [];
-    mins[key][nlen] = { r: nr, c: nc, loss: nloss, path: npath };
-
-    q.push({ r: nr, c: nc, len: nlen, dr: ndr, dc: ndc, loss: nloss, path: npath });
-};
-
-const push4 = (data, or, oc, olen, ndr, ndc, oloss, opath) => {
-    const nr = or + 4 * ndr;
-    const nc = oc + 4 * ndc;
-    if (nr < 0 || nr > data.length - 1 || nc < 0 || nc > data[0].length - 1) return;
-
-    const nlen = olen + 4;
-    const nloss = oloss + data[or + ndr][oc + ndc] + data[or + 2 * ndr][oc + 2 * ndc]
-        + data[or + 3 * ndr][oc + 3 * ndc] + data[or + 4 * ndr][oc + 4 * ndc];
-
-    const key = mkkey(nr, nc, ndr, ndc);
-    if (mins[key]?.some(({ loss }, len) => len <= nlen && loss <= nloss)) return;
-
-    const npath = undefined;
-    //const npath = [...opath, [nr, nc]];
-    if (!mins[key]) mins[key] = [];
-    mins[key][nlen] = { r: nr, c: nc, loss: nloss, path: npath };
-
-    q.push({ r: nr, c: nc, len: nlen, dr: ndr, dc: ndc, loss: nloss, path: npath });
-};
-
-let cnt = 0;
+for (let len = 4; len <= 10; len++) costs[data.length][data[0].length][mkkey(-1, 0, len)] = 0;
 
 while (q.length) {
-    const { r, c, len, dr, dc, loss, path } = q.pop();
+    const { cpos, ppos, len } = q.pop();
 
-    if (cnt++ % 10000000 === 0) console.log(cnt, q.length, Object.keys(mins).length);
-
-    // const key = mkkey(r, c, len, dr, dc);
-    // if (mins[key] < loss) continue;
-    // mins[key] = loss;
-
-    // straight
-    if (len === 0) {
-        push4(data, r, c, len, dr, dc, loss, path);
-    } else if (len < 9) {
-        push1(data, r, c, len, dr, dc, loss, path);
+    // Check if within bounds
+    if (cpos.r < 0 || cpos.r >= data.length || cpos.c < 0 || cpos.c >= data[0].length) {
+        continue;
     }
 
-    // left, right
-    push4(data, r, c, 0, dc, nz(-dr), loss, path);
-    push4(data, r, c, 0, nz(-dc), dr, loss, path);
+    // Direction backwards
+    const dir = { r: cpos.r - ppos.r, c: cpos.c - ppos.c };
+    const dist = Math.abs(Math.max(dir.r, dir.c));
+    dir.r /= Math.abs(dir.r); dir.c /= Math.abs(dir.c);
+
+    // Calculate cost
+    const pkey = mkkey(dir.r, dir.c, len - dist);
+    let cost = costs[ppos.r][ppos.c][key];
+    if (dir.r) for (let r = ppos.r; r !== cpos.r; r += dir.r) cost += data[r][c];
+    else for (let c = ppos.c; c !== cpos.c; c += dir.c) cost += data[r][c];
+
+    // Check if costs lower, store if yes
+    const ckey = mkkey(dir.r, dir.c, len);
+    if (costs[cpos.r][cpos.c][key]
+
+    // Change direction, move by 4
+    q.push({
+        cpos: { r: cpos.r + dir.c * 4, c: cpos.c - dir.r * 4 },
+        ppos: cpos,
+        len: 4
+    });
+    q.push({
+        cpos: { r: cpos.r - dir.c * 4, c: cpos.c + dir.r * 4 },
+        ppos: cpos,
+        len: 4
+    });
+
+    // Same direction, if less than 10 moved
+    if (len < 10) {
+        q.push({
+            cpos: { r: cpos.r + dir.r, c: cpos.c + dir.c },
+            ppos: cpos,
+            len: len + 1
+        });
+    }
 }
-
-//console.log(Object.values(mins));
-
-const tgts = Object.values(mins).flatMap(lm => lm).filter(({ r, c }) => r === data.length - 1 && c === data[0].length - 1);
-
-const min = Math.min(...tgts.map(({ loss }) => loss));
-
-const path = tgts.filter(({ loss }) => loss === min)[0].path;
-if (path) console.log(path);
-
-console.log('result', min);
 
 // 1045 high

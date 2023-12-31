@@ -112,151 +112,236 @@ extract c
 - ac*(v3 - v1) - bc*(v2 - v3) - c(p2 - p1) = ab*(v1 - v2) + a(p3 - p2) + b(p1 - p3)
 ac*(v1 - v3) + bc*(v3 - v2) + c(p1 - p2) = ab*(v1 - v2) + a(p3 - p2) + b(p1 - p3)
 c*(a(v1 - v3) + b(v3 - v2) + (p1 - p2)) = ab*(v1 - v2) + a(p3 - p2) + b(p1 - p3)
-c = (ab*(v1 - v2) + a(p3 - p2) + b(p1 - p3))  /  (a(v1 - v3) + b(v3 - v2) + (p1 - p2)) #7
+c = (ab*(v1 - v2) + a(p3 - p2) + b(p1 - p3)) / (a(v1 - v3) + b(v3 - v2) + (p1 - p2)) #7
 
-#6 apply #7
-0 = ab*(v1 - v2) + bc*(v2 - v3) + ac*(v3 - v1) + a(p3 - p2) + b(p1 - p3) + c(p2 - p1)
-c = (ab*(v1 - v2) + a(p3 - p2) + b(p1 - p3))  /  (a(v1 - v3) + b(v3 - v2) + (p1 - p2))
+write out for x, y, z
 
-0 = ab*(v1 - v2)
-    + b*(v2 - v3)*(ab*(v1 - v2) + a(p3 - p2) + b(p1 - p3))  /  (a(v1 - v3) + b(v3 - v2) + (p1 - p2))
-    + a*(v3 - v1)*(ab*(v1 - v2) + a(p3 - p2) + b(p1 - p3))  /  (a(v1 - v3) + b(v3 - v2) + (p1 - p2))
-    + (p2 - p1)  *(ab*(v1 - v2) + a(p3 - p2) + b(p1 - p3))  /  (a(v1 - v3) + b(v3 - v2) + (p1 - p2))
-    + a(p3 - p2) + b(p1 - p3)
+c = (ab*(v1x - v2x) + a(p3x - p2x) + b(p1x - p3x)) / (a(v1x - v3x) + b(v3x - v2x) + (p1x - p2x))    #8
+c = (ab*(v1y - v2y) + a(p3y - p2y) + b(p1y - p3y)) / (a(v1y - v3y) + b(v3y - v2y) + (p1y - p2y))    #9
+c = (ab*(v1z - v2z) + a(p3z - p2z) + b(p1z - p3z)) / (a(v1z - v3z) + b(v3z - v2z) + (p1z - p2z))    #10
 
-0 = ab*(v1 - v2)
-    + bv2*(ab*(v1 - v2) + a(p3 - p2) + b(p1 - p3))  /  (a(v1 - v3) + b(v3 - v2) + (p1 - p2))
-    - bv3*(ab*(v1 - v2) + a(p3 - p2) + b(p1 - p3))  /  (a(v1 - v3) + b(v3 - v2) + (p1 - p2))
-    + av3*(ab*(v1 - v2) + a(p3 - p2) + b(p1 - p3))  /  (a(v1 - v3) + b(v3 - v2) + (p1 - p2))
-    - av1)*(ab*(v1 - v2) + a(p3 - p2) + b(p1 - p3))  /  (a(v1 - v3) + b(v3 - v2) + (p1 - p2))
-    + p2(ab*(v1 - v2) + a(p3 - p2) + b(p1 - p3))  /  (a(v1 - v3) + b(v3 - v2) + (p1 - p2))
-    - p1(ab*(v1 - v2) + a(p3 - p2) + b(p1 - p3))  /  (a(v1 - v3) + b(v3 - v2) + (p1 - p2))
-    + a(p3 - p2) + b(p1 - p3)
+#8 - #10
+0 =
+      (ab*(v1x - v2x) + a(p3x - p2x) + b(p1x - p3x)) / (a(v1x - v3x) + b(v3x - v2x) + (p1x - p2x))
+    - (ab*(v1z - v2z) + a(p3z - p2z) + b(p1z - p3z)) / (a(v1z - v3z) + b(v3z - v2z) + (p1z - p2z))  #11
 
-0 = ab*(v1 - v2)
-    + bv2*(abv1 - abv2 + ap3 - ap2 + bp1 - bp3) / (av1 - av3 + bv3 - bv2 + p1 - p2)
-    - bv3*(abv1 - abv2 + ap3 - ap2 + bp1 - bp3) / (av1 - av3 + bv3 - bv2 + p1 - p2)
-    + av3*(abv1 - abv2 + ap3 - ap2 + bp1 - bp3) / (av1 - av3 + bv3 - bv2 + p1 - p2)
-    - av1*(abv1 - abv2 + ap3 - ap2 + bp1 - bp3) / (av1 - av3 + bv3 - bv2 + p1 - p2)
-    + p2*(abv1 - abv2 + ap3 - ap2 + bp1 - bp3) / (av1 - av3 + bv3 - bv2 + p1 - p2)
-    - p1*(abv1 - abv2 + ap3 - ap2 + bp1 - bp3) / (av1 - av3 + bv3 - bv2 + p1 - p2)
-    + a(p3 - p2) + b(p1 - p3)
+#9 - #10
+0 =
+      (ab*(v1y - v2y) + a(p3y - p2y) + b(p1y - p3y)) / (a(v1y - v3y) + b(v3y - v2y) + (p1y - p2y))
+    - (ab*(v1z - v2z) + a(p3z - p2z) + b(p1z - p3z)) / (a(v1z - v3z) + b(v3z - v2z) + (p1z - p2z))  #12
 
-0 = ab*(v1 - v2)
-    + (abbv2v1 - abbv2v2 + abv2p3 - abv2p2 + bbv2p1 - bbv2p3) / (av1 - av3 + bv3 - bv2 + p1 - p2)
-    - (abbv1v3 - abbv2v3 + abv3p3 - abv3p2 + bbv3p1 - bbv3p3) / (av1 - av3 + bv3 - bv2 + p1 - p2)
-    + (aav3bv1 - aav3bv2 + aav3p3 - aav3p2 + bav3p1 - bav3p3) / (av1 - av3 + bv3 - bv2 + p1 - p2)
-    - (aav1bv1 - aav1bv2 + aav1p3 - aav1p2 + av1bp1 - av1bp3) / (av1 - av3 + bv3 - bv2 + p1 - p2)
-    + (abv1p2 - abv2p2 + ap3p2 - ap2p2 + bp1p2 - bp3p2) / (av1 - av3 + bv3 - bv2 + p1 - p2)
-    - (abv1p1 - abv2p1 + ap3p1 - ap2p1 + bp1p1 - bp3p1) / (av1 - av3 + bv3 - bv2 + p1 - p2)
-    + a(p3 - p2) + b(p1 - p3)
+extract b from #11 -> #13
 
-0 = ab*(v1 - v2)
-    + (abbv1v2 - abbv2v2 + abv2p3 - abv2p2 + bbv2p1 - bbv2p3) / (av1 - av3 + bv3 - bv2 + p1 - p2)
-    - (abbv1v3 - abbv2v3 + abv3p3 - abv3p2 + bbv3p1 - bbv3p3) / (av1 - av3 + bv3 - bv2 + p1 - p2)
-    + (aabv1v3 - aabv2v3 + aav3p3 - aav3p2 + abv3p1 - abv3p3) / (av1 - av3 + bv3 - bv2 + p1 - p2)
-    - (aabv1v1 - aabv1v2 + aav1p3 - aav1p2 + abv1p1 - abv1p3) / (av1 - av3 + bv3 - bv2 + p1 - p2)
-    + (abv1p2 - abv2p2 + ap2p3 - ap2p2 + bp1p2 - bp2p3) / (av1 - av3 + bv3 - bv2 + p1 - p2)
-    - (abv1p1 - abv2p1 + ap1p3 - ap1p2 + bp1p1 - bp1p3) / (av1 - av3 + bv3 - bv2 + p1 - p2)
-    + a(p3 - p2) + b(p1 - p3)
+0 =   (a(v1z - v3z) + b(v3z - v2z) + (p1z - p2z)) * (ab*(v1x - v2x) + a(p3x - p2x) + b(p1x - p3x))
+    - (a(v1x - v3x) + b(v3x - v2x) + (p1x - p2x)) * (ab*(v1z - v2z) + a(p3z - p2z) + b(p1z - p3z))
 
-0 =   (abv1 - abv2)*(av1 - av3 + bv3 - bv2 + p1 - p2)
-    + (abbv1v2 - abbv2v2 + abv2p3 - abv2p2 + bbv2p1 - bbv2p3)
-    - (abbv1v3 - abbv2v3 + abv3p3 - abv3p2 + bbv3p1 - bbv3p3)
-    + (aabv1v3 - aabv2v3 + aav3p3 - aav3p2 + abv3p1 - abv3p3)
-    - (aabv1v1 - aabv1v2 + aav1p3 - aav1p2 + abv1p1 - abv1p3)
-    + (abv1p2 - abv2p2 + ap2p3 - ap2p2 + bp1p2 - bp2p3)
-    - (abv1p1 - abv2p1 + ap1p3 - ap1p2 + bp1p1 - bp1p3)
-    + (ap3 - ap2 + bp1 - bp3)*(av1 - av3 + bv3 - bv2 + p1 - p2)
-
-0 =   (abv1 - abv2)*(bv3 - bv2)
-    + (abv1 - abv2)*(av1 - av3 + p1 - p2)
-    + (abbv1v2 - abbv2v2 + bbv2p1 - bbv2p3)
-    + (abv2p3 - abv2p2)
-    - (abbv1v3 - abbv2v3 + bbv3p1 - bbv3p3)
-    - (abv3p3 - abv3p2)
-    + (aabv1v3 - aabv2v3 + abv3p1 - abv3p3)
-    + (aav3p3 - aav3p2)
-    - (aabv1v1 - aabv1v2 + abv1p1 - abv1p3)
-    - (aav1p3 - aav1p2)
-    + (abv1p2 - abv2p2 + bp1p2 - bp2p3)
-    + (ap2p3 - ap2p2)
-    - (abv1p1 - abv2p1 + bp1p1 - bp1p3)
-    - (ap1p3 - ap1p2)
-    + (bp1 - bp3)*(bv3 - bv2)
-    + (bp1 - bp3)*(av1 - av3 + p1 - p2)
-    + (ap3 - ap2)*(bv3 - bv2)
-    + (ap3 - ap2)*(av1 - av3 + p1 - p2)
-
-    //
-    + (bbv3p1 - bbv2p1 - bbv3p3 + bbv2p3)
-    + (abv1p1 - abv3p1 + bp1p1 - bp1p2 - abv1p3 + abv3p3 - bp1p3 + bp2p3)
-    + (abv3p3 - abv2p3 - abv3p2 + abv2p2)
-    + (aav1p3 - aav3p3 + ap1p3 - ap2p3 - aav1p2 + aav3p2 - ap1p2 + ap2p2)
+0 =   (a(v1z - v3z) + b(v3z - v2z) + (p1z - p2z)) * (ab*(v1x - v2x) + a(p3x - p2x) + b(p1x - p3x))
+    + (a(v1x - v3x) + b(v3x - v2x) + (p1x - p2x)) * (ab*(v2z - v1z) + a(p2z - p3z) + b(p3z - p1z))
 
 0 =
-    + (abbv1v2 - abbv2v2 + bbv2p1 - bbv2p3)
-    - (abbv1v3 - abbv2v3 + bbv3p1 - bbv3p3)
-    + (bbv3p1 - bbv2p1 - bbv3p3 + bbv2p3)
-
-    + (abv1 - abv2)*(bv3 - bv2)
-    + (abv1 - abv2)*(av1 - av3 + p1 - p2)
-    + (abv2p3 - abv2p2)
-    - (abv3p3 - abv3p2)
-    + (aabv1v3 - aabv2v3 + abv3p1 - abv3p3)
-    - (aabv1v1 - aabv1v2 + abv1p1 - abv1p3)
-    + (abv1p2 - abv2p2 + bp1p2 - bp2p3)
-    - (abv1p1 - abv2p1 + bp1p1 - bp1p3)
-    + (abv1p1 - abv3p1 + bp1p1 - bp1p2 - abv1p3 + abv3p3 - bp1p3 + bp2p3)
-    + (abv3p3 - abv2p3 - abv3p2 + abv2p2)
-
-    + (aav3p3 - aav3p2)
-    - (aav1p3 - aav1p2)
-    + (ap2p3 - ap2p2)
-    - (ap1p3 - ap1p2)
-    + (aav1p3 - aav3p3 + ap1p3 - ap2p3 - aav1p2 + aav3p2 - ap1p2 + ap2p2)
+    + a(v1z - v3z) * (ab*(v1x - v2x) + a(p3x - p2x) + b(p1x - p3x))
+    + b(v3z - v2z) * (ab*(v1x - v2x) + a(p3x - p2x) + b(p1x - p3x))
+    + (p1z - p2z)  * (ab*(v1x - v2x) + a(p3x - p2x) + b(p1x - p3x))
+    + a(v1x - v3x) * (ab*(v2z - v1z) + a(p2z - p3z) + b(p3z - p1z))
+    + b(v3x - v2x) * (ab*(v2z - v1z) + a(p2z - p3z) + b(p3z - p1z))
+    + (p1x - p2x)  * (ab*(v2z - v1z) + a(p2z - p3z) + b(p3z - p1z))
 
 0 =
-    + (abbv1v2 - abbv2v2 + bbv2p1 - bbv2p3)
-    + (- abbv1v3 + abbv2v3 - bbv3p1 + bbv3p3)
-    + (bbv3p1 - bbv2p1 - bbv3p3 + bbv2p3)
-    + (abv1 - abv2)*(bv3 - bv2)
-
-    + (abv1 - abv2)*(av1 - av3 + p1 - p2)
-    + (abv2p3 - abv2p2)
-    + (- abv3p3 + abv3p2)
-    + (aabv1v3 - aabv2v3 + abv3p1 - abv3p3)
-    + (- aabv1v1 + aabv1v2 - abv1p1 + abv1p3)
-    + (abv1p2 - abv2p2 + bp1p2 - bp2p3)
-    + (- abv1p1 + abv2p1 - bp1p1 + bp1p3)
-    + (abv1p1 - abv3p1 + bp1p1 - bp1p2 - abv1p3 + abv3p3 - bp1p3 + bp2p3)
-    + (abv3p3 - abv2p3 - abv3p2 + abv2p2)
-
-    + (aav3p3 - aav3p2)
-    + (- aav1p3 + aav1p2)
-    + (ap2p3 - ap2p2)
-    + (- ap1p3 + ap1p2)
-    + (aav1p3 - aav3p3 + ap1p3 - ap2p3 - aav1p2 + aav3p2 - ap1p2 + ap2p2)
+    + av1z * (ab*(v1x - v2x) + a(p3x - p2x) + b(p1x - p3x))
+    - av3z * (ab*(v1x - v2x) + a(p3x - p2x) + b(p1x - p3x))
+    + bv3z * (ab*(v1x - v2x) + a(p3x - p2x) + b(p1x - p3x))
+    - bv2z * (ab*(v1x - v2x) + a(p3x - p2x) + b(p1x - p3x))
+    + p1z  * (ab*(v1x - v2x) + a(p3x - p2x) + b(p1x - p3x))
+    - p2z  * (ab*(v1x - v2x) + a(p3x - p2x) + b(p1x - p3x))
+    + av1x * (ab*(v2z - v1z) + a(p2z - p3z) + b(p3z - p1z))
+    - av3x * (ab*(v2z - v1z) + a(p2z - p3z) + b(p3z - p1z))
+    + bv3x * (ab*(v2z - v1z) + a(p2z - p3z) + b(p3z - p1z))
+    - bv2x * (ab*(v2z - v1z) + a(p2z - p3z) + b(p3z - p1z))
+    + p1x  * (ab*(v2z - v1z) + a(p2z - p3z) + b(p3z - p1z))
+    - p2x  * (ab*(v2z - v1z) + a(p2z - p3z) + b(p3z - p1z))
 
 0 =
-    + bb(av1v2 - av2v2 + v2p1 - v2p3- av1v3 + av2v3 - v3p1 + v3p3 + v3p1 - v2p1 - v3p3 + v2p3 + av1v3 - av1v2 - av2v3 + av2v2)
+    + av1z * (ab*(v1x - v2x) + a(p3x - p2x) + b(p1x - p3x))
+    + av3z * (ab*(v2x - v1x) + a(p2x - p3x) + b(p3x - p1x))
+    + bv3z * (ab*(v1x - v2x) + a(p3x - p2x) + b(p1x - p3x))
+    + bv2z * (ab*(v2x - v1x) + a(p2x - p3x) + b(p3x - p1x))
+    + p1z  * (ab*(v1x - v2x) + a(p3x - p2x) + b(p1x - p3x))
+    + p2z  * (ab*(v2x - v1x) + a(p2x - p3x) + b(p3x - p1x))
+    + av1x * (ab*(v2z - v1z) + a(p2z - p3z) + b(p3z - p1z))
+    + av3x * (ab*(v1z - v2z) + a(p3z - p2z) + b(p1z - p3z))
+    + bv3x * (ab*(v2z - v1z) + a(p2z - p3z) + b(p3z - p1z))
+    + bv2x * (ab*(v1z - v2z) + a(p3z - p2z) + b(p1z - p3z))
+    + p1x  * (ab*(v2z - v1z) + a(p2z - p3z) + b(p3z - p1z))
+    + p2x  * (ab*(v1z - v2z) + a(p3z - p2z) + b(p1z - p3z))
 
-    + b(aav1v1 - aav1v3 + av1p1 - av1p2 - aav1v2 + aav2v3 - av2p1 + av2p2)
-    + b(av2p3 - av2p2)
-    + b(- av3p3 + av3p2)
-    + b(aav1v3 - aav2v3 + av3p1 - av3p3)
-    + b(- aav1v1 + aav1v2 - av1p1 + av1p3)
-    + b(av1p2 - av2p2 + p1p2 - p2p3)
-    + b(- av1p1 + av2p1 - p1p1 + p1p3)
-    + b(av1p1 - av3p1 + p1p1 - p1p2 - av1p3 + av3p3 - p1p3 + p2p3)
-    + b(av3p3 - av2p3 - av3p2 + av2p2)
+0 =
+    + av1z * (ab*(v1x - v2x) + b(p1x - p3x))
+    + av1z * (a(p3x - p2x))
+    + av3z * (ab*(v2x - v1x) + b(p3x - p1x))
+    + av3z * (a(p2x - p3x))
+    + bv3z * (ab*(v1x - v2x) + b(p1x - p3x))
+    + bv3z * (a(p3x - p2x))
+    + bv2z * (ab*(v2x - v1x) + b(p3x - p1x))
+    + bv2z * (a(p2x - p3x))
+    + p1z  * (ab*(v1x - v2x) + b(p1x - p3x))
+    + p1z  * (a(p3x - p2x))
+    + p2z  * (ab*(v2x - v1x) + b(p3x - p1x))
+    + p2z  * (a(p2x - p3x))
+    + av1x * (ab*(v2z - v1z) + b(p3z - p1z))
+    + av1x * (a(p2z - p3z))
+    + av3x * (ab*(v1z - v2z) + b(p1z - p3z))
+    + av3x * (a(p3z - p2z))
+    + bv3x * (ab*(v2z - v1z) + b(p3z - p1z))
+    + bv3x * (a(p2z - p3z))
+    + bv2x * (ab*(v1z - v2z) + b(p1z - p3z))
+    + bv2x * (a(p3z - p2z))
+    + p1x  * (ab*(v2z - v1z) + b(p3z - p1z))
+    + p1x  * (a(p2z - p3z))
+    + p2x  * (ab*(v1z - v2z) + b(p1z - p3z))
+    + p2x  * (a(p3z - p2z))
 
-    + (aav3p3 - aav3p2)
-    + (- aav1p3 + aav1p2)
-    + (ap2p3 - ap2p2)
-    + (- ap1p3 + ap1p2)
-    + (aav1p3 - aav3p3 + ap1p3 - ap2p3 - aav1p2 + aav3p2 - ap1p2 + ap2p2)
+0 =
+    + bv3z * (ab*(v1x - v2x) + b(p1x - p3x))
+    + bv2z * (ab*(v2x - v1x) + b(p3x - p1x))
+    + bv3x * (ab*(v2z - v1z) + b(p3z - p1z))
+    + bv2x * (ab*(v1z - v2z) + b(p1z - p3z))
 
-// need  OMG need #4 apply 7 and #5 apply7
-// everything since #6 apply #7 is useless
+    + av1z * (ab*(v1x - v2x) + b(p1x - p3x))
+    + av3z * (ab*(v2x - v1x) + b(p3x - p1x))
+    + p1z  * (ab*(v1x - v2x) + b(p1x - p3x))
+    + p2z  * (ab*(v2x - v1x) + b(p3x - p1x))
+    + av1x * (ab*(v2z - v1z) + b(p3z - p1z))
+    + av3x * (ab*(v1z - v2z) + b(p1z - p3z))
+    + p1x  * (ab*(v2z - v1z) + b(p3z - p1z))
+    + p2x  * (ab*(v1z - v2z) + b(p1z - p3z))
+    + bv3z * (a(p3x - p2x))
+    + bv2z * (a(p2x - p3x))
+    + bv3x * (a(p2z - p3z))
+    + bv2x * (a(p3z - p2z))
+
+    + av1z * (a(p3x - p2x))
+    + av3z * (a(p2x - p3x))
+    + p1z  * (a(p3x - p2x))
+    + p2z  * (a(p2x - p3x))
+    + av1x * (a(p2z - p3z))
+    + av3x * (a(p3z - p2z))
+    + p1x  * (a(p2z - p3z))
+    + p2x  * (a(p3z - p2z))
+
+0 =
+    + bv3z * (ab*(v1x - v2x) + b(p1x - p3x))
+    + bv2z * (ab*(v2x - v1x) + b(p3x - p1x))
+    + bv3x * (ab*(v2z - v1z) + b(p3z - p1z))
+    + bv2x * (ab*(v1z - v2z) + b(p1z - p3z))
+
+    + av1z * (ab*(v1x - v2x) + b(p1x - p3x))
+    + av3z * (ab*(v2x - v1x) + b(p3x - p1x))
+    + p1z  * (ab*(v1x - v2x) + b(p1x - p3x))
+    + p2z  * (ab*(v2x - v1x) + b(p3x - p1x))
+    + av1x * (ab*(v2z - v1z) + b(p3z - p1z))
+    + av3x * (ab*(v1z - v2z) + b(p1z - p3z))
+    + p1x  * (ab*(v2z - v1z) + b(p3z - p1z))
+    + p2x  * (ab*(v1z - v2z) + b(p1z - p3z))
+    + bv3z * (a(p3x - p2x))
+    + bv2z * (a(p2x - p3x))
+    + bv3x * (a(p2z - p3z))
+    + bv2x * (a(p3z - p2z))
+
+    + av1z * (a(p3x - p2x))
+    + av3z * (a(p2x - p3x))
+    + p1z  * (a(p3x - p2x))
+    + p2z  * (a(p2x - p3x))
+    + av1x * (a(p2z - p3z))
+    + av3x * (a(p3z - p2z))
+    + p1x  * (a(p2z - p3z))
+    + p2x  * (a(p3z - p2z))
+
+0 =
+    + bb * v3z * (a*(v1x - v2x) + (p1x - p3x))
+    + bb * v2z * (a*(v2x - v1x) + (p3x - p1x))
+    + bb * v3x * (a*(v2z - v1z) + (p3z - p1z))
+    + bb * v2x * (a*(v1z - v2z) + (p1z - p3z))
+
+    + b * av1z * (a*(v1x - v2x) + (p1x - p3x))
+    + b * av3z * (a*(v2x - v1x) + (p3x - p1x))
+    + b * p1z  * (a*(v1x - v2x) + (p1x - p3x))
+    + b * p2z  * (a*(v2x - v1x) + (p3x - p1x))
+    + b * av1x * (a*(v2z - v1z) + (p3z - p1z))
+    + b * av3x * (a*(v1z - v2z) + (p1z - p3z))
+    + b * p1x  * (a*(v2z - v1z) + (p3z - p1z))
+    + b * p2x  * (a*(v1z - v2z) + (p1z - p3z))
+    + b * v3z * (a(p3x - p2x))
+    + b * v2z * (a(p2x - p3x))
+    + b * v3x * (a(p2z - p3z))
+    + b * v2x * (a(p3z - p2z))
+
+    + av1z * (a(p3x - p2x))
+    + av3z * (a(p2x - p3x))
+    + p1z  * (a(p3x - p2x))
+    + p2z  * (a(p2x - p3x))
+    + av1x * (a(p2z - p3z))
+    + av3x * (a(p3z - p2z))
+    + p1x  * (a(p2z - p3z))
+    + p2x  * (a(p3z - p2z))
+
+0 =
+    + bb * (av1xv3z - av2xv3z + v3zp1x - v3zp3x)
+    + bb * (- av1xv2z + v2zp3x - v2zp1x)
+    + bb * (av2zv3x - av1zv3x + v3xp3z - v3xp1z)
+    + bb * (av1zv2x + v2xp1z - v2xp3z)
+
+    + b * (- aav1zv2x - av1zp3x)
+    + b * (aav2xv3z - aav1xv3z + av3zp3x - av3zp1x)
+    + b * (- av2xp1z - p1zp3x)
+    + b * (av2xp2z - av1xp2z + p2zp3x - p1xp2z)
+    + b * (aav1xv2z + av1xp3z)
+    + b * (aav1zv3x - aav2zv3x + av3xp1z)
+    + b * (av2zp1x + p1xp3z)
+    + b * (av1zp2x + p1zp2x - p2xp3z)
+    + b * (av3zp3x - av3zp2x)
+    + b * (- av2zp3x)
+    + b * (av3xp2z)
+    + b * (av2xp3z - apv2x2z)
+
+    + av1zap3x - av1zap2x
+    + av3zap2x - av3zap3x
+    + ap1zp3x - ap1zp2x
+    - ap2zp3x
+    + aav1xp2z - aav1xp3z
+    + aav3xp3z - aav3xp2z
+    + ap1xp2z - ap1xp3z
+    + ap2xp3z   #13
+
+extract b from #12 -> #14
+(= same equation as #13, replace x with y) #14
+
+0 =
+    + bb * (av1yv3z - av2yv3z + v3zp1y - v3zp3y)
+    + bb * (- av1yv2z + v2zp3y - v2zp1y)
+    + bb * (av2zv3y - av1zv3y + v3yp3z - v3yp1z)
+    + bb * (av1zv2y + v2yp1z - v2yp3z)
+
+    + b * (- aav1zv2y - av1zp3y)
+    + b * (aav2yv3z - aav1yv3z + av3zp3y - av3zp1y)
+    + b * (- av2yp1z - p1zp3y)
+    + b * (av2yp2z - av1yp2z + p2zp3y - p1yp2z)
+    + b * (aav1yv2z + av1yp3z)
+    + b * (aav1zv3y - aav2zv3y + av3yp1z)
+    + b * (av2zp1y + p1yp3z)
+    + b * (av1zp2y + p1zp2y - p2yp3z)
+    + b * (av3zp3y - av3zp2y)
+    + b * (- av2zp3y)
+    + b * (av3yp2z)
+    + b * (av2yp3z - apv2y2z)
+
+    + av1zap3y - av1zap2y
+    + av3zap2y - av3zap3y
+    + ap1zp3y - ap1zp2y
+    - ap2zp3y
+    + aav1yp2z - aav1yp3z
+    + aav3yp3z - aav3yp2z
+    + ap1yp2z - ap1yp3z
+    + ap2yp3z   #14
+
+TODO solve #13 and #14 for a, b
 */

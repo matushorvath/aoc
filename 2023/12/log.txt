@@ -1,0 +1,1117 @@
+ horvathm  ~  cd aoc/src/2023/12
+ horvathm   main ● 1 … 1  …  src  2023  12  node bprep.mjs
+total, removed 54 8
+opts 58564
+total, removed 54 36
+opts 512
+total, removed 54 14
+opts 55301
+total, removed 54 4
+opts 9964
+total, removed 39 20
+opts 768
+total, removed 59 4
+opts 10403882
+total, removed 49 11
+opts 3384
+total, removed 59 41
+opts 162
+total, removed 39 1
+opts 27180
+total, removed 84 36
+opts 9944
+total, removed 59 39
+opts 243
+total, removed 24 24
+opts 1
+total, removed 59 25
+opts 98644
+total, removed 39 4
+opts 8896
+total, removed 79 6
+opts 13570803
+total, removed 39 39
+opts 1
+total, removed 39 0
+opts 6219387
+total, removed 49 15
+opts 10804674
+total, removed 59 8
+opts 12324
+total, removed 49 16
+opts 32805
+total, removed 69 2
+opts 45903399
+total, removed 54 16
+opts 24576
+total, removed 49 49
+opts 1
+total, removed 54 0
+opts 9423396
+total, removed 49 39
+opts 32
+total, removed 64 54
+opts 32
+total, removed 69 51
+opts 512
+total, removed 89 26
+opts 105543
+total, removed 79 31
+opts 6480
+total, removed 59 20
+opts 2917215
+total, removed 44 2
+opts 80299
+total, removed 79 2
+
+
+opts 5222243459
+total, removed 69 69
+opts 1
+total, removed 44 19
+opts 1736
+total, removed 59 59
+opts 1
+total, removed 39 3
+opts 9469
+total, removed 84 38
+opts 1586
+total, removed 39 3
+opts 8960
+total, removed 44 0
+opts 1472985
+total, removed 59 39
+opts 243
+total, removed 39 19
+opts 1024
+total, removed 39 12
+opts 126
+total, removed 39 39
+opts 1
+total, removed 64 21
+opts 839808
+total, removed 49 0
+opts 2562250
+total, removed 49 39
+opts 32
+total, removed 64 30
+opts 1250
+total, removed 84 64
+opts 243
+total, removed 59 5
+opts 81260
+total, removed 59 1
+opts 467552
+total, removed 49 0
+opts 533360
+total, removed 64 44
+opts 3125
+total, removed 54 2
+opts 751680
+total, removed 74 32
+opts 230496
+total, removed 59 2
+opts 4525056
+total, removed 69 1
+opts 24240328
+total, removed 64 2
+opts 302653605
+total, removed 64 10
+opts 66560000
+total, removed 39 29
+opts 32
+total, removed 44 26
+opts 162
+total, removed 44 32
+opts 81
+total, removed 44 34
+opts 32
+total, removed 69 10
+opts 76800000
+total, removed 44 24
+opts 243
+total, removed 34 10
+opts 5184
+total, removed 59 31
+opts 9604
+total, removed 74 32
+opts 124416
+total, removed 34 34
+opts 1
+total, removed 54 26
+opts 3888
+total, removed 64 32
+opts 9604
+total, removed 49 19
+opts 2960
+total, removed 64 8
+opts 128744
+total, removed 44 34
+opts 32
+total, removed 44 16
+opts 768
+total, removed 24 24
+opts 1
+total, removed 69 3
+opts 9967023
+total, removed 39 29
+opts 32
+total, removed 39 2
+opts 962538
+total, removed 49 23
+opts 512
+total, removed 74 54
+opts 243
+total, removed 69 59
+opts 32
+total, removed 74 2
+opts 132950112
+total, removed 34 16
+opts 162
+total, removed 74 32
+opts 60000
+total, removed 39 17
+opts 512
+total, removed 49 0
+opts 26709420
+total, removed 69 5
+opts 354568
+total, removed 74 3
+
+
+
+
+opts 449202640
+total, removed 64 36
+opts 768
+total, removed 64 3
+opts 101571560
+total, removed 74 0
+opts 172535818
+total, removed 64 3
+opts 8454489
+total, removed 64 0
+opts 764128445
+total, removed 54 1
+opts 974390375
+total, removed 49 0
+opts 16476673
+total, removed 64 3
+opts 1184028
+total, removed 49 1
+opts 803308
+total, removed 59 3
+opts 98352
+total, removed 44 0
+opts 436640
+total, removed 54 0
+opts 1006044
+total, removed 69 6
+opts 167003790
+total, removed 74 74
+opts 1
+total, removed 39 11
+opts 768
+total, removed 69 59
+opts 32
+total, removed 74 54
+opts 243
+total, removed 64 18
+opts 5184
+total, removed 54 36
+opts 512
+total, removed 74 36
+opts 60000
+total, removed 49 0
+opts 7324219
+total, removed 49 39
+opts 32
+total, removed 64 36
+opts 5184
+total, removed 59 4
+opts 31562
+total, removed 59 25
+opts 8192
+total, removed 44 0
+opts 746892
+total, removed 49 0
+opts 53843600
+total, removed 69 43
+opts 512
+total, removed 49 13
+opts 23080
+total, removed 44 29
+opts 243
+total, removed 44 36
+opts 16
+total, removed 29 5
+opts 232
+total, removed 74 64
+opts 32
+total, removed 39 0
+opts 724900
+total, removed 49 0
+opts 68571648
+total, removed 54 0
+opts 2888134
+total, removed 34 5
+opts 1684
+total, removed 39 29
+opts 32
+total, removed 79 33
+opts 199927
+total, removed 49 2
+opts 83056
+total, removed 39 29
+opts 32
+total, removed 44 18
+opts 512
+total, removed 69 1
+opts 1022501833
+total, removed 49 15
+opts 60000
+total, removed 39 9
+opts 4226292
+total, removed 44 16
+opts 5184
+total, removed 34 12
+opts 1250
+total, removed 44 34
+opts 32
+total, removed 24 0
+opts 1875
+total, removed 59 3
+opts 458752
+total, removed 34 5
+opts 124416
+total, removed 79 19
+opts 368248
+total, removed 34 1
+opts 178260
+total, removed 49 39
+opts 32
+total, removed 64 46
+opts 512
+total, removed 49 29
+opts 1024
+total, removed 69 69
+opts 1
+total, removed 49 15
+opts 98644
+total, removed 54 6
+opts 12268
+total, removed 49 1
+opts 67084
+total, removed 54 16
+opts 926
+total, removed 34 16
+opts 162
+total, removed 59 14
+opts 456656
+total, removed 64 19
+opts 1028
+total, removed 49 39
+opts 32
+total, removed 39 19
+opts 89
+total, removed 79 79
+opts 1
+total, removed 59 24
+opts 7776
+total, removed 49 1
+opts 51033318
+total, removed 49 1
+opts 49194640
+total, removed 69 39
+opts 3125
+total, removed 69 31
+opts 39366
+total, removed 74 46
+opts 1875
+total, removed 39 29
+opts 32
+total, removed 59 49
+opts 32
+total, removed 64 64
+opts 1
+total, removed 54 26
+opts 2401
+total, removed 39 15
+opts 24294
+total, removed 34 5
+opts 882
+total, removed 39 31
+opts 16
+total, removed 54 44
+opts 32
+total, removed 79 39
+opts 768
+total, removed 39 29
+opts 32
+total, removed 44 19
+opts 1124
+total, removed 44 1
+opts 164293
+total, removed 39 2
+opts 355455
+total, removed 69 1
+opts 1712124
+total, removed 39 31
+opts 16
+total, removed 84 5
+opts 765954280
+total, removed 49 10
+opts 74271632
+total, removed 24 24
+opts 1
+total, removed 69 59
+opts 32
+total, removed 84 10
+opts 3992602
+total, removed 79 46
+opts 60000
+total, removed 44 8
+opts 7582
+total, removed 44 4
+opts 153920
+total, removed 54 26
+opts 768
+total, removed 54 54
+opts 1
+total, removed 49 39
+opts 32
+total, removed 39 0
+opts 50607936
+total, removed 44 34
+opts 32
+total, removed 59 7
+opts 2247812
+total, removed 59 9
+opts 138672
+total, removed 59 0
+opts 649881814
+total, removed 69 61
+opts 16
+total, removed 34 6
+opts 768
+total, removed 64 32
+opts 1296
+total, removed 69 49
+opts 81
+total, removed 69 45
+opts 5184
+total, removed 64 4
+opts 1146331
+total, removed 34 2
+opts 15665
+total, removed 54 15
+opts 228488
+total, removed 64 32
+opts 5184
+total, removed 64 1
+opts 7373736
+total, removed 44 8
+opts 125632
+total, removed 69 4
+opts 3773164
+total, removed 49 13
+opts 9398
+total, removed 54 12
+opts 60000
+total, removed 39 0
+opts 173257860
+total, removed 49 21
+opts 16384
+total, removed 49 1
+opts 1571833
+total, removed 59 2
+opts 94612
+total, removed 74 18
+opts 105415
+total, removed 69 1
+opts 36366086
+total, removed 44 2
+opts 2217179
+total, removed 34 6
+opts 5184
+total, removed 34 16
+opts 512
+total, removed 34 16
+opts 512
+total, removed 64 6
+opts 1671813
+total, removed 54 2
+opts 2968185
+total, removed 49 5
+opts 1009827
+total, removed 44 0
+opts 346631272
+total, removed 64 37
+opts 768
+total, removed 64 10
+opts 19782
+total, removed 54 34
+opts 243
+total, removed 49 19
+opts 32768
+total, removed 54 54
+opts 1
+total, removed 64 34
+opts 1024
+total, removed 74 54
+opts 1024
+total, removed 74 36
+opts 39366
+total, removed 59 13
+opts 18966
+total, removed 79 19
+opts 972405
+total, removed 74 44
+opts 1024
+total, removed 59 36
+opts 7203
+total, removed 44 14
+opts 3125
+total, removed 69 39
+opts 1024
+total, removed 54 10
+opts 23068672
+total, removed 49 0
+opts 31680
+total, removed 84 41
+opts 384160
+total, removed 64 44
+opts 243
+total, removed 74 54
+opts 1024
+total, removed 44 24
+opts 1024
+total, removed 74 46
+opts 5184
+total, removed 39 3
+opts 43923
+total, removed 64 44
+opts 243
+total, removed 29 29
+opts 1
+total, removed 49 0
+opts 42729923
+total, removed 49 31
+opts 512
+total, removed 49 19
+opts 362
+total, removed 14 14
+opts 1
+total, removed 49 49
+opts 1
+total, removed 59 13
+opts 578304
+total, removed 69 25
+opts 11190
+total, removed 54 5
+opts 218528
+total, removed 34 2
+opts 7810
+total, removed 69 25
+opts 3003
+total, removed 74 24
+opts 153664
+total, removed 49 33
+opts 81
+total, removed 44 36
+opts 16
+total, removed 59 49
+opts 32
+total, removed 44 34
+opts 32
+total, removed 59 7
+opts 689391
+total, removed 59 13
+opts 39320
+total, removed 34 16
+opts 162
+total, removed 49 21
+opts 2500
+total, removed 59 19
+opts 3125
+total, removed 74 12
+opts 496152
+total, removed 59 0
+
+
+opts 58400204713
+total, removed 84 6
+opts 14583630
+total, removed 69 1
+opts 143144461
+total, removed 59 49
+opts 32
+total, removed 54 36
+opts 162
+total, removed 59 39
+opts 243
+total, removed 54 44
+opts 32
+total, removed 34 19
+opts 1683
+total, removed 84 8
+opts 34827258
+total, removed 44 36
+opts 16
+total, removed 49 13
+opts 9604
+total, removed 59 34
+opts 241
+total, removed 44 34
+opts 32
+total, removed 39 7
+opts 843
+total, removed 59 43
+opts 81
+total, removed 69 59
+opts 32
+total, removed 84 5
+opts 3777264
+total, removed 44 26
+opts 512
+total, removed 84 74
+opts 32
+total, removed 44 44
+opts 1
+total, removed 49 19
+opts 7776
+total, removed 49 17
+opts 14641
+total, removed 49 2
+opts 7981100
+total, removed 79 2
+opts 18947878
+total, removed 44 12
+opts 3888
+total, removed 59 31
+opts 768
+total, removed 49 8
+opts 107840
+total, removed 59 44
+opts 243
+total, removed 49 13
+opts 19683
+total, removed 64 2
+opts 268926
+total, removed 74 29
+opts 100000
+total, removed 34 0
+opts 210007
+total, removed 84 20
+opts 163359
+total, removed 69 16
+opts 1928975
+total, removed 49 11
+opts 182986
+total, removed 34 6
+opts 1084
+total, removed 69 1
+opts 83656
+total, removed 59 2
+opts 14680701
+total, removed 74 0
+
+
+
+
+
+
+
+
+
+^Z
+[1]+  Stopped                 node bprep.mjs
+ horvathm   main  …  src  2023  12  1  SIGTSTP  fg
+node bprep.mjs
+opts 188708008694
+total, removed 44 0
+opts 33223051
+total, removed 59 44
+opts 243
+total, removed 44 10
+opts 2601
+total, removed 69 14
+opts 111174
+total, removed 39 31
+opts 16
+total, removed 79 15
+opts 59452
+total, removed 69 2
+opts 613608160
+total, removed 74 2
+opts 4866484501
+total, removed 54 26
+opts 5184
+total, removed 69 69
+opts 1
+total, removed 59 31
+opts 768
+total, removed 64 49
+opts 243
+total, removed 74 5
+
+
+
+
+
+opts 19121009776
+total, removed 44 30
+opts 162
+total, removed 39 4
+opts 683
+total, removed 54 4
+opts 397312
+total, removed 64 37
+opts 1875
+total, removed 64 36
+opts 5184
+total, removed 49 41
+opts 16
+total, removed 39 1
+opts 147396
+total, removed 64 36
+opts 768
+total, removed 59 49
+opts 32
+total, removed 74 5
+opts 14003630
+total, removed 54 44
+opts 32
+total, removed 44 28
+opts 81
+total, removed 39 39
+opts 1
+total, removed 54 34
+opts 243
+total, removed 59 39
+opts 243
+total, removed 54 26
+opts 5184
+total, removed 39 39
+opts 1
+total, removed 44 24
+opts 1024
+total, removed 74 24
+opts 172694
+total, removed 59 31
+opts 1476
+total, removed 54 19
+opts 4913
+total, removed 59 0
+opts 192382159
+total, removed 39 31
+opts 16
+total, removed 49 11
+opts 124416
+total, removed 59 17
+opts 60000
+total, removed 49 0
+opts 169566
+total, removed 59 9
+opts 1443663
+total, removed 54 38
+opts 81
+total, removed 74 46
+opts 768
+total, removed 89 2
+opts 768462722
+total, removed 59 41
+opts 512
+total, removed 69 0
+opts 91958597
+total, removed 49 21
+opts 5184
+total, removed 59 8
+opts 675392
+total, removed 54 32
+opts 987
+total, removed 59 11
+opts 192080
+total, removed 54 54
+opts 1
+total, removed 74 6
+opts 5521614
+total, removed 59 16
+opts 20472
+total, removed 39 5
+opts 98644
+total, removed 69 1
+opts 91920768
+total, removed 69 45
+opts 81
+total, removed 44 10
+opts 39366
+total, removed 24 24
+opts 1
+total, removed 44 16
+opts 1875
+total, removed 59 9
+opts 25713422
+total, removed 59 29
+opts 1024
+total, removed 69 7
+opts 235963
+total, removed 49 9
+opts 417064439
+total, removed 29 19
+opts 32
+total, removed 49 49
+opts 1
+total, removed 49 5
+opts 392544629
+total, removed 54 54
+opts 1
+total, removed 69 29
+opts 248832
+total, removed 79 13
+opts 64514183
+total, removed 64 34
+opts 1024
+total, removed 54 24
+opts 7776
+total, removed 64 5
+opts 4567752
+total, removed 54 0
+opts 682515744
+total, removed 49 49
+opts 1
+total, removed 44 18
+opts 512
+total, removed 59 21
+opts 1600000
+total, removed 54 36
+opts 162
+total, removed 59 19
+opts 59049
+total, removed 34 34
+opts 1
+total, removed 49 1
+opts 8442
+total, removed 44 8
+opts 7356
+total, removed 49 29
+opts 1024
+total, removed 74 14
+opts 150681
+total, removed 69 59
+opts 32
+total, removed 74 36
+opts 2500
+total, removed 89 18
+opts 1259712
+total, removed 59 19
+opts 100000
+total, removed 49 39
+opts 32
+total, removed 64 22
+opts 524288
+total, removed 79 24
+opts 2333772
+total, removed 64 7
+opts 50460380
+total, removed 44 44
+opts 1
+total, removed 64 22
+opts 9803232
+total, removed 64 30
+opts 11572
+total, removed 24 24
+opts 1
+total, removed 44 1
+opts 29282
+total, removed 49 0
+opts 14734409594
+total, removed 34 24
+opts 32
+total, removed 64 6
+opts 99552
+total, removed 34 14
+opts 243
+total, removed 49 13
+opts 3363
+total, removed 44 1
+opts 381256
+total, removed 54 36
+opts 162
+total, removed 49 21
+opts 2500
+total, removed 49 39
+opts 32
+total, removed 79 30
+opts 2139291
+total, removed 64 12
+opts 354375
+total, removed 64 15
+opts 883324
+total, removed 79 39
+opts 202500
+total, removed 64 21
+opts 12150000
+total, removed 74 12
+opts 503889
+total, removed 69 8
+opts 763
+total, removed 69 3
+opts 14147695
+total, removed 49 23
+opts 512
+total, removed 49 13
+opts 16384
+total, removed 49 39
+opts 32
+total, removed 34 0
+opts 1216666
+total, removed 64 21
+opts 944784
+total, removed 84 46
+opts 2500
+total, removed 54 34
+opts 243
+total, removed 44 18
+opts 2592
+total, removed 54 16
+opts 39366
+total, removed 69 12
+opts 55807
+total, removed 39 29
+opts 32
+total, removed 34 14
+opts 1024
+total, removed 39 11
+opts 9604
+total, removed 39 29
+opts 32
+total, removed 54 2
+opts 87271382
+total, removed 74 2
+opts 61439417
+total, removed 24 14
+opts 32
+total, removed 79 41
+opts 40000
+total, removed 24 0
+opts 236640
+total, removed 54 11
+opts 199072
+total, removed 44 34
+opts 32
+total, removed 64 5
+opts 996704
+total, removed 64 64
+opts 1
+total, removed 64 38
+opts 2592
+total, removed 34 2
+opts 19683
+total, removed 44 3
+opts 44136
+total, removed 44 44
+opts 1
+total, removed 54 44
+opts 32
+total, removed 69 15
+opts 28511875
+total, removed 59 41
+opts 512
+total, removed 54 30
+opts 2500
+total, removed 69 20
+opts 31916048
+total, removed 54 11
+opts 2698329
+total, removed 39 29
+opts 32
+total, removed 49 0
+
+
+
+
+
+
+
+
+
+opts 7851859056
+total, removed 74 9
+opts 14898740
+total, removed 59 59
+opts 1
+total, removed 64 48
+opts 81
+total, removed 44 8
+opts 21941
+total, removed 84 18
+opts 257049
+total, removed 49 2
+opts 1475148
+total, removed 39 0
+opts 550704
+total, removed 44 34
+opts 32
+total, removed 59 0
+opts 12079712
+total, removed 64 30
+opts 24576
+total, removed 54 44
+opts 32
+total, removed 74 66
+opts 16
+total, removed 49 6
+opts 461412
+total, removed 54 36
+opts 162
+total, removed 54 5
+opts 12168406
+total, removed 64 64
+opts 1
+total, removed 64 56
+opts 16
+total, removed 39 29
+opts 32
+total, removed 64 34
+opts 1024
+total, removed 69 69
+opts 1
+total, removed 79 7
+opts 2855805
+total, removed 64 34
+opts 7776
+total, removed 44 3
+opts 110832
+total, removed 49 31
+opts 512
+total, removed 29 29
+opts 1
+total, removed 74 64
+opts 32
+total, removed 69 3
+opts 190708
+total, removed 59 19
+opts 1048576
+total, removed 34 16
+opts 512
+total, removed 54 1
+opts 4958986
+total, removed 69 59
+opts 32
+total, removed 44 44
+opts 1
+total, removed 74 5
+
+
+
+opts 3216898941
+total, removed 49 4
+opts 133233
+total, removed 84 3
+opts 203974368
+total, removed 54 2
+opts 1002252
+total, removed 64 11
+opts 7971615
+total, removed 64 46
+opts 162
+total, removed 59 39
+opts 2500
+total, removed 44 6
+opts 83241
+total, removed 64 16
+opts 33297
+total, removed 44 44
+opts 1
+total, removed 59 3
+opts 172849
+total, removed 34 34
+opts 1
+total, removed 64 46
+opts 512
+total, removed 49 0
+opts 7792724080
+total, removed 59 9
+opts 161051
+total, removed 49 6
+opts 4540
+total, removed 79 1
+opts 34818899
+total, removed 59 21
+opts 3384
+total, removed 84 19
+opts 3200000
+total, removed 69 43
+opts 512
+total, removed 44 11
+opts 7588
+total, removed 59 41
+opts 162
+total, removed 54 54
+opts 1
+total, removed 64 19
+opts 501126
+total, removed 79 4
+opts 25399148
+total, removed 54 34
+opts 1024
+total, removed 39 1
+opts 115992
+total, removed 44 24
+opts 243
+total, removed 39 7
+opts 16384
+total, removed 79 23
+opts 158348
+total, removed 59 59
+opts 1
+total, removed 79 59
+opts 243
+total, removed 39 12
+opts 1227
+total, removed 54 12
+opts 986
+total, removed 49 41
+opts 16
+total, removed 64 15
+opts 5184
+total, removed 79 42
+opts 124416
+total, removed 59 44
+opts 243
+total, removed 59 20
+opts 42872
+total, removed 54 54
+opts 1
+total, removed 39 0
+opts 1760574
+total, removed 34 24
+opts 32
+total, removed 59 35
+opts 256
+total, removed 54 2
+opts 1454250
+total, removed 39 10
+opts 2895978
+total, removed 59 21
+opts 16384
+total, removed 49 39
+opts 32
+total, removed 44 34
+opts 32
+total, removed 54 0
+
+
+
+opts 111295740967
+total, removed 49 21
+opts 512
+total, removed 34 24
+opts 32
+total, removed 49 25
+opts 9604
+total, removed 74 1
+
+
+

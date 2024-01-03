@@ -1,77 +1,104 @@
 import fs from 'fs/promises';
 
-const input = await fs.readFile('example', 'utf8');
-//const input = await fs.readFile('input', 'utf8');
+//const input = await fs.readFile('example', 'utf8');
+//const input = await fs.readFile('exampleb2', 'utf8');
+const input = await fs.readFile('input', 'utf8');
 
 const data = input.trimEnd().split(/\r?\n/).map(r => r.split('').map(Number));
 
 //console.log(data);
 
-const borders = [{
+const init = {
     pos: { r: data.length - 1, c: data[0].length - 1 },
-    cost: 0
-}];
+    len: 10,
+    cost: 0,
+    path: []
+};
 
-const costs = new Array(data.length).fill().map(() => []);
+// Current cost if we are in position 'pos', with >= 'len' steps remaining in direction 'dir'
+const borders = [{...init, dir: { r: 1, c: 0 } }, {...init, dir: { r: 0, c: 1 } }, ];
 
-while (borders.length) {
+// Minimum costs for given [r][c][dirkey][len] (applies also for all unspecified longer lengths)
+const mkdirkey = dir => (dir.r + 1) * 10 + (dir.c + 1);
+const costs = new Array(data.length).fill().map(
+    () => new Array(data[0].length).fill().map(
+        () => ({})));
+
+let itr = 0;
+
+big_while: while (borders.length) {
     // Find minimum cost item
     borders.sort((a, b) => a.cost - b.cost);
-    const { pos, cost } = borders[0];
+    const { pos, dir, len, cost, path } = borders.shift();
 
-    // This is the final cost for this item
-    costs[pos.r, pos.c] = cost;
+    // Check if within bounds
+    if (pos.r < 0 || pos.r >= data.length || pos.c < 0 || pos.c >= data[0].length) {
+        continue;
+    }
+
+    // Check if we alredy have the minimum for this
+    const dirkey = mkdirkey(dir);
+    if (costs[pos.r][pos.c][dirkey] === undefined) costs[pos.r][pos.c][dirkey] = {};
+    const havelens = costs[pos.r][pos.c][dirkey];
+
+    for (const havelen in havelens) {
+        if (Number(havelen) <= len && havelens[havelen] <= cost) {
+            continue big_while;
+        }
+    }
+
+    // This is the final cost for this position and direction at >= this length
+    for (const havelen in havelens) {
+        if (Number(havelen) >= len && havelens[havelen] >= cost) {
+            delete havelens[havelen];
+        }
+    }
+    havelens[len] = cost;
+
+    if (itr++ % 1000 === 0) console.log(itr, borders.length);
 
     // Check if we found the start
     if (pos.r === 0 && pos.c === 0) {
+        // TODO probably not break, only break if we have found start with length 10
+        // TODO otherwise it's possible to find a less restricted state with better cost
+        console.log('cost for start', cost, path);
         break;
     }
 
     // Expand the borders
-    // TODO somehow handle the >=4 <= 10
 
+    // Same direction, if it does not require len more than 10
+    if (len < 10) {
+        borders.push({
+            pos: { r: pos.r - dir.r, c: pos.c - dir.c },
+            dir,
+            len: len + 1,
+            cost: cost + data[pos.r][pos.c],
+            path: [...path, pos]
+        });
+    }
 
+    // Change direction, move by 4
+    const addItem4 = (ndir) => {
+        const item = {
+            pos: { r: pos.r - ndir.r * 4, c: pos.c - ndir.c * 4},
+            dir: ndir,
+            len: 4,
+            cost: cost,
+            path: [...path, pos]
+        }
 
-    // // Check if within bounds
-    // if (cpos.r < 0 || cpos.r >= data.length || cpos.c < 0 || cpos.c >= data[0].length) {
-    //     continue;
-    // }
+        for (let i = 0; i < 4; i++) {
+            item.cost += data[pos.r - ndir.r * i]?.[pos.c - ndir.c * i];
+        }
 
-    // // Direction backwards
-    // const dir = { r: cpos.r - ppos.r, c: cpos.c - ppos.c };
-    // const dist = Math.abs(Math.max(dir.r, dir.c));
-    // dir.r /= Math.abs(dir.r); dir.c /= Math.abs(dir.c);
+        if (!isNaN(item.cost)) {
+            borders.push(item);
+        }
+    };
 
-    // // Calculate cost
-    // const pkey = mkkey(dir.r, dir.c, len - dist);
-    // let cost = costs[ppos.r][ppos.c][key];
-    // if (dir.r) for (let r = ppos.r; r !== cpos.r; r += dir.r) cost += data[r][c];
-    // else for (let c = ppos.c; c !== cpos.c; c += dir.c) cost += data[r][c];
-
-    // // Check if costs lower, store if yes
-    // const ckey = mkkey(dir.r, dir.c, len);
-    // if (costs[cpos.r][cpos.c][key]
-
-    // // Change direction, move by 4
-    // q.push({
-    //     cpos: { r: cpos.r + dir.c * 4, c: cpos.c - dir.r * 4 },
-    //     ppos: cpos,
-    //     len: 4
-    // });
-    // q.push({
-    //     cpos: { r: cpos.r - dir.c * 4, c: cpos.c + dir.r * 4 },
-    //     ppos: cpos,
-    //     len: 4
-    // });
-
-    // // Same direction, if less than 10 moved
-    // if (len < 10) {
-    //     q.push({
-    //         cpos: { r: cpos.r + dir.r, c: cpos.c + dir.c },
-    //         ppos: cpos,
-    //         len: len + 1
-    //     });
-    // }
+    addItem4({ r: dir.c, c: -dir.r });
+    addItem4({ r: -dir.c, c: dir.r });
 }
 
 // 1045 high

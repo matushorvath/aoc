@@ -1,14 +1,18 @@
 import fs from 'fs/promises';
 
 const input = await fs.readFile('example', 'utf8'); const steps = 5000;
+//const input = await fs.readFile('input', 'utf8'); const steps = 64;
 //const input = await fs.readFile('input', 'utf8'); const steps = 26501365;
 
 const data = input.trimEnd().split(/\r?\n/).map(r => r.split(''));
 
 //console.log(data);
+//console.log(data.length, data[0].length);
 
 let start;
-let dotcount = 0;
+let dotCount = 0;
+let oddDotCount = 0;
+let evenDotCount = 0;
 
 const rmx = data.length;
 const cmx = data[0].length
@@ -20,7 +24,12 @@ for (let r = 0; r < rmx; r++) {
             data[r][c] = '.';
         }
         if (data[r][c] === '.') {
-            dotcount++;
+            dotCount++;
+            if ((r + c) % 2 === 0) {
+                evenDotCount++;
+            } else {
+                oddDotCount++;
+            }
         }
     }
 }
@@ -40,7 +49,7 @@ const setOn = (ro, co, ri, ci) => {
             map: new Array(rmx).fill().map(
                 () => new Array(cmx).fill('.'))
         }
-    } else if (flds[ro][co].count === dotcount) {
+    } else if (flds[ro][co].count === dotCount) {
         // All on, nothing to do
         return;
     }
@@ -56,7 +65,7 @@ const setOn = (ro, co, ri, ci) => {
     fld.count++;
 
     // If everything is on now, drop the map
-    if (fld.count === dotcount) {
+    if (fld.count === dotCount) {
         delete fld.map;
     }
 };
@@ -65,7 +74,7 @@ const setOff = (ro, co, ri, ci) => {
     if (flds[ro][co] === undefined || flds[ro][co].count === 0) {
         // Nothing on, nothing to do
         return;
-    } else if (flds[ro][co].count === dotcount) {
+    } else if (flds[ro][co].count === dotCount) {
         // All on, allocate the map
         flds[ro][co].map = new Array(rmx).fill().map(
             () => new Array(cmx).fill('O'));
@@ -92,7 +101,7 @@ const get = (ro, co, ri, ci) => {
     if (flds[ro][co] === undefined || flds[ro][co].count === 0) {
         // Everything off
         return '.';
-    } else if (flds[ro][co].count === dotcount) {
+    } else if (flds[ro][co].count === dotCount) {
         // Everything on
         return 'O';
     }
@@ -126,24 +135,50 @@ const addop = (ops, ro, co, ri, ci, val) => {
     } // else we could sanity check if val is the same
 };
 
-const countOn = () => {
+// Assume
+// 1. start position is on odd coordinates,
+// 2. data dimensions are odd
+// 3. start offset is odd
+// This means we count the not-start fields (r + c === odd)
+if (start[0] % 2 !== 1 || start[1] % 2 !== 1 || rmx % 2 !== 1 || cmx % 2 !== 1
+    || startOffset[0] % 2 !== 1 || startOffset[1] % 2 !== 1) {
+
+    console.log('wrong assumptions about input');
+    console.log(start);
+    console.log(rmx, cmx);
+    console.log(startOffset);
+    process.exit(1);
+}
+
+const countOn = (step) => {
     let cnt = 0;
+
+    // Step 0 is even parity, start[0] + start[1] is even (1)
+    // We count before the step is executed, so step 0 (and even steps in general) count even parity
+    const baseParity = (step % 2 === 0) ? 0 : 1;
 
     for (let ro = 0; ro < flds.length; ro++) {
         for (let co = 0; co < flds[ro].length; co++) {
             const fld = flds[ro][co];
 
+            // Since rmx/cmx are odd (2), every other field flips parity
+            // Start field has even ro + co (3), so even fields do not flip parity
+            const fieldParity = ((ro + co) % 2 === 0) ? 0 : 1;
+
+            const parity = (baseParity + fieldParity) % 2;
+
             if (fld === undefined || fld.count === 0) {
                 // Empty field, nothing to count
                 continue;
-            } else if (fld.count === dotcount) {
-                // Full field, count all
-                cnt += fld.count;
+            } else if (fld.count === dotCount) {
+                // Full field, count based on parity
+                // Even parity is same as start position (1)
+                cnt += (parity === 0) ? evenDotCount : oddDotCount;
             } else {
                 // Mixed field, inspect details
                 for (let ri = 0; ri < rmx; ri++) {
                     for (let ci = 0; ci < cmx; ci++) {
-                        if (data[ri][ci] !== '#' && fld.map[ri][ci] === 'O') {
+                        if ((ri + ci) % 2 === parity && data[ri][ci] !== '#' && fld.map[ri][ci] === 'O') {
                             cnt++;
                         }
                     }
@@ -155,27 +190,13 @@ const countOn = () => {
     return cnt;
 };
 
-const checkisolatedupdown = (ro, co, ri, ci) => {
-    const [uro, uri] = calcnbr(ro, ri, -1, rmx - 1);
-    if (get(uro, co, uri, ci) === 'O') {
-        return false;
-    }
-
-    const [dro, dri] = calcnbr(ro, ri,  1, rmx - 1);
-    if (get(dro, co, dri, ci) === 'O') {
-        return false;
-    }
-
-    return true;
-}
-
-const mod = 10;
+const mod = 1;
 
 for (let step = 0; step < steps; step++) {
     const ops = {};
 
     if (step % mod === 0) {
-        console.log('step', step, 'on count', countOn());
+        console.log('step', step, 'on count', countOn(step));
     }
 
     // Prepare ops for rows
@@ -194,7 +215,7 @@ for (let step = 0; step < steps; step++) {
                         addop(ops, ro, co, ri, 0, 'O');
                     }
                     lastVal = '.'; lastCo = co; lastCi = cmx - 1;
-                } else if (fld.count === dotcount) {
+                } else if (fld.count === dotCount) {
                     // Full field, check right border of prev field
                     if (lastVal === '.') {
                         addop(ops, ro, lastCo, ri, lastCi, 'O');
@@ -216,9 +237,9 @@ for (let step = 0; step < steps; step++) {
         }
     }
 
-    if (step % mod === 0) {
-        console.log('    ', step, 'rows');
-    }
+    // if (step % mod === 0) {
+    //     console.log('    ', step, 'rows');
+    // }
 
     // Prepare ops for cols
     for (let co = 0; co < flds[0].length; co++) {
@@ -236,7 +257,7 @@ for (let step = 0; step < steps; step++) {
                         addop(ops, ro, co, 0, ci, 'O');
                     }
                     lastVal = '.'; lastRo = co; lastRi = rmx - 1;
-                } else if (fld.count === dotcount) {
+                } else if (fld.count === dotCount) {
                     // Full field, check right border of prev field
                     if (lastVal === '.') {
                         addop(ops, lastRo, co, lastRi, ci, 'O');
@@ -258,50 +279,9 @@ for (let step = 0; step < steps; step++) {
         }
     }
 
-    if (step % mod === 0) {
-        console.log('    ', step, 'cols');
-    }
-
-    // Prepare ops for isolated points
-    // TODO handle using the even/odd mechanism
-    for (let ro = 0; ro < flds.length; ro++) {
-        for (let ri = 0; ri < rmx; ri++) {
-            let lastLastVal = '.';
-            let lastVal = '.';
-            let lastCo;
-            let lastCi;
-
-            for (let co = 0; co < flds[ro].length; co++) {
-                const fld = flds[ro][co];
-
-                if (fld === undefined || fld.count === 0) {
-                    // Empty field, check left border for .#|.
-                    if (lastLastVal !== 'O' && lastVal === 'O'
-                            && checkisolatedupdown(ro, lastCo, ri, lastCi)) {
-                        addop(ops, ro, lastCo, ri, lastCi, '.');
-                    }
-                    lastLastVal = '.'; lastVal = '.'; lastCo = co; lastCi = cmx - 1;
-                } else if (fld.count === dotcount) {
-                    // Full field, can't have isolated points
-                    lastLastVal = 'O'; lastVal = 'O'; lastCo = co; lastCi = cmx - 1;
-                } else {
-                    // Mixed field, check each column
-                    for (let ci = 0; ci < cmx; ci++) {
-                        const thisVal = data[ri][ci] === '#' ? '#' : fld.map[ri][ci];
-                        if (lastLastVal !== 'O' && lastVal === 'O' && thisVal !== 'O'
-                                && checkisolatedupdown(ro, lastCo, ri, lastCi)) {
-                            addop(ops, ro, lastCo, ri, lastCi, '.');
-                        }
-                        lastLastVal = lastVal; lastVal = thisVal; lastCo = co; lastCi = ci;
-                    }
-                }
-            }
-        }
-    }
-
-    if (step % mod === 0) {
-        console.log('    ', step, 'down');
-    }
+    // if (step % mod === 0) {
+    //     console.log('    ', step, 'cols');
+    // }
 
     // Execute ops
     for (const [ro, co, ri, ci, val] of Object.values(ops)) {
@@ -311,11 +291,15 @@ for (let step = 0; step < steps; step++) {
             setOn(ro, co, ri, ci);
         }
     }
+
+    if (step % mod === 0) {
+        console.log('    ', step, 'exec', Object.keys(ops).length);
+    }
 }
 
 //console.log(flds[startOffset[0]][startOffset[1]]);
 
-console.log('result', countOn());
+console.log('result', countOn(steps));
 
 // issues:
 //  - wrong answers for example, probably with >1 field

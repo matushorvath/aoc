@@ -27,10 +27,10 @@ for (let r = 0; r < rmx; r++) {
 
 //console.log(start);
 
-const rdim = 2 * Math.ceil(steps / rmx + 5);
-const cdim = 2 * Math.ceil(steps / cmx + 5);
+const rdim = 2 * Math.ceil(steps / rmx) + 1;
+const cdim = 2 * Math.ceil(steps / cmx) + 1;
 
-const flds = new Array(rdim).fill().map(() => []);
+const flds = new Array(rdim).fill().map(() => new Array(cdim).fill());
 
 const setOn = (ro, co, ri, ci) => {
     if (flds[ro][co] === undefined) {
@@ -117,29 +117,6 @@ const calcnbr = (o, i, d, mx) => {
     }
 };
 
-// Different param order
-const inspectOne = (ro, ri, co, ci, res) => {
-    if (data[ri][ci] !== '#') {
-        const val = get(ro, co, ri, ci);
-        if (val === '.') {
-            res.offs.push([ro, co, ri, ci]);
-        } else if (val === 'O') {
-            res.ons++;
-        }
-    }
-};
-
-const inspect = (ro, co, ri, ci) => {
-    let res = { ons: 0, offs: [] };
-
-    inspectOne(...calcnbr(ro, ri, -1, rmx - 1), co, ci, res);
-    inspectOne(...calcnbr(ro, ri,  1, rmx - 1), co, ci, res);
-    inspectOne(ro, ri, ...calcnbr(co, ci, -1, cmx - 1), res);
-    inspectOne(ro, ri, ...calcnbr(co, ci,  1, cmx - 1), res);
-
-    return res;
-}
-
 const mkkey = (ro, co, ri, ci) => ((ro * cdim + co) * rmx + ri) * cmx + ci;
 
 const addop = (ops, ro, co, ri, ci, val) => {
@@ -178,72 +155,159 @@ const countOn = () => {
     return cnt;
 };
 
+const checkisolatedupdown = (ro, co, ri, ci) => {
+    const [uro, uri] = calcnbr(ro, ri, -1, rmx - 1);
+    if (get(uro, co, uri, ci) === 'O') {
+        return false;
+    }
+
+    const [dro, dri] = calcnbr(ro, ri,  1, rmx - 1);
+    if (get(dro, co, dri, ci) === 'O') {
+        return false;
+    }
+
+    return true;
+}
+
+const mod = 10;
+
 for (let step = 0; step < steps; step++) {
     const ops = {};
 
-    if (step % 100 === 0) {
-        console.log('step', step, Object.keys(ops).length);
-        console.log('    ', 'on count', countOn());
+    if (step % mod === 0) {
+        console.log('step', step, 'on count', countOn());
     }
 
-    // Prepare ops
+    // Prepare ops for rows
     for (let ro = 0; ro < flds.length; ro++) {
-        for (let co = 0; co < flds[ro].length; co++) {
-            const fld = flds[ro][co];
+        for (let ri = 0; ri < rmx; ri++) {
+            let lastVal = '.';
+            let lastCo;
+            let lastCi;
 
-            if (fld === undefined || fld.count === 0) {
-                // Empty field, nothing to expand
-                continue;
-            } else if (fld.count === dotcount) {
-                // Full field, expand borders to neighbors
-                // Don't check data for '#', because borders never have a '#' in input
-                for (let ri = 0; ri < rmx; ri++) {
-                    if (get(ro, co - 1, ri, cmx) === '.') {
-                        addop(ops, ops, ro, co - 1, ri, cmx, '#');
-                    }
-                    if (get(ro, co + 1, ri, 0) === '.') {
-                        addop(ops, ro, co + 1, ri, 0, '#');
-                    }
-                }
+            for (let co = 0; co < flds[ro].length; co++) {
+                const fld = flds[ro][co];
 
-                for (let ci = 0; ci < cmx; ci++) {
-                    if (get(ro - 1, co, rmx, ci) === '.') {
-                        addop(ops, ro - 1, co, rmx, ci, '#');
+                if (fld === undefined || fld.count === 0) {
+                    // Empty field, check left border
+                    if (lastVal === 'O') {
+                        addop(ops, ro, co, ri, 0, 'O');
                     }
-                    if (get(ro + 1, co, 0, ci) === '.') {
-                        addop(ops, ro + 1, co, 0, ci, '#');
+                    lastVal = '.'; lastCo = co; lastCi = cmx - 1;
+                } else if (fld.count === dotcount) {
+                    // Full field, check right border of prev field
+                    if (lastVal === '.') {
+                        addop(ops, ro, lastCo, ri, lastCi, 'O');
                     }
-                }
-            } else {
-                // Mixed field, inspect details
-                for (let ri = 0; ri < rmx; ri++) {
+                    lastVal = 'O'; lastCo = co; lastCi = cmx - 1;
+                } else {
+                    // Mixed field, check each column
                     for (let ci = 0; ci < cmx; ci++) {
-                        if (data[ri][ci] !== '#' && fld.map[ri][ci] === 'O') {
-                            const { ons, offs } = inspect(ro, co, ri, ci);
-
-                            // This is 'on', if there are no other 'on' nbrs, turn it off
-                            if (ons === 0) {
-                                addop(ops, ro, co, ri, ci, '.');
-                            }
-
-                            // Neighbors that are 'off' will be turned on
-                            // TODO optimize, only turn them on once (this will kill performance)
-                            // TODO maybe store ops in a map indexed with mkkey(r, c)
-                            for (const off of offs) { // yep
-                                addop(ops, ...off, '#');
-                            }
+                        const thisVal = data[ri][ci] === '#' ? '#' : fld.map[ri][ci];
+                        if (lastVal === 'O' && thisVal === '.') {
+                            addop(ops, ro, co, ri, ci, 'O');
+                        } else if (lastVal === '.' && thisVal === 'O') {
+                            addop(ops, ro, lastCo, ri, lastCi, 'O');
                         }
+                        lastVal = thisVal; lastCo = co; lastCi = ci;
                     }
                 }
             }
         }
     }
 
+    if (step % mod === 0) {
+        console.log('    ', step, 'rows');
+    }
+
+    // Prepare ops for cols
+    for (let co = 0; co < flds[0].length; co++) {
+        for (let ci = 0; ci < cmx; ci++) {
+            let lastVal = '.';
+            let lastRo;
+            let lastRi;
+
+            for (let ro = 0; ro < flds.length; ro++) {
+                const fld = flds[ro][co];
+
+                if (fld === undefined || fld.count === 0) {
+                    // Empty field, check left border
+                    if (lastVal === 'O') {
+                        addop(ops, ro, co, 0, ci, 'O');
+                    }
+                    lastVal = '.'; lastRo = co; lastRi = rmx - 1;
+                } else if (fld.count === dotcount) {
+                    // Full field, check right border of prev field
+                    if (lastVal === '.') {
+                        addop(ops, lastRo, co, lastRi, ci, 'O');
+                    }
+                    lastVal = 'O'; lastRo = ro; lastRi = rmx - 1;
+                } else {
+                    // Mixed field, check each column
+                    for (let ri = 0; ri < rmx; ri++) {
+                        const thisVal = data[ri][ci] === '#' ? '#' : fld.map[ri][ci];
+                        if (lastVal === 'O' && thisVal === '.') {
+                            addop(ops, ro, co, ri, ci, 'O');
+                        } else if (lastVal === '.' && thisVal === 'O') {
+                            addop(ops, lastRo, co, lastRi, ci, 'O');
+                        }
+                        lastVal = thisVal; lastRo = ro; lastRi = ri;
+                    }
+                }
+            }
+        }
+    }
+
+    if (step % mod === 0) {
+        console.log('    ', step, 'cols');
+    }
+
+    // Prepare ops for isolated points
+    // TODO handle using the even/odd mechanism
+    for (let ro = 0; ro < flds.length; ro++) {
+        for (let ri = 0; ri < rmx; ri++) {
+            let lastLastVal = '.';
+            let lastVal = '.';
+            let lastCo;
+            let lastCi;
+
+            for (let co = 0; co < flds[ro].length; co++) {
+                const fld = flds[ro][co];
+
+                if (fld === undefined || fld.count === 0) {
+                    // Empty field, check left border for .#|.
+                    if (lastLastVal !== 'O' && lastVal === 'O'
+                            && checkisolatedupdown(ro, lastCo, ri, lastCi)) {
+                        addop(ops, ro, lastCo, ri, lastCi, '.');
+                    }
+                    lastLastVal = '.'; lastVal = '.'; lastCo = co; lastCi = cmx - 1;
+                } else if (fld.count === dotcount) {
+                    // Full field, can't have isolated points
+                    lastLastVal = 'O'; lastVal = 'O'; lastCo = co; lastCi = cmx - 1;
+                } else {
+                    // Mixed field, check each column
+                    for (let ci = 0; ci < cmx; ci++) {
+                        const thisVal = data[ri][ci] === '#' ? '#' : fld.map[ri][ci];
+                        if (lastLastVal !== 'O' && lastVal === 'O' && thisVal !== 'O'
+                                && checkisolatedupdown(ro, lastCo, ri, lastCi)) {
+                            addop(ops, ro, lastCo, ri, lastCi, '.');
+                        }
+                        lastLastVal = lastVal; lastVal = thisVal; lastCo = co; lastCi = ci;
+                    }
+                }
+            }
+        }
+    }
+
+    if (step % mod === 0) {
+        console.log('    ', step, 'down');
+    }
+
     // Execute ops
     for (const [ro, co, ri, ci, val] of Object.values(ops)) {
         if (val === '.') {
             setOff(ro, co, ri, ci);
-        } else if (val === '#') {
+        } else if (val === 'O') {
             setOn(ro, co, ri, ci);
         }
     }
@@ -252,6 +316,10 @@ for (let step = 0; step < steps; step++) {
 //console.log(flds[startOffset[0]][startOffset[1]]);
 
 console.log('result', countOn());
+
+// issues:
+//  - wrong answers for example, probably with >1 field
+//  - slow
 
 // this works for the example, with 500 steps (167004)
 

@@ -40,62 +40,61 @@ Number.prototype.mod = function (n) {
     return ((this % n) + n) % n;
 };
 
-const rdim = 2 * Math.ceil(steps / rmx) + 1;
-const cdim = 2 * Math.ceil(steps / cmx) + 1;
+const rdim = 2 ** Math.ceil(Math.log2(2 * Math.ceil(steps / rmx) + 1));
+const cdim = 2 ** Math.ceil(Math.log2(2 * Math.ceil(steps / cmx) + 1));
 
-const flds = new Array(rdim).fill().map(() => new Array(cdim).fill());
+const dim = Math.max(rdim, cdim);
+const maxbits = dim.toString(2).length;
 
-// const maxbits = Math.max(rdim, cdim).toString(2).length;
-
-// const root = { rdim, cdim, chld: [] };
+const root = { emptyCount: dotCount };
 
 const setOn = (ro, co, ri, ci) => {
-    if (flds[ro][co] === undefined) {
-        // Nothing on, allocate the field and map
-        flds[ro][co] = {
-            count: 0,
-            map: new Array(rmx).fill().map(
-                () => new Array(cmx).fill('.'))
+    const rbits = ro.toString(2).padStart(maxbits, '0');
+    const cbits = co.toString(2).padStart(maxbits, '0');
+
+    const path = [];
+
+    let curr = root;
+    for (let bi = 0; bi < rbits.length; bi++) {
+        if (curr.emptyCount === 0) {
+            return;
         }
-    } else if (flds[ro][co].count === dotCount) {
-        // All on, nothing to do
-        return;
+
+        const qi = (rbits[bi] === '0' ? 0 : 1) * 2 + (cbits[bi] === '0' ? 0 : 1);
+
+        if (curr.quarters === undefined) {
+            curr.quarters = [];
+            delete curr.emptyCount;
+        }
+        if (curr.quarters[qi] === undefined) {
+            curr.quarters[qi] = { emptyCount: 0 };
+        }
+
+        path.push(curr);
+        curr = curr.quarters[qi];
     }
 
-    const fld = flds[ro][co];
-    if (fld.map[ri][ci] === 'O') {
-        // This is already on, nothing to do
-        return;
-    }
+    curr.data = new Array(data.length).fill().map(() => new Array(data[0].length).fill('.'));
+    curr.data[ri][ci] = 'O';
+    curr.emptyCount--;
 
-    // Set on
-    fld.map[ri][ci] = 'O';
-    fld.count++;
-
-    // If everything is on now, drop the map
-    if (fld.count === dotCount) {
-        delete fld.map;
+    while (curr.emptyCount === 0) {
+        curr = path.pop();
+        if (curr.quarters.every(q => q.emptyCount === 0)) {
+            curr.emptyCount = 0;
+            delete curr.quarters;
+        }
     }
 };
 
 const startOffset = [
-    Math.floor(rdim / 2),
-    Math.floor(cdim / 2)
+    Math.floor(dim / 2),
+    Math.floor(dim / 2)
 ];
 
 setOn(...startOffset, ...start);
 
-const calcnbr = (o, i, d, mx) => {
-    if (i + d < 0) {
-        return [o - 1, mx];
-    } else if (i + d > mx) {
-        return [o + 1, 0]
-    } else {
-        return [o, i + d];
-    }
-};
-
-const mkkey = (ro, co, ri, ci) => ((ro * cdim + co) * rmx + ri) * cmx + ci;
+const mkkey = (ro, co, ri, ci) => ((ro * dim + co) * rmx + ri) * cmx + ci;
 
 const addop = (ops, ro, co, ri, ci) => {
     const key = mkkey(ro, co, ri, ci);

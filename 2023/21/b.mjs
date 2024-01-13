@@ -36,10 +36,18 @@ for (let r = 0; r < rmx; r++) {
 
 //console.log(start);
 
+Number.prototype.mod = function (n) {
+    return ((this % n) + n) % n;
+};
+
 const rdim = 2 * Math.ceil(steps / rmx) + 1;
 const cdim = 2 * Math.ceil(steps / cmx) + 1;
 
 const flds = new Array(rdim).fill().map(() => new Array(cdim).fill());
+
+// const maxbits = Math.max(rdim, cdim).toString(2).length;
+
+// const root = { rdim, cdim, chld: [] };
 
 const setOn = (ro, co, ri, ci) => {
     if (flds[ro][co] === undefined) {
@@ -70,45 +78,6 @@ const setOn = (ro, co, ri, ci) => {
     }
 };
 
-const setOff = (ro, co, ri, ci) => {
-    if (flds[ro][co] === undefined || flds[ro][co].count === 0) {
-        // Nothing on, nothing to do
-        return;
-    } else if (flds[ro][co].count === dotCount) {
-        // All on, allocate the map
-        flds[ro][co].map = new Array(rmx).fill().map(
-            () => new Array(cmx).fill('O'));
-    }
-
-    const fld = flds[ro][co];
-    if (fld.map[ri][ci] === '.') {
-        // This is already off, nothing to do
-        return;
-    }
-
-    // Set off
-    fld.map[ri][ci] = '.';
-    fld.count--;
-
-    // If everything is off now, we could drop the map and field
-    // But they will probably be recreated in the next step
-    // if (fld.count === 0) {
-    //     delete flds[ro][co];
-    // }
-};
-
-const get = (ro, co, ri, ci) => {
-    if (flds[ro][co] === undefined || flds[ro][co].count === 0) {
-        // Everything off
-        return '.';
-    } else if (flds[ro][co].count === dotCount) {
-        // Everything on
-        return 'O';
-    }
-
-    return flds[ro][co].map[ri][ci];
-};
-
 const startOffset = [
     Math.floor(rdim / 2),
     Math.floor(cdim / 2)
@@ -128,11 +97,11 @@ const calcnbr = (o, i, d, mx) => {
 
 const mkkey = (ro, co, ri, ci) => ((ro * cdim + co) * rmx + ri) * cmx + ci;
 
-const addop = (ops, ro, co, ri, ci, val) => {
+const addop = (ops, ro, co, ri, ci) => {
     const key = mkkey(ro, co, ri, ci);
     if (!ops[key]) {
-        ops[key] = [ro, co, ri, ci, val];
-    } // else we could sanity check if val is the same
+        ops[key] = [ro, co, ri, ci];
+    }
 };
 
 // Assume
@@ -190,13 +159,36 @@ const countOn = (step) => {
     return cnt;
 };
 
-const mod = 10;
+const stats = () => {
+    let empty = 0;
+    let full = 0;
+    let mixed = 0;
+
+    for (let ro = 0; ro < flds.length; ro++) {
+        for (let co = 0; co < flds[ro].length; co++) {
+            const fld = flds[ro][co];
+
+            if (fld === undefined || fld.count === 0) {
+                empty++;
+            } else if (fld.count === dotCount) {
+                full++;
+            } else {
+                mixed++;
+            }
+        }
+    }
+
+    return `empty ${empty} full ${full} mixed ${mixed}`;
+};
+
+const mod = 1;
 
 for (let step = 0; step < steps; step++) {
     const ops = {};
 
     if (step % mod === 0) {
         console.log('step', step, 'on count', countOn(step));
+        console.log('    ', step, 'stats', stats());
     }
 
     // Prepare ops for rows
@@ -254,13 +246,13 @@ for (let step = 0; step < steps; step++) {
                 if (fld === undefined || fld.count === 0) {
                     // Empty field, check left border
                     if (lastVal === 'O') {
-                        addop(ops, ro, co, 0, ci, 'O');
+                        addop(ops, ro, co, 0, ci);
                     }
                     lastVal = '.'; lastRo = ro; lastRi = rmx - 1;
                 } else if (fld.count === dotCount) {
                     // Full field, check right border of prev field
                     if (lastVal === '.') {
-                        addop(ops, lastRo, co, lastRi, ci, 'O');
+                        addop(ops, lastRo, co, lastRi, ci);
                     }
                     lastVal = 'O'; lastRo = ro; lastRi = rmx - 1;
                 } else {
@@ -268,9 +260,9 @@ for (let step = 0; step < steps; step++) {
                     for (let ri = 0; ri < rmx; ri++) {
                         const thisVal = data[ri][ci] === '#' ? '#' : fld.map[ri][ci];
                         if (lastVal === 'O' && thisVal === '.') {
-                            addop(ops, ro, co, ri, ci, 'O');
+                            addop(ops, ro, co, ri, ci);
                         } else if (lastVal === '.' && thisVal === 'O') {
-                            addop(ops, lastRo, co, lastRi, ci, 'O');
+                            addop(ops, lastRo, co, lastRi, ci);
                         }
                         lastVal = thisVal; lastRo = ro; lastRi = ri;
                     }
@@ -284,12 +276,8 @@ for (let step = 0; step < steps; step++) {
     // }
 
     // Execute ops
-    for (const [ro, co, ri, ci, val] of Object.values(ops)) {
-        if (val === '.') {
-            setOff(ro, co, ri, ci);
-        } else if (val === 'O') {
-            setOn(ro, co, ri, ci);
-        }
+    for (const [ro, co, ri, ci] of Object.values(ops)) {
+        setOn(ro, co, ri, ci);
     }
 
     if (step % mod === 0) {

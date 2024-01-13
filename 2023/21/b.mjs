@@ -190,7 +190,7 @@ const countOn = (step) => {
     return cnt;
 };
 
-const mod = 1;
+const mod = 10;
 
 for (let step = 0; step < steps; step++) {
     const ops = {};
@@ -256,7 +256,7 @@ for (let step = 0; step < steps; step++) {
                     if (lastVal === 'O') {
                         addop(ops, ro, co, 0, ci, 'O');
                     }
-                    lastVal = '.'; lastRo = co; lastRi = rmx - 1;
+                    lastVal = '.'; lastRo = ro; lastRi = rmx - 1;
                 } else if (fld.count === dotCount) {
                     // Full field, check right border of prev field
                     if (lastVal === '.') {
@@ -300,10 +300,6 @@ for (let step = 0; step < steps; step++) {
 //console.log(flds[startOffset[0]][startOffset[1]]);
 
 console.log('result', countOn(steps));
-
-// issues:
-//  - wrong answers for example, probably with >1 field
-//  - slow
 
 // this works for the example, with 500 steps (167004)
 

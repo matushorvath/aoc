@@ -1,6 +1,7 @@
 import re
 
-with open('input', 'r') as fd:
+# with open('input', 'r') as fd:
+with open('example', 'r') as fd:
     lines = fd.read().rstrip().split('\n')
 
 lines = [line.split(',') for line in lines]
@@ -13,5 +14,6 @@ lines = [line.split(',') for line in lines]
 #         "second": line[2],
 #         "last": line[3],
 #     } for line in lines]
+# lines = [(int(res), [int(n) for n in nums.split(' ')]) for (res, nums) in [re.search(r"(\d+): (.*)", line).groups() for line in lines]]
 
 print(lines)

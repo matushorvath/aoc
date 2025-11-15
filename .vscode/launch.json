@@ -5,15 +5,28 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python Debugger: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "cwd": "${fileDirname}"
+        },
+        {
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "args": ["src/${fileBasename}"],
+            "args": [
+                "src/${fileBasename}"
+            ],
             "cwd": "${fileDirname}/..",
-            "runtimeArgs": ["-r", "ts-node/register"],
+            "runtimeArgs": [
+                "-r",
+                "ts-node/register"
+            ],
             "sourceMaps": true
         },
         {
@@ -23,9 +36,14 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "args": ["src/a.ts"],
+            "args": [
+                "src/a.ts"
+            ],
             "cwd": "${workspaceFolder}/2019/benchmark",
-            "runtimeArgs": ["-r", "ts-node/register"],
+            "runtimeArgs": [
+                "-r",
+                "ts-node/register"
+            ],
             "sourceMaps": true
         }
     ]
